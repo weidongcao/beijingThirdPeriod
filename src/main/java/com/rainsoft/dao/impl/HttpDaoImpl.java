@@ -15,7 +15,7 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
     @Override
     public List<RegContentHttp> getHttpBydate(String date) {
         JdbcTemplate jdbcTemplate = this.getJdbcTemplate();
-        jdbcTemplate.setFetchSize(100000);
+        jdbcTemplate.setFetchSize(1000);
 
         String sql = "select * from REG_CONTENT_HTTP where capture_time >= to_date(? ,'yyyy-mm-dd') and capture_time < (to_date(? ,'yyyy-mm-dd') + 1)";
 

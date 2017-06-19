@@ -21,7 +21,7 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
     @Override
     public List<RegContentFtp> getFtpBydate(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.setFetchSize(1000000);
+        jdbcTemplate.setFetchSize(1000);
 
         String sql = "select * from REG_CONTENT_FTP where capture_time >= to_date(? ,'yyyy-mm-dd') and capture_time < (to_date(? ,'yyyy-mm-dd') + 1)";
 
@@ -37,8 +37,8 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
 
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setResultsMapCaseInsensitive(true);
-        jdbcTemplate.setFetchSize(1000);
-        String sql = "select 1 from dual";
+        jdbcTemplate.setFetchSize(100);
+        String sql = "select * from REG_CONTENT_FTP where capture_time >= to_date(? ,'yyyy-mm-dd') and capture_time < (to_date(? ,'yyyy-mm-dd') + 1)";
 
         List<String> temp = jdbcTemplate.query(sql, new ResultSetExtractor<List<String>>() {
             @Override

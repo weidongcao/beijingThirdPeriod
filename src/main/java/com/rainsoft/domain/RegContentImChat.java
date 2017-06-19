@@ -268,4 +268,36 @@ public class RegContentImChat implements Serializable {
     public void setMachine_id(String machine_id) {
         this.machine_id = machine_id;
     }
+
+    @Override
+    public String toString() {
+        return "RegContentImChat{" +
+                "id='" + id + '\'' +
+                ", sessionid='" + sessionid + '\'' +
+                ", service_code='" + service_code + '\'' +
+                ", room_id='" + room_id + '\'' +
+                ", certificate_type='" + certificate_type + '\'' +
+                ", certificate_code='" + certificate_code + '\'' +
+                ", user_name='" + user_name + '\'' +
+                ", protocol_type='" + protocol_type + '\'' +
+                ", account='" + account + '\'' +
+                ", acount_name='" + acount_name + '\'' +
+                ", friend_account='" + friend_account + '\'' +
+                ", friend_name='" + friend_name + '\'' +
+                ", chat_type='" + chat_type + '\'' +
+                ", sender_account='" + sender_account + '\'' +
+                ", sender_name='" + sender_name + '\'' +
+                ", chat_time='" + chat_time + '\'' +
+                ", dest_ip='" + dest_ip + '\'' +
+                ", dest_port='" + dest_port + '\'' +
+                ", src_ip='" + src_ip + '\'' +
+                ", src_port='" + src_port + '\'' +
+                ", src_mac='" + src_mac + '\'' +
+                ", capture_time='" + capture_time + '\'' +
+                ", msg='" + msg + '\'' +
+                ", checkin_id='" + checkin_id + '\'' +
+                ", data_source='" + data_source + '\'' +
+                ", machine_id='" + machine_id + '\'' +
+                '}';
+    }
 }

@@ -15,7 +15,7 @@ public class ImchatDaoImpl extends JdbcDaoSupport implements ImchatDao {
     @Override
     public List<RegContentImChat> getImchatBydate(String date) {
                 JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.setFetchSize(100000);
+        jdbcTemplate.setFetchSize(1000);
 
         String sql = "select * from Reg_Content_Im_Chat where capture_time >= to_date(? ,'yyyy-mm-dd') and capture_time < (to_date(? ,'yyyy-mm-dd') + 1)";
 

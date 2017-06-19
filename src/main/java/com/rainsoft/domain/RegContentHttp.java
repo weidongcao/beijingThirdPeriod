@@ -289,4 +289,38 @@ public class RegContentHttp implements Serializable {
     public void setMachine_id(String machine_id) {
         this.machine_id = machine_id;
     }
+
+    @Override
+    public String toString() {
+        return "RegContentHttp{" +
+                "id='" + id + '\'' +
+                ", sessionid='" + sessionid + '\'' +
+                ", service_code='" + service_code + '\'' +
+                ", room_id='" + room_id + '\'' +
+                ", certificate_type='" + certificate_type + '\'' +
+                ", certificate_code='" + certificate_code + '\'' +
+                ", user_name='" + user_name + '\'' +
+                ", protocol_type='" + protocol_type + '\'' +
+                ", url='" + url + '\'' +
+                ", domain_name='" + domain_name + '\'' +
+                ", ref_url='" + ref_url + '\'' +
+                ", ref_domain='" + ref_domain + '\'' +
+                ", action_type='" + action_type + '\'' +
+                ", subject='" + subject + '\'' +
+                ", summary='" + summary + '\'' +
+                ", cookie_path='" + cookie_path + '\'' +
+                ", upload_file='" + upload_file + '\'' +
+                ", download_file='" + download_file + '\'' +
+                ", dest_ip='" + dest_ip + '\'' +
+                ", dest_port='" + dest_port + '\'' +
+                ", src_ip='" + src_ip + '\'' +
+                ", src_port='" + src_port + '\'' +
+                ", src_mac='" + src_mac + '\'' +
+                ", capture_time='" + capture_time + '\'' +
+                ", checkin_id='" + checkin_id + '\'' +
+                ", data_source='" + data_source + '\'' +
+                ", machine_id='" + machine_id + '\'' +
+                ", import_time='" + import_time + '\'' +
+                '}';
+    }
 }

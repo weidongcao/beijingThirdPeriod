@@ -15,13 +15,13 @@
 # 然后跑2017-06-15  。。。
 # 最后跑2017-06-01
 #
+# 2016-07-11 2016-07-11 8000 several
 #
-#
-java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex ftp 2016-07-11 2016-07-11
+java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex 2016-07-11 2016-07-11 8000 several
 #java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex ftp 2016-07-11 2016-07-01
 
-java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex http 2016-06-04 2016-06-04
+java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex 2016-06-04 2016-06-04 8000 several
 #java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex http 2016-06-04 2016-06-01
 
-java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex imchat 2016-07-21 2016-07-21
+java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex 2016-07-21 2016-07-21 8000 several
 #java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.OracleDataCreateSolrIndex imchat 2016-07-21 2016-07-01

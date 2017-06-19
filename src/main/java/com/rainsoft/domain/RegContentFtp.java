@@ -240,4 +240,33 @@ public class RegContentFtp implements Serializable {
     public void setMachine_id(String machine_id) {
         this.machine_id = machine_id;
     }
+
+    @Override
+    public String toString() {
+        return "RegContentFtp{" +
+                "id='" + id + '\'' +
+                ", sessionid='" + sessionid + '\'' +
+                ", service_code='" + service_code + '\'' +
+                ", room_id='" + room_id + '\'' +
+                ", certificate_type='" + certificate_type + '\'' +
+                ", certificate_code='" + certificate_code + '\'' +
+                ", user_name='" + user_name + '\'' +
+                ", protocol_type='" + protocol_type + '\'' +
+                ", account='" + account + '\'' +
+                ", passwd='" + passwd + '\'' +
+                ", file_name='" + file_name + '\'' +
+                ", file_path='" + file_path + '\'' +
+                ", action_type='" + action_type + '\'' +
+                ", is_completed='" + is_completed + '\'' +
+                ", dest_ip='" + dest_ip + '\'' +
+                ", dest_port='" + dest_port + '\'' +
+                ", src_ip='" + src_ip + '\'' +
+                ", src_port='" + src_port + '\'' +
+                ", src_mac='" + src_mac + '\'' +
+                ", capture_time='" + capture_time + '\'' +
+                ", checkin_id='" + checkin_id + '\'' +
+                ", data_source='" + data_source + '\'' +
+                ", machine_id='" + machine_id + '\'' +
+                '}';
+    }
 }
