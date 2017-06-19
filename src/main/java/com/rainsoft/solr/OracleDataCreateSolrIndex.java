@@ -252,6 +252,7 @@ public class OracleDataCreateSolrIndex {
         //获取数据库一天的数据
         List<RegContentHttp> datalist = httpDao.getHttpBydate(captureTime);
 
+        System.out.println("从数据库查询结束------>" + com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
         boolean flat = false;
         //一次性处理一天的数据
         if ("once".equals(createMode)) {
@@ -354,7 +355,7 @@ public class OracleDataCreateSolrIndex {
             cacheList.add(doc);
             dataCount++;
         }
-        System.out.println("dataCount = " + dataCount);
+        System.out.println("当前索引的数据量 = " + dataCount);
 
         return submitSolr(cacheList, client);
     }
@@ -387,7 +388,7 @@ public class OracleDataCreateSolrIndex {
             cacheList.add(doc);
             dataCount++;
         }
-        System.out.println("dataCount = " + dataCount);
+        System.out.println("当前数据量 = " + dataCount);
 
         return submitSolr(cacheList, client);
     }
@@ -483,6 +484,7 @@ public class OracleDataCreateSolrIndex {
             parent.mkdirs();
         }
         if (dataFile.exists() == false) {
+            System.out.println("生成第 " + (fileIndex + 1) + " 个数据文件");
             dataFile.createNewFile();
         }
 
@@ -508,6 +510,7 @@ public class OracleDataCreateSolrIndex {
                 fileIndex++;
                 lineCount = 0;
 
+                System.out.println("生成第 " + (fileIndex + 1) + " 个数据文件");
                 dataFile = new File("data/ftp/data_" + fileIndex);
             }
 
@@ -534,6 +537,7 @@ public class OracleDataCreateSolrIndex {
         }
         if (dataFile.exists() == false) {
             dataFile.createNewFile();
+            System.out.println("生成第 1 个数据文件");
         }
 
         PropertyUtilsBean bean = new PropertyUtilsBean();
@@ -559,6 +563,7 @@ public class OracleDataCreateSolrIndex {
 
                 lineCount = 0;
 
+                System.out.println("生成第 " + (fileIndex + 1) + " 个数据文件");
                 dataFile = new File("data/http/data_" + fileIndex);
             }
             if (writeCount >= writeSize) {
@@ -586,6 +591,7 @@ public class OracleDataCreateSolrIndex {
         }
         if (dataFile.exists() == false) {
             dataFile.createNewFile();
+            System.out.println("生成第 1 个数据文件");
         }
 
         PropertyUtilsBean bean = new PropertyUtilsBean();
@@ -595,10 +601,14 @@ public class OracleDataCreateSolrIndex {
             for (int i = 0; i < descriptor.length; i++) {
                 String name = descriptor[i].getName();
                 if ("class".equals(name) == false) {
+                    String value = (String) bean.getNestedProperty(imChat, name);
+                    if (value != null) {
+                        value = value.replace("\r", "").replace("\n", "");
+                    }
                     if (descriptor.length - i > 1) {
-                        sb.append(name + "|=|" + bean.getNestedProperty(imChat, name) + "|;|");
+                        sb.append(name + "|=|" + value + "|;|");
                     } else {
-                        sb.append(name + "|=|" + bean.getNestedProperty(imChat, name) + "\r\n");
+                        sb.append(name + "|=|" + value + "\r\n");
                     }
                 }
             }
@@ -610,6 +620,7 @@ public class OracleDataCreateSolrIndex {
                 fileIndex++;
                 lineCount = 0;
 
+                System.out.println("生成第 " + (fileIndex + 1) + " 个数据文件");
                 dataFile = new File("data/imchat/data_" + fileIndex);
             }
 
@@ -656,7 +667,7 @@ public class OracleDataCreateSolrIndex {
         }
 
         datalist.clear();
-        System.out.println("dataCount = " + dataCount);
+        System.out.println("当前索引数据量 = " + dataCount);
 
         return submitSolr(cacheList, client);
     }
