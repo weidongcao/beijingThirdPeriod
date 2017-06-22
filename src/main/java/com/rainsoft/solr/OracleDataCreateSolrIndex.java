@@ -1,6 +1,5 @@
 package com.rainsoft.solr;
 
-import com.facebook.presto.sql.tree.Except;
 import com.rainsoft.dao.FtpDao;
 import com.rainsoft.dao.HttpDao;
 import com.rainsoft.dao.ImchatDao;
@@ -89,6 +88,13 @@ public class OracleDataCreateSolrIndex {
     private static String kvOutSeparator = "\\|;\\|";
 
     private static String kvInnerSeparator = "\\|=\\|";
+
+    private static String FTP = "ftp";
+    private static String HTTP = "http";
+    private static String IMCHAT = "imchat";
+    private static String SUCCESS_STUTAS = "success";
+    private static String FAIL_STUTAS = "fail";
+
     static {
         //导入记录
         String importRecordFile = "createIndexRecord/index-record.txt";
@@ -131,13 +137,14 @@ public class OracleDataCreateSolrIndex {
         //结束日期
         Date endDate = DateUtils.parseDate(args[1], "yyyy-MM-dd");
 
-        System.out.println("开始时间：" + args[0]);
-        System.out.println("结束时间：" + args[1]);
+        System.out.println("参数 --> 开始日期：" + args[0]);
+        System.out.println("参数 --> 结束日期" + args[1]);
 
         dataFileLines = Integer.valueOf(args[2]);
 
         createMode = args[3];
-
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "程序启动");
+        long startTime = new Date().getTime();
         /**
          * 如果开始日期在结束日期的后面或者开始日期与结束日期是同一天，执行迁移
          * 从后向前按日期迁移数据，比如开始时间是2017-01-01，结束时间是2016-01-01
@@ -147,17 +154,53 @@ public class OracleDataCreateSolrIndex {
          * 最后一次迁移的时间：2016-01-01
          */
         while ((startDate.after(endDate)) || (DateUtils.isSameDay(startDate, endDate))) {
+            long startDayTime = new Date().getTime();
             //开始时间转为捕获时间参数
-            String captureTime = DateFormatUtils.ISO_DATE_FORMAT.format(startDate);
+            String captureTime = com.rainsoft.utils.DateUtils.DATE_FORMAT.format(startDate);
 
-            ftpCreateSolrIndexByDay(captureTime);
-            httpCreateSolrIndexByDay(captureTime);
-            imchatCreateSolrIndexByDay(captureTime);
+            String ftpRecord = captureTime + "_" + FTP;
+
+            /**
+             * 导入FTP的数据，如果已经导入成功过了，则不再导入
+             */
+            if (SUCCESS_STUTAS.equals(recordMap.get(ftpRecord))) {
+                System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " : " + captureTime + " : " + FTP + " has already imported");
+            } else {
+                ftpCreateSolrIndexByDay(captureTime);
+            }
+
+            /**
+             * 导入HTTP的数据，如果已经导入成功过了，则不再导入
+             */
+            String httpRecord = captureTime + "_" + HTTP;
+            if (SUCCESS_STUTAS.equals(recordMap.get(httpRecord))) {
+                System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " : " + captureTime + " : " + HTTP + " has already imported");
+            } else {
+                httpCreateSolrIndexByDay(captureTime);
+            }
+
+            /**
+             * 导入聊天的数据，如果已经导入成功过了则不再导入
+             */
+            String imchatRecord = captureTime + "_" + IMCHAT;
+            if (SUCCESS_STUTAS.equals(recordMap.get(imchatRecord))) {
+                System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " : " + captureTime + " : " + IMCHAT + " has already imported");
+            } else {
+                imchatCreateSolrIndexByDay(captureTime);
+            }
 
             //开始时间减少一天
             startDate = DateUtils.addDays(startDate, -1);
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " " + captureTime + "数据索引完毕");
+            long endDayTime = new Date().getTime();
+            long runTime = (endDayTime - startDayTime) / 1000;
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 索引" + captureTime + "天的数据,程序执行时间: " + runTime / 60 + "分钟" + runTime % 60 + "秒");
         }
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "启动程序执行完毕");
+        long endTime = new Date().getTime();
 
+        long totalRunTime = (endTime - startTime) / 1000;
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " " + "程序总共执行时间: " + totalRunTime / 60 + "分钟" + totalRunTime % 60 + "秒");
         context.close();
         System.exit(0);
 
@@ -228,9 +271,9 @@ public class OracleDataCreateSolrIndex {
 
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
-            recordMap.put(captureTime + "_imchat", "success");
+            recordMap.put(captureTime + "_" + IMCHAT, SUCCESS_STUTAS);
         } else {
-            recordMap.put(captureTime + "_imchat", "fail");
+            recordMap.put(captureTime + "_" + IMCHAT, FAIL_STUTAS);
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -247,12 +290,13 @@ public class OracleDataCreateSolrIndex {
     }
 
     private static boolean httpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        System.out.println("http : 开始索引 " + captureTime + " 的数据");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " http : 开始索引 " + captureTime + " 的数据");
 
         //获取数据库一天的数据
         List<RegContentHttp> datalist = httpDao.getHttpBydate(captureTime);
 
-        System.out.println("从数据库查询结束------>" + com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "从数据库查询结束------>");
+
         boolean flat = false;
         //一次性处理一天的数据
         if ("once".equals(createMode)) {
@@ -308,9 +352,9 @@ public class OracleDataCreateSolrIndex {
 
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
-            recordMap.put(captureTime + "_http", "success");
+            recordMap.put(captureTime + "_" + HTTP, SUCCESS_STUTAS);
         } else {
-            recordMap.put(captureTime + "_http", "fail");
+            recordMap.put(captureTime + "_" + HTTP, FAIL_STUTAS);
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -328,77 +372,168 @@ public class OracleDataCreateSolrIndex {
 
 
     public static boolean imchatCreateIndex(List<RegContentImChat> datalist, SolrClient client) throws IOException, SolrServerException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + datalist.size());
+        long startIndexTime = new Date().getTime();
+
         //缓冲数据
         List<SolrInputDocument> cacheList = new ArrayList<>();
 
-        int dataCount = 0;
+        //数据索引结果状态
+        boolean flat = true;
+
+        int submitCount = 0;
         //进行Solr索引
-        for (RegContentImChat imChat : datalist) {
-            //创建SolrImputDocument实体
-            SolrInputDocument doc = new SolrInputDocument();
-
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-
-            imChat.setId(uuid);
-            doc.addField("docType", "聊天");
-
-            //数据实体属性集合
-            Field[] fields = RegContentImChat.class.getFields();
-
-            //生成Solr导入实体
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, imChat));
+        while (datalist.size() > 0) {
+            /**
+             * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
+             */
+            List<RegContentImChat> sublist;
+            if (writeSize < datalist.size()) {
+                sublist = datalist.subList(0, writeSize);
+            } else {
+                sublist = datalist;
             }
 
-            //索引实体添加缓冲区
-            cacheList.add(doc);
-            dataCount++;
-        }
-        System.out.println("当前索引的数据量 = " + dataCount);
+            /**
+             * 将Oracle查询出来的数据封装为Solr的导入实体
+             */
+            for (RegContentImChat imchat : sublist) {
+                //创建SolrImputDocument实体
+                SolrInputDocument doc = new SolrInputDocument();
 
-        return submitSolr(cacheList, client);
+                String uuid = UUID.randomUUID().toString().replace("-", "");
+                imchat.setId(uuid);
+
+                doc.addField("docType", "聊天");
+
+                //数据实体属性集合
+                Field[] fields = RegContentFtp.class.getFields();
+
+                //生成Solr导入实体
+                for (Field field : fields) {
+                    String fieldName = field.getName();
+                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, imchat));
+                }
+                //导入时间
+                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+
+                //索引实体添加缓冲区
+                cacheList.add(doc);
+            }
+
+            //索引到Solr
+            flat = submitSolr(cacheList, client);
+
+            //有一次索引失败就认为失败
+            if (flat == false) {
+                return flat;
+            }
+
+            //清空历史索引数据
+            cacheList.clear();
+
+            //提交次数增加
+            submitCount++;
+
+            //移除已经索引过的数据
+            datalist = datalist.subList(writeSize, datalist.size());
+
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
+        }
+
+        long endIndexTime = new Date().getTime();
+        //计算索引一天的数据执行的时间（秒）
+        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " IMCHAT索引一天的数据执行时间: " + indexRunTime / 60 + "分钟" + indexRunTime % 60 + "秒");
+
+        return flat;
     }
 
     public static boolean httpCreateIndex(List<RegContentHttp> datalist, SolrClient client) throws IOException, SolrServerException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + datalist.size());
+        long startIndexTime = new Date().getTime();
+
         //缓冲数据
         List<SolrInputDocument> cacheList = new ArrayList<>();
 
-        int dataCount = 0;
+        //数据索引结果状态
+        boolean flat = true;
+
+        int submitCount = 0;
         //进行Solr索引
-        for (RegContentHttp http : datalist) {
-            //创建SolrImputDocument实体
-            SolrInputDocument doc = new SolrInputDocument();
-
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-            http.setId(uuid);
-
-            doc.addField("docType", "网页");
-
-            //数据实体属性集合
-            Field[] fields = RegContentHttp.class.getFields();
-
-            //生成Solr导入实体
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, http));
+        while (datalist.size() > 0) {
+            /**
+             * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
+             */
+            List<RegContentHttp> sublist;
+            if (writeSize < datalist.size()) {
+                sublist = datalist.subList(0, writeSize);
+            } else {
+                sublist = datalist;
             }
 
-            //索引实体添加缓冲区
-            cacheList.add(doc);
-            dataCount++;
-        }
-        System.out.println("当前数据量 = " + dataCount);
+            /**
+             * 将Oracle查询出来的数据封装为Solr的导入实体
+             */
+            for (RegContentHttp http : sublist) {
+                //创建SolrImputDocument实体
+                SolrInputDocument doc = new SolrInputDocument();
 
-        return submitSolr(cacheList, client);
+                String uuid = UUID.randomUUID().toString().replace("-", "");
+                http.setId(uuid);
+
+                doc.addField("docType", "网络");
+
+                //数据实体属性集合
+                Field[] fields = RegContentFtp.class.getFields();
+
+                //生成Solr导入实体
+                for (Field field : fields) {
+                    String fieldName = field.getName();
+                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, http));
+                }
+                //导入时间
+                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+
+                //索引实体添加缓冲区
+                cacheList.add(doc);
+            }
+
+            //索引到Solr
+            flat = submitSolr(cacheList, client);
+
+            //有一次索引失败就认为失败
+            if (flat == false) {
+                return flat;
+            }
+
+            //清空历史索引数据
+            cacheList.clear();
+
+            //提交次数增加
+            submitCount++;
+
+            //移除已经索引过的数据
+            datalist = datalist.subList(writeSize, datalist.size());
+
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
+        }
+
+        long endIndexTime = new Date().getTime();
+        //计算索引一天的数据执行的时间（秒）
+        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " HTTP索引一天的数据执行时间: " + indexRunTime / 60 + "分钟" + indexRunTime % 60 + "秒");
+
+        return flat;
     }
 
     private static boolean ftpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        System.out.println("FTP : 开始索引 " + captureTime + " 的数据");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "FTP : 开始索引 " + captureTime + " 的数据");
 
         //获取数据库一天的数据
         List<RegContentFtp> datalist = ftpDao.getFtpBydate(captureTime);
 
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 从数据库查询数据结束");
         boolean flat = false;
         //一次性处理一天的数据
         if ("once".equals(createMode)) {
@@ -454,9 +589,9 @@ public class OracleDataCreateSolrIndex {
 
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
-            recordMap.put(captureTime + "_ftp", "success");
+            recordMap.put(captureTime + "_" + FTP, SUCCESS_STUTAS);
         } else {
-            recordMap.put(captureTime + "_ftp", "fail");
+            recordMap.put(captureTime + "_" + FTP, FAIL_STUTAS);
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -636,40 +771,81 @@ public class OracleDataCreateSolrIndex {
     }
 
     public static boolean ftpcreateIndex(List<RegContentFtp> datalist, SolrClient client) throws IOException, SolrServerException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + datalist.size());
+        long startIndexTime = new Date().getTime();
+
         //缓冲数据
         List<SolrInputDocument> cacheList = new ArrayList<>();
 
-        int dataCount = 0;
+        //数据索引结果状态
+        boolean flat = true;
+
+        int submitCount = 0;
         //进行Solr索引
-        for (RegContentFtp ftp : datalist) {
-            //创建SolrImputDocument实体
-            SolrInputDocument doc = new SolrInputDocument();
-
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-
-            doc.addField("ID", uuid);
-            doc.addField("docType", "文件");
-
-            //数据实体属性集合
-            Field[] fields = RegContentFtp.class.getFields();
-
-            //生成Solr导入实体
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                if (fieldName.equalsIgnoreCase("id") == false) {
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, ftp));
-                }
+        while (datalist.size() > 0) {
+            /**
+             * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
+             */
+            List<RegContentFtp> sublist;
+            if (writeSize < datalist.size()) {
+                sublist = datalist.subList(0, writeSize);
+            } else {
+                sublist = datalist;
             }
 
-            //索引实体添加缓冲区
-            cacheList.add(doc);
-            dataCount++;
+            /**
+             * 将Oracle查询出来的数据封装为Solr的导入实体
+             */
+            for (RegContentFtp ftp : sublist) {
+                //创建SolrImputDocument实体
+                SolrInputDocument doc = new SolrInputDocument();
+
+                String uuid = UUID.randomUUID().toString().replace("-", "");
+                ftp.setId(uuid);
+
+                doc.addField("docType", "文件");
+
+                //数据实体属性集合
+                Field[] fields = RegContentFtp.class.getFields();
+
+                //生成Solr导入实体
+                for (Field field : fields) {
+                    String fieldName = field.getName();
+                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, ftp));
+                }
+                //导入时间
+                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+
+                //索引实体添加缓冲区
+                cacheList.add(doc);
+            }
+
+            //索引到Solr
+            flat = submitSolr(cacheList, client);
+
+            //有一次索引失败就认为失败
+            if (flat == false) {
+                return flat;
+            }
+
+            //清空历史索引数据
+            cacheList.clear();
+
+            //提交次数增加
+            submitCount++;
+
+            //移除已经索引过的数据
+            datalist = datalist.subList(writeSize, datalist.size());
+
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
         }
 
-        datalist.clear();
-        System.out.println("当前索引数据量 = " + dataCount);
+        long endIndexTime = new Date().getTime();
+        //计算索引一天的数据执行的时间（秒）
+        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " FTP索引一天的数据执行时间: " + indexRunTime / 60 + "分钟" + indexRunTime % 60 + "秒");
 
-        return submitSolr(cacheList, client);
+        return flat;
     }
 
     /**
@@ -688,7 +864,7 @@ public class OracleDataCreateSolrIndex {
         while (tryCount < 3) {
             try {
                 if (cacheList.isEmpty() == false) {
-                    client.add(cacheList, 10000); //进行Solr索引
+                    client.add(cacheList, 1000);
                 }
                 return true;
             } catch (Exception e) {

@@ -1,18 +1,33 @@
 package com.rainsoft.jdbc;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import com.rainsoft.conf.ConfigurationManager;
+
 /**
  * Created by Administrator on 2017-06-13.
  */
 public class ExampleOracleJDBC {
+    //数据库连接驱动
+    private static String driver = ConfigurationManager.getProperty("oracle_driver");
+    //数据库连接地址
+    private static String url = ConfigurationManager.getProperty("oracle_url");
+    //数据库连接用户名
+    private static String username = ConfigurationManager.getProperty("oracle_username");
+    //数据库连接密码
+    private static String password = ConfigurationManager.getProperty("oracle_password");
+
     public static void main(String[] args) {
+
+        System.out.println("数据库连接信息：");
+        System.out.println("driver = " + driver);
+        System.out.println("url = " + url);
+        System.out.println("username = " + username);
+        System.out.println("password = " + password);
         // 创建一个数据库连接
         Connection con = null;
         // 创建预编译语句对象，一般都是用这个而不用Statement
@@ -21,16 +36,11 @@ public class ExampleOracleJDBC {
         ResultSet result = null;
         try {
             // 加载Oracle驱动程序
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Class.forName(driver);
             System.out.println("开始尝试连接数据库！");
             // 127.0.0.1是本机地址，XE是精简版Oracle的默认数据库名
-            String url = "jdbc:oracle:thin:@192.168.30.205:1521/rsdb";
-            // 用户名,系统默认的账户名
-            String user = "gz_inner";
-            // 你安装时选设置的密码
-            String password = "gz_inner";
             // 获取连接
-            con = DriverManager.getConnection(url, user, password);
+            con = DriverManager.getConnection(url, username, password);
             System.out.println("连接成功！");
             // 预编译语句，“？”代表参数
             String sql = "select * from REG_CONTENT_HTTP where rownum < 3";
@@ -45,9 +55,9 @@ public class ExampleOracleJDBC {
                 // 当结果集不为空时
                 System.out.println();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally{
+        } finally {
             try {
                 // 逐一将上面的几个对象关闭，因为不关闭的话会影响性能、并且占用资源
                 // 注意关闭的顺序，最后使用的最先关闭

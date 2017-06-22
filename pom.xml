@@ -107,6 +107,13 @@
             <artifactId>solr-solrj</artifactId>
             <version>${solr.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.solr/solr-dataimporthandler -->
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-dataimporthandler</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.solr/solr-core -->
         <dependency>
             <groupId>org.apache.solr</groupId>

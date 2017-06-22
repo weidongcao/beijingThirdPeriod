@@ -11,4 +11,6 @@ public interface FtpDao {
     public List<RegContentFtp> getFtpBydate(String date);
 
     public List<String> getFtpFieldValueByTime(String date);
+
+    public RegContentFtp getFtpById(int id);
 }
