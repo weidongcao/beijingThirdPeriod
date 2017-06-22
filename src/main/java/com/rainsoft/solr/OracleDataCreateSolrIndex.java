@@ -407,7 +407,7 @@ public class OracleDataCreateSolrIndex {
                 doc.addField("docType", "聊天");
 
                 //数据实体属性集合
-                Field[] fields = RegContentFtp.class.getFields();
+                Field[] fields = RegContentImChat.class.getFields();
 
                 //生成Solr导入实体
                 for (Field field : fields) {
@@ -485,7 +485,7 @@ public class OracleDataCreateSolrIndex {
                 doc.addField("docType", "网络");
 
                 //数据实体属性集合
-                Field[] fields = RegContentFtp.class.getFields();
+                Field[] fields = RegContentHttp.class.getFields();
 
                 //生成Solr导入实体
                 for (Field field : fields) {
