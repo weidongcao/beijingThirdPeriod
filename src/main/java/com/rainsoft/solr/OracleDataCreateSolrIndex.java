@@ -196,7 +196,7 @@ public class OracleDataCreateSolrIndex {
             long runTime = (endDayTime - startDayTime) / 1000;
             System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 索引" + captureTime + "天的数据,程序执行时间: " + runTime / 60 + "分钟" + runTime % 60 + "秒");
         }
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "启动程序执行完毕");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 启动程序执行完毕");
         long endTime = new Date().getTime();
 
         long totalRunTime = (endTime - startTime) / 1000;
@@ -295,7 +295,7 @@ public class OracleDataCreateSolrIndex {
         //获取数据库一天的数据
         List<RegContentHttp> datalist = httpDao.getHttpBydate(captureTime);
 
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "从数据库查询结束------>");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 从数据库查询结束------>");
 
         boolean flat = false;
         //一次性处理一天的数据
