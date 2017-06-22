@@ -138,7 +138,7 @@ public class OracleDataCreateSolrIndex {
         Date endDate = DateUtils.parseDate(args[1], "yyyy-MM-dd");
 
         System.out.println("参数 --> 开始日期：" + args[0]);
-        System.out.println("参数 --> 结束日期" + args[1]);
+        System.out.println("参数 --> 结束日期：" + args[1]);
 
         dataFileLines = Integer.valueOf(args[2]);
 

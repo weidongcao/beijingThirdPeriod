@@ -63,16 +63,7 @@ public class RegContentHttp implements Serializable {
     public String data_source;
     //设备编号
     public String machine_id;
-    //导入时间
-    public String import_time;
 
-    public String getImport_time() {
-        return import_time;
-    }
-
-    public void setImport_time(String import_time) {
-        this.import_time = import_time;
-    }
 
     public String getId() {
         return id;
@@ -320,7 +311,6 @@ public class RegContentHttp implements Serializable {
                 ", checkin_id='" + checkin_id + '\'' +
                 ", data_source='" + data_source + '\'' +
                 ", machine_id='" + machine_id + '\'' +
-                ", import_time='" + import_time + '\'' +
                 '}';
     }
 }
