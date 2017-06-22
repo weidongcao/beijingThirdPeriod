@@ -39,7 +39,6 @@ public class RegContentHttpRowMapper implements RowMapper {
         http.setCheckin_id(rs.getString(25));
         http.setData_source(rs.getString(26));
         http.setMachine_id(rs.getString(27));
-        http.setImport_time(rs.getString("import_time"));
         return http;
     }
 }
