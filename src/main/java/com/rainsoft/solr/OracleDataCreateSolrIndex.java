@@ -436,7 +436,11 @@ public class OracleDataCreateSolrIndex {
             submitCount++;
 
             //移除已经索引过的数据
-            datalist = datalist.subList(writeSize, datalist.size());
+            if (writeSize < datalist.size()) {
+                datalist = datalist.subList(writeSize, datalist.size());
+            } else {
+                datalist.clear();
+            }
 
             System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
         }
@@ -514,7 +518,11 @@ public class OracleDataCreateSolrIndex {
             submitCount++;
 
             //移除已经索引过的数据
-            datalist = datalist.subList(writeSize, datalist.size());
+            if (writeSize < datalist.size()) {
+                datalist = datalist.subList(writeSize, datalist.size());
+            } else {
+                datalist.clear();
+            }
 
             System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
         }
@@ -835,7 +843,11 @@ public class OracleDataCreateSolrIndex {
             submitCount++;
 
             //移除已经索引过的数据
-            datalist = datalist.subList(writeSize, datalist.size());
+            if (writeSize < datalist.size()) {
+                datalist = datalist.subList(writeSize, datalist.size());
+            } else {
+                datalist.clear();
+            }
 
             System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
         }
