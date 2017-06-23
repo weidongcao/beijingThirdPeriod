@@ -140,10 +140,12 @@ public class OracleDataCreateSolrIndex {
         System.out.println("参数 --> 开始日期：" + args[0]);
         System.out.println("参数 --> 结束日期：" + args[1]);
 
-        dataFileLines = Integer.valueOf(args[2]);
+        createMode = args[2];
+        if (args.length == 4) {
+            dataFileLines = Integer.valueOf(args[3]);
+        }
 
-        createMode = args[3];
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "程序启动");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 程序启动");
         long startTime = new Date().getTime();
         /**
          * 如果开始日期在结束日期的后面或者开始日期与结束日期是同一天，执行迁移
