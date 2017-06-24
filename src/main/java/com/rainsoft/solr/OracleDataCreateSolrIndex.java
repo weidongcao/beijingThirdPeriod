@@ -12,7 +12,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -23,7 +22,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -69,7 +67,7 @@ public class OracleDataCreateSolrIndex {
     //httpDao
     private static HttpDao httpDao = (HttpDao) context.getBean("httpDao");
 
-    //imchatDao
+    //imChatDao
     private static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
 
     //创建Solr客户端
@@ -92,8 +90,8 @@ public class OracleDataCreateSolrIndex {
     private static String FTP = "ftp";
     private static String HTTP = "http";
     private static String IMCHAT = "imchat";
-    private static String SUCCESS_STUTAS = "success";
-    private static String FAIL_STUTAS = "fail";
+    private static String SUCCESS_STATUS = "success";
+    private static String FAIL_STATUS = "fail";
 
     static {
         //导入记录
@@ -104,11 +102,11 @@ public class OracleDataCreateSolrIndex {
         recordFile = FileUtils.getFile(convertImportRecordFile);
         File parentFile = recordFile.getParentFile();
 
-        if (parentFile.exists() == false) {
+        if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
 
-        if (recordFile.exists() == false) {
+        if (!recordFile.exists()) {
             try {
                 recordFile.createNewFile();
             } catch (IOException e) {
@@ -124,6 +122,7 @@ public class OracleDataCreateSolrIndex {
             e.printStackTrace();
         }
         //导入记录转为Map
+        assert recordsList != null;
         for (String record : recordsList) {
             String[] kv = record.split("\t");
             recordMap.put(kv[0], kv[1]);
@@ -147,7 +146,10 @@ public class OracleDataCreateSolrIndex {
 
         System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 程序启动");
         long startTime = new Date().getTime();
-        /**
+
+        //数据导入结果的状态
+        boolean importResultStatus = true;
+        /*
          * 如果开始日期在结束日期的后面或者开始日期与结束日期是同一天，执行迁移
          * 从后向前按日期迁移数据，比如开始时间是2017-01-01，结束时间是2016-01-01
          * 第一次迁移的时间是：2017-01-01
@@ -162,38 +164,47 @@ public class OracleDataCreateSolrIndex {
 
             String ftpRecord = captureTime + "_" + FTP;
 
-            /**
-             * 导入FTP的数据，如果已经导入成功过了，则不再导入
+            /*
+             * 导入FTP的数据，如果还没有导入或者导入失败，且前一次任务导入成功则执行导入程序
+             * 如果已经导入成功过了，则不再导入
+             *
              */
-            if (SUCCESS_STUTAS.equals(recordMap.get(ftpRecord))) {
+            if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord)) && importResultStatus) {
+                importResultStatus = ftpCreateSolrIndexByDay(captureTime);
+            } else if (SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
                 System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " : " + captureTime + " : " + FTP + " has already imported");
-            } else {
-                ftpCreateSolrIndexByDay(captureTime);
             }
 
-            /**
-             * 导入HTTP的数据，如果已经导入成功过了，则不再导入
+            /*
+             * 导入FTP的数据，如果还没有导入或者导入失败，且前一次任务导入成功则执行导入程序
+             * 如果已经导入成功过了，则不再导入
              */
             String httpRecord = captureTime + "_" + HTTP;
-            if (SUCCESS_STUTAS.equals(recordMap.get(httpRecord))) {
+            if (!SUCCESS_STATUS.equals(recordMap.get(httpRecord)) && importResultStatus) {
+                importResultStatus = httpCreateSolrIndexByDay(captureTime);
+            } else if (SUCCESS_STATUS.equals(recordMap.get(httpRecord))) {
                 System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " : " + captureTime + " : " + HTTP + " has already imported");
-            } else {
-                httpCreateSolrIndexByDay(captureTime);
             }
 
-            /**
-             * 导入聊天的数据，如果已经导入成功过了则不再导入
+            /*
+             * 导入FTP的数据，如果还没有导入或者导入失败，且前一次任务导入成功则执行导入程序
+             * 如果已经导入成功过了，则不再导入
              */
             String imchatRecord = captureTime + "_" + IMCHAT;
-            if (SUCCESS_STUTAS.equals(recordMap.get(imchatRecord))) {
+            if (!SUCCESS_STATUS.equals(recordMap.get(imchatRecord)) && importResultStatus) {
+                importResultStatus = imChatCreateSolrIndexByDay(captureTime);
+            } else if (SUCCESS_STATUS.equals(recordMap.get(imchatRecord))) {
                 System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " : " + captureTime + " : " + IMCHAT + " has already imported");
-            } else {
-                imchatCreateSolrIndexByDay(captureTime);
             }
 
             //开始时间减少一天
             startDate = DateUtils.addDays(startDate, -1);
-            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " " + captureTime + "数据索引完毕");
+            if (importResultStatus) {
+                System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " " + captureTime + " 数据索引完毕");
+            } else {
+                System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " " + captureTime + " 数据导入异常, 执行结束");
+            }
+
             long endDayTime = new Date().getTime();
             long runTime = (endDayTime - startDayTime) / 1000;
             System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 索引" + captureTime + "天的数据,程序执行时间: " + runTime / 60 + "分钟" + runTime % 60 + "秒");
@@ -202,61 +213,54 @@ public class OracleDataCreateSolrIndex {
         long endTime = new Date().getTime();
 
         long totalRunTime = (endTime - startTime) / 1000;
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " " + "程序总共执行时间: " + totalRunTime / 60 + "分钟" + totalRunTime % 60 + "秒");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 程序总共执行时间: " + totalRunTime / 60 + "分钟" + totalRunTime % 60 + "秒");
         context.close();
         System.exit(0);
 
     }
 
-    private static boolean imchatCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        System.out.println("imchat : 开始索引 " + captureTime + " 的数据");
-
-        //获取数据库一天的数据
-        List<RegContentImChat> datalist = imchatDao.getImchatBydate(captureTime);
+    private static boolean imChatCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " imChat : 开始索引 " + captureTime + " 的数据");
 
         boolean flat = false;
         //一次性处理一天的数据
+
+        //获取数据库一天的数据
+        List<RegContentImChat> dataList = imchatDao.getImchatBydate(captureTime);
+
         if ("once".equals(createMode)) {
-            flat = imchatCreateIndex(datalist, client);
+            flat = imChatCreateIndex(dataList, client);
         } else if ("several".equals(createMode)) {//一天的数据分批处理
-            //将FTP的数据写入磁盘
-            writeImchatDisk(datalist);
+            //将FTP的数据写入磁盘;
+            writeImChatDisk(dataList);
 
-            File dir = FileUtils.getFile("data/imchat");
+            File dir = FileUtils.getFile("data/imChat");
 
-            if (dir.isDirectory() == false) {
+            if (!dir.isDirectory()) {
                 return false;
             }
-            File[] fileList = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (name.startsWith("data_")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            });
+            File[] fileList = dir.listFiles((dir1, name) -> name.startsWith("data_"));
 
+            assert fileList != null;
             for (File file : fileList) {
                 List<RegContentImChat> list = new ArrayList<>();
                 List<String> ftpDataList = FileUtils.readLines(file);
                 for (String line : ftpDataList) {
                     Map<String, String> map = new HashMap<>();
                     String[] kvs = line.split(kvOutSeparator);
-                    for (int i = 0; i < kvs.length; i++) {
+                    for (String kv : kvs) {
                         try {
-                            map.put(kvs[i].split(kvInnerSeparator)[0], kvs[i].split(kvInnerSeparator)[1]);
+                            map.put(kv.split(kvInnerSeparator)[0], kv.split(kvInnerSeparator)[1]);
                         } catch (Exception e) {
                             System.out.println(line);
                         }
                     }
-                    RegContentImChat imchat = new RegContentImChat();
-                    BeanUtils.populate(imchat, map);
-                    list.add(imchat);
+                    RegContentImChat imChat = new RegContentImChat();
+                    BeanUtils.populate(imChat, map);
+                    list.add(imChat);
                 }
-                boolean importStatus = imchatCreateIndex(list, client);
-                if (importStatus == true) {
+                boolean importStatus = imChatCreateIndex(list, client);
+                if (importStatus) {
                     file.delete();
                 } else {
                     return false;
@@ -265,6 +269,7 @@ public class OracleDataCreateSolrIndex {
 
             //清空目录下的所有文件
             File[] fileRemains = dir.listFiles();
+            assert fileRemains != null;
             for (File file : fileRemains) {
                 file.delete();
             }
@@ -273,9 +278,10 @@ public class OracleDataCreateSolrIndex {
 
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
-            recordMap.put(captureTime + "_" + IMCHAT, SUCCESS_STUTAS);
+            recordMap.put(captureTime + "_" + IMCHAT, SUCCESS_STATUS);
         } else {
-            recordMap.put(captureTime + "_" + IMCHAT, FAIL_STUTAS);
+            recordMap.put(captureTime + "_" + IMCHAT, FAIL_STATUS);
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当天数据导入失败");
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -286,77 +292,83 @@ public class OracleDataCreateSolrIndex {
 
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
-        System.out.println("imchat : " + captureTime + " 的数据,索引成功");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " imchat : " + captureTime + " 的数据,索引完成");
         return flat;
 
     }
 
     private static boolean httpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " http : 开始索引 " + captureTime + " 的数据");
-
-        //获取数据库一天的数据
-        List<RegContentHttp> datalist = httpDao.getHttpBydate(captureTime);
-
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 从数据库查询结束------>");
-
         boolean flat = false;
-        //一次性处理一天的数据
-        if ("once".equals(createMode)) {
-            flat = httpCreateIndex(datalist, client);
-        } else if ("several".equals(createMode)) {//一天的数据分批处理
-            //将FTP的数据写入磁盘
-            writeHttpDisk(datalist);
 
-            File dir = FileUtils.getFile("data/http");
-
-            if (dir.isDirectory() == false) {
-                return false;
+        float f = 0f;
+        while (f < 1) {
+            float startPercent = f;
+            float endPercent;
+            if (f + 0.3 <= 1) {
+                endPercent = (float) (f + 0.3);
+            } else {
+                endPercent = 1f;
             }
-            File[] fileList = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (name.startsWith("data_")) {
-                        return true;
+            //获取数据库一天的数据
+            List<RegContentHttp> dataList = httpDao.getHttpBydate(captureTime, startPercent, endPercent);
+
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 从数据库查询结束------>");
+
+            //一次性处理一天的数据
+            if ("once".equals(createMode)) {
+                flat = httpCreateIndex(dataList, client);
+            } else if ("several".equals(createMode)) {//一天的数据分批处理
+                //将FTP的数据写入磁盘
+                writeHttpDisk(dataList);
+
+                File dir = FileUtils.getFile("data/http");
+
+                if (!dir.isDirectory()) {
+                    return false;
+                }
+                File[] fileList = dir.listFiles((dir1, name) -> name.startsWith("data_"));
+
+                assert fileList != null;
+                for (File file : fileList) {
+                    List<RegContentHttp> list = new ArrayList<>();
+                    List<String> ftpDataList = FileUtils.readLines(file);
+                    for (String line : ftpDataList) {
+                        Map<String, String> map = new HashMap<>();
+                        String[] kvs = line.split(kvOutSeparator);
+                        for (String kv : kvs) {
+                            map.put(kv.split(kvInnerSeparator)[0], kv.split(kvInnerSeparator)[1]);
+                        }
+                        RegContentHttp http = new RegContentHttp();
+                        BeanUtils.populate(http, map);
+                        list.add(http);
+                    }
+                    boolean importStatus = httpCreateIndex(list, client);
+                    if (importStatus) {
+                        file.delete();
                     } else {
                         return false;
                     }
                 }
-            });
 
-            for (File file : fileList) {
-                List<RegContentHttp> list = new ArrayList<>();
-                List<String> ftpDataList = FileUtils.readLines(file);
-                for (String line : ftpDataList) {
-                    Map<String, String> map = new HashMap<>();
-                    String[] kvs = line.split(kvOutSeparator);
-                    for (int i = 0; i < kvs.length; i++) {
-                        map.put(kvs[i].split(kvInnerSeparator)[0], kvs[i].split(kvInnerSeparator)[1]);
-                    }
-                    RegContentHttp http = new RegContentHttp();
-                    BeanUtils.populate(http, map);
-                    list.add(http);
-                }
-                boolean importStatus = httpCreateIndex(list, client);
-                if (importStatus == true) {
+                //清空目录下的所有文件
+                File[] fileRemains = dir.listFiles();
+                assert fileRemains != null;
+                for (File file : fileRemains) {
                     file.delete();
-                } else {
-                    return false;
                 }
+                flat = true;
             }
 
-            //清空目录下的所有文件
-            File[] fileRemains = dir.listFiles();
-            for (File file : fileRemains) {
-                file.delete();
-            }
-            flat = true;
+            f += -0.3;
         }
-
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
-            recordMap.put(captureTime + "_" + HTTP, SUCCESS_STUTAS);
+            recordMap.put(captureTime + "_" + HTTP, SUCCESS_STATUS);
         } else {
-            recordMap.put(captureTime + "_" + HTTP, FAIL_STUTAS);
+            recordMap.put(captureTime + "_" + HTTP, FAIL_STATUS);
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当天数据导入失败");
+
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -367,14 +379,14 @@ public class OracleDataCreateSolrIndex {
 
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
-        System.out.println("http : " + captureTime + " 的数据,索引成功");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " http : " + captureTime + " 的数据,索引完成");
         return flat;
 
     }
 
 
-    public static boolean imchatCreateIndex(List<RegContentImChat> datalist, SolrClient client) throws IOException, SolrServerException {
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + datalist.size());
+    private static boolean imChatCreateIndex(List<RegContentImChat> dataList, SolrClient client) throws IOException, SolrServerException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + dataList.size());
         long startIndexTime = new Date().getTime();
 
         //缓冲数据
@@ -385,26 +397,26 @@ public class OracleDataCreateSolrIndex {
 
         int submitCount = 0;
         //进行Solr索引
-        while (datalist.size() > 0) {
-            /**
+        while (dataList.size() > 0) {
+            /*
              * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
              */
             List<RegContentImChat> sublist;
-            if (writeSize < datalist.size()) {
-                sublist = datalist.subList(0, writeSize);
+            if (writeSize < dataList.size()) {
+                sublist = dataList.subList(0, writeSize);
             } else {
-                sublist = datalist;
+                sublist = dataList;
             }
 
-            /**
+             /*
              * 将Oracle查询出来的数据封装为Solr的导入实体
              */
-            for (RegContentImChat imchat : sublist) {
-                //创建SolrImputDocument实体
+            for (RegContentImChat imChat : sublist) {
+                //创建SolrInputDocument实体
                 SolrInputDocument doc = new SolrInputDocument();
 
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                imchat.setId(uuid);
+                imChat.setId(uuid);
 
                 doc.addField("docType", "聊天");
 
@@ -414,11 +426,16 @@ public class OracleDataCreateSolrIndex {
                 //生成Solr导入实体
                 for (Field field : fields) {
                     String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, imchat));
+                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, imChat));
                 }
                 //导入时间
                 doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
-
+                try {
+                    doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(imChat.getCapture_time().split("\\.")[0]).getTime());
+                } catch (Exception e) {
+                    System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 聊天采集时间转换失败,采集时间为： " + imChat.getCapture_time());
+                    e.printStackTrace();
+                }
                 //索引实体添加缓冲区
                 cacheList.add(doc);
             }
@@ -427,7 +444,7 @@ public class OracleDataCreateSolrIndex {
             flat = submitSolr(cacheList, client);
 
             //有一次索引失败就认为失败
-            if (flat == false) {
+            if (!flat) {
                 return flat;
             }
 
@@ -438,13 +455,13 @@ public class OracleDataCreateSolrIndex {
             submitCount++;
 
             //移除已经索引过的数据
-            if (writeSize < datalist.size()) {
-                datalist = datalist.subList(writeSize, datalist.size());
+            if (writeSize < dataList.size()) {
+                dataList = dataList.subList(writeSize, dataList.size());
             } else {
-                datalist.clear();
+                dataList.clear();
             }
 
-            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + dataList.size() + "条");
         }
 
         long endIndexTime = new Date().getTime();
@@ -455,8 +472,8 @@ public class OracleDataCreateSolrIndex {
         return flat;
     }
 
-    public static boolean httpCreateIndex(List<RegContentHttp> datalist, SolrClient client) throws IOException, SolrServerException {
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + datalist.size());
+    private static boolean httpCreateIndex(List<RegContentHttp> dataList, SolrClient client) throws IOException, SolrServerException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + dataList.size());
         long startIndexTime = new Date().getTime();
 
         //缓冲数据
@@ -467,18 +484,18 @@ public class OracleDataCreateSolrIndex {
 
         int submitCount = 0;
         //进行Solr索引
-        while (datalist.size() > 0) {
-            /**
+        while (dataList.size() > 0) {
+            /*
              * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
              */
             List<RegContentHttp> sublist;
-            if (writeSize < datalist.size()) {
-                sublist = datalist.subList(0, writeSize);
+            if (writeSize < dataList.size()) {
+                sublist = dataList.subList(0, writeSize);
             } else {
-                sublist = datalist;
+                sublist = dataList;
             }
 
-            /**
+            /*
              * 将Oracle查询出来的数据封装为Solr的导入实体
              */
             for (RegContentHttp http : sublist) {
@@ -500,6 +517,12 @@ public class OracleDataCreateSolrIndex {
                 }
                 //导入时间
                 doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                try {
+                    doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(http.getCapture_time().split("\\.")[0]).getTime());
+                } catch (ParseException e) {
+                    System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " HTTP采集时间转换失败,采集时间为： " + http.getCapture_time());
+                    e.printStackTrace();
+                }
 
                 //索引实体添加缓冲区
                 cacheList.add(doc);
@@ -509,7 +532,7 @@ public class OracleDataCreateSolrIndex {
             flat = submitSolr(cacheList, client);
 
             //有一次索引失败就认为失败
-            if (flat == false) {
+            if (!flat) {
                 return flat;
             }
 
@@ -520,13 +543,13 @@ public class OracleDataCreateSolrIndex {
             submitCount++;
 
             //移除已经索引过的数据
-            if (writeSize < datalist.size()) {
-                datalist = datalist.subList(writeSize, datalist.size());
+            if (writeSize < dataList.size()) {
+                dataList = dataList.subList(writeSize, dataList.size());
             } else {
-                datalist.clear();
+                dataList.clear();
             }
 
-            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + dataList.size() + "条");
         }
 
         long endIndexTime = new Date().getTime();
@@ -537,52 +560,44 @@ public class OracleDataCreateSolrIndex {
         return flat;
     }
 
-    private static boolean ftpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private static boolean ftpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "FTP : 开始索引 " + captureTime + " 的数据");
 
         //获取数据库一天的数据
-        List<RegContentFtp> datalist = ftpDao.getFtpBydate(captureTime);
+        List<RegContentFtp> dataList = ftpDao.getFtpBydate(captureTime);
 
         System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 从数据库查询数据结束");
         boolean flat = false;
         //一次性处理一天的数据
         if ("once".equals(createMode)) {
-            flat = ftpcreateIndex(datalist, client);
+            flat = ftpCreateIndex(dataList, client);
         } else if ("several".equals(createMode)) {//一天的数据分批处理
             //将FTP的数据写入磁盘
-            writeFtpDisk(datalist);
+            writeFtpDisk(dataList);
 
             File dir = FileUtils.getFile("data/ftp");
 
-            if (dir.isDirectory() == false) {
+            if (!dir.isDirectory()) {
                 return false;
             }
-            File[] fileList = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (name.startsWith("data_")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            });
+            File[] fileList = dir.listFiles((dir1, name) -> name.startsWith("data_"));
 
+            assert fileList != null;
             for (File file : fileList) {
                 List<RegContentFtp> list = new ArrayList<>();
                 List<String> ftpDataList = FileUtils.readLines(file);
                 for (String line : ftpDataList) {
                     Map<String, String> map = new HashMap<>();
                     String[] kvs = line.split(kvOutSeparator);
-                    for (int i = 0; i < kvs.length; i++) {
-                        map.put(kvs[i].split(kvInnerSeparator)[0], kvs[i].split(kvInnerSeparator)[1]);
+                    for (String kv : kvs) {
+                        map.put(kv.split(kvInnerSeparator)[0], kv.split(kvInnerSeparator)[1]);
                     }
                     RegContentFtp ftp = new RegContentFtp();
                     BeanUtils.populate(ftp, map);
                     list.add(ftp);
                 }
-                boolean importStatus = ftpcreateIndex(list, client);
-                if (importStatus == true) {
+                boolean importStatus = ftpCreateIndex(list, client);
+                if (importStatus) {
                     file.delete();
                 } else {
                     return false;
@@ -591,6 +606,7 @@ public class OracleDataCreateSolrIndex {
 
             //清空目录下的所有文件
             File[] fileRemains = dir.listFiles();
+            assert fileRemains != null;
             for (File file : fileRemains) {
                 file.delete();
             }
@@ -599,9 +615,10 @@ public class OracleDataCreateSolrIndex {
 
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
-            recordMap.put(captureTime + "_" + FTP, SUCCESS_STUTAS);
+            recordMap.put(captureTime + "_" + FTP, SUCCESS_STATUS);
         } else {
-            recordMap.put(captureTime + "_" + FTP, FAIL_STUTAS);
+            recordMap.put(captureTime + "_" + FTP, FAIL_STATUS);
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当天数据导入失败");
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -612,12 +629,12 @@ public class OracleDataCreateSolrIndex {
 
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
-        System.out.println("FTP : " + captureTime + " 的数据,索引成功");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " FTP : " + captureTime + " 的数据,索引完成");
         return flat;
     }
 
 
-    public static void writeFtpDisk(List<RegContentFtp> datalist) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public static void writeFtpDisk(List<RegContentFtp> dataList) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         int lineCount = 0;
         int writeCount = 0;
@@ -625,25 +642,25 @@ public class OracleDataCreateSolrIndex {
 
         File dataFile = new File("data/ftp/data_" + fileIndex);
         File parent = dataFile.getParentFile();
-        if (parent.exists() == false) {
+        if (!parent.exists()) {
             parent.mkdirs();
         }
-        if (dataFile.exists() == false) {
+        if (!dataFile.exists()) {
             System.out.println("生成第 " + (fileIndex + 1) + " 个数据文件");
             dataFile.createNewFile();
         }
 
         PropertyUtilsBean bean = new PropertyUtilsBean();
         StringBuilder sb = new StringBuilder();
-        for (RegContentFtp ftp : datalist) {
+        for (RegContentFtp ftp : dataList) {
             PropertyDescriptor[] descriptor = bean.getPropertyDescriptors(ftp);
             for (int i = 0; i < descriptor.length; i++) {
                 String name = descriptor[i].getName();
-                if ("class".equals(name) == false) {
+                if (!"class".equals(name)) {
                     if (descriptor.length - i > 1) {
-                        sb.append(name + "|=|" + bean.getNestedProperty(ftp, name) + "|;|");
+                        sb.append(name).append("|=|").append(bean.getNestedProperty(ftp, name)).append("|;|");
                     } else {
-                        sb.append(name + "|=|" + bean.getNestedProperty(ftp, name) + "\r\n");
+                        sb.append(name).append("|=|").append(bean.getNestedProperty(ftp, name)).append("\r\n");
                     }
                 }
             }
@@ -666,10 +683,10 @@ public class OracleDataCreateSolrIndex {
         }
         FileUtils.writeStringToFile(dataFile, sb.toString(), true);
         sb.delete(0, sb.length());
-        datalist.clear();
+        dataList.clear();
     }
 
-    public static void writeHttpDisk(List<RegContentHttp> datalist) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private static void writeHttpDisk(List<RegContentHttp> dataList) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         int lineCount = 0;
         int writeCount = 0;
@@ -677,25 +694,25 @@ public class OracleDataCreateSolrIndex {
 
         File dataFile = new File("data/http/data_" + fileIndex);
         File parent = dataFile.getParentFile();
-        if (parent.exists() == false) {
+        if (!parent.exists()) {
             parent.mkdirs();
         }
-        if (dataFile.exists() == false) {
+        if (!dataFile.exists()) {
             dataFile.createNewFile();
             System.out.println("生成第 1 个数据文件");
         }
 
         PropertyUtilsBean bean = new PropertyUtilsBean();
         StringBuilder sb = new StringBuilder();
-        for (RegContentHttp http : datalist) {
+        for (RegContentHttp http : dataList) {
             PropertyDescriptor[] descriptor = bean.getPropertyDescriptors(http);
             for (int i = 0; i < descriptor.length; i++) {
                 String name = descriptor[i].getName();
-                if ("class".equals(name) == false) {
+                if (!"class".equals(name)) {
                     if (descriptor.length - i > 1) {
-                        sb.append(name + "|=|" + bean.getNestedProperty(http, name) + "|;|");
+                        sb.append(name).append("|=|").append(bean.getNestedProperty(http, name)).append("|;|");
                     } else {
-                        sb.append(name + "|=|" + bean.getNestedProperty(http, name) + "\r\n");
+                        sb.append(name).append("|=|").append(bean.getNestedProperty(http, name)).append("\r\n");
                     }
                 }
             }
@@ -720,21 +737,21 @@ public class OracleDataCreateSolrIndex {
         FileUtils.writeStringToFile(dataFile, sb.toString(), true);
         sb.delete(0, sb.length());
 
-        datalist.clear();
+        dataList.clear();
     }
 
-    public static void writeImchatDisk(List<RegContentImChat> datalist) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private static void writeImChatDisk(List<RegContentImChat> datalist) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         int lineCount = 0;
         int writeCount = 0;
         int fileIndex = 0;
 
-        File dataFile = new File("data/imchat/data_" + fileIndex);
+        File dataFile = new File("data/imChat/data_" + fileIndex);
         File parent = dataFile.getParentFile();
-        if (parent.exists() == false) {
+        if (!parent.exists()) {
             parent.mkdirs();
         }
-        if (dataFile.exists() == false) {
+        if (!dataFile.exists()) {
             dataFile.createNewFile();
             System.out.println("生成第 1 个数据文件");
         }
@@ -745,15 +762,15 @@ public class OracleDataCreateSolrIndex {
             PropertyDescriptor[] descriptor = bean.getPropertyDescriptors(imChat);
             for (int i = 0; i < descriptor.length; i++) {
                 String name = descriptor[i].getName();
-                if ("class".equals(name) == false) {
+                if (!"class".equals(name)) {
                     String value = (String) bean.getNestedProperty(imChat, name);
                     if (value != null) {
                         value = value.replace("\r", "").replace("\n", "");
                     }
                     if (descriptor.length - i > 1) {
-                        sb.append(name + "|=|" + value + "|;|");
+                        sb.append(name).append("|=|").append(value).append("|;|");
                     } else {
-                        sb.append(name + "|=|" + value + "\r\n");
+                        sb.append(name).append("|=|").append(value).append("\r\n");
                     }
                 }
             }
@@ -780,8 +797,8 @@ public class OracleDataCreateSolrIndex {
         datalist.clear();
     }
 
-    public static boolean ftpcreateIndex(List<RegContentFtp> datalist, SolrClient client) throws IOException, SolrServerException {
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + datalist.size());
+    private static boolean ftpCreateIndex(List<RegContentFtp> dataList, SolrClient client) throws IOException, SolrServerException {
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 当前要索引的数据量 = " + dataList.size());
         long startIndexTime = new Date().getTime();
 
         //缓冲数据
@@ -792,22 +809,22 @@ public class OracleDataCreateSolrIndex {
 
         int submitCount = 0;
         //进行Solr索引
-        while (datalist.size() > 0) {
-            /**
+        while (dataList.size() > 0) {
+            /*
              * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
              */
             List<RegContentFtp> sublist;
-            if (writeSize < datalist.size()) {
-                sublist = datalist.subList(0, writeSize);
+            if (writeSize < dataList.size()) {
+                sublist = dataList.subList(0, writeSize);
             } else {
-                sublist = datalist;
+                sublist = dataList;
             }
 
-            /**
+            /*
              * 将Oracle查询出来的数据封装为Solr的导入实体
              */
             for (RegContentFtp ftp : sublist) {
-                //创建SolrImputDocument实体
+                //创建SolrInputDocument实体
                 SolrInputDocument doc = new SolrInputDocument();
 
                 String uuid = UUID.randomUUID().toString().replace("-", "");
@@ -825,6 +842,12 @@ public class OracleDataCreateSolrIndex {
                 }
                 //导入时间
                 doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                try {
+                    doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(ftp.getCapture_time().split("\\.")[0]).getTime());
+                } catch (Exception e) {
+                    System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " FTP采集时间转换失败,采集时间为： " + ftp.getCapture_time());
+                    e.printStackTrace();
+                }
 
                 //索引实体添加缓冲区
                 cacheList.add(doc);
@@ -834,7 +857,7 @@ public class OracleDataCreateSolrIndex {
             flat = submitSolr(cacheList, client);
 
             //有一次索引失败就认为失败
-            if (flat == false) {
+            if (!flat) {
                 return flat;
             }
 
@@ -845,13 +868,13 @@ public class OracleDataCreateSolrIndex {
             submitCount++;
 
             //移除已经索引过的数据
-            if (writeSize < datalist.size()) {
-                datalist = datalist.subList(writeSize, datalist.size());
+            if (writeSize < dataList.size()) {
+                dataList = dataList.subList(writeSize, dataList.size());
             } else {
-                datalist.clear();
+                dataList.clear();
             }
 
-            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + datalist.size() + "条");
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 第" + submitCount + "次索引10万条数据成功;剩余未索引的数据: " + dataList.size() + "条");
         }
 
         long endIndexTime = new Date().getTime();
@@ -867,26 +890,28 @@ public class OracleDataCreateSolrIndex {
      *
      * @param cacheList 要导入Solr的索引
      * @param client    SolrClient
-     * @return
+     * @return 提交状态
      */
-    public static boolean submitSolr(List<SolrInputDocument> cacheList, SolrClient client) {
-        /**
+    private static boolean submitSolr(List<SolrInputDocument> cacheList, SolrClient client) {
+        /*
          * 异常捕获
          * 如果失败尝试3次
          */
         int tryCount = 0;
+        boolean flat = false;
         while (tryCount < 3) {
             try {
-                if (cacheList.isEmpty() == false) {
+                if (!cacheList.isEmpty()) {
                     client.add(cacheList, 1000);
                 }
-                return true;
+                flat = true;
             } catch (Exception e) {
                 e.printStackTrace();
                 tryCount++;
+                flat = false;
             }
         }
-        return false;
+        return flat;
     }
 
 }
