@@ -136,9 +136,17 @@ public class OracleDataCreateSolrIndex {
         //结束日期
         Date endDate = DateUtils.parseDate(args[1], "yyyy-MM-dd");
 
-        System.out.println("参数 --> 开始日期：" + args[0]);
-        System.out.println("参数 --> 结束日期：" + args[1]);
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 参数 --> 开始日期：" + args[0]);
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 参数 --> 结束日期：" + args[1]);
 
+        if (startDate.before(endDate)) {
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 开始导入日期参数必须大于等于结束导入日期参数");
+            System.exit(0);
+        } else if (startDate.equals(endDate)) {
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 开始导入日期参数等于结束导入日期参数,程序将导入" + args[0] + "一天的数据");
+        } else {
+            System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " 程序将导入从" + args[0] + "到" + args[1] + "的数据");
+        }
         createMode = args[2];
         if (args.length == 4) {
             dataFileLines = Integer.valueOf(args[3]);
@@ -360,7 +368,7 @@ public class OracleDataCreateSolrIndex {
                 flat = true;
             }
 
-            f += -0.3;
+            f += 0.3;
         }
         //数据索引结果成功或者失败写入记录文件,
         if (flat) {
@@ -505,7 +513,7 @@ public class OracleDataCreateSolrIndex {
                 String uuid = UUID.randomUUID().toString().replace("-", "");
                 http.setId(uuid);
 
-                doc.addField("docType", "网络");
+                doc.addField("docType", "网页");
 
                 //数据实体属性集合
                 Field[] fields = RegContentHttp.class.getFields();
@@ -561,7 +569,7 @@ public class OracleDataCreateSolrIndex {
     }
 
     private static boolean ftpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + "FTP : 开始索引 " + captureTime + " 的数据");
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " FTP : 开始索引 " + captureTime + " 的数据");
 
         //获取数据库一天的数据
         List<RegContentFtp> dataList = ftpDao.getFtpBydate(captureTime);
@@ -905,6 +913,7 @@ public class OracleDataCreateSolrIndex {
                     client.add(cacheList, 1000);
                 }
                 flat = true;
+                break;
             } catch (Exception e) {
                 e.printStackTrace();
                 tryCount++;

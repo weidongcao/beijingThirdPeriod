@@ -11,7 +11,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by CaoWeidong on 2017-06-12.
+ * HTTP数据DAO
+ * Created by CaoWeiDong on 2017-06-12.
  */
 public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
     @Override
@@ -19,11 +20,14 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
         JdbcTemplate jdbcTemplate = this.getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
 
-        String sql = ConfigurationManager.getProperty("sql_http_get_by_date");
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " date= " + date + "; startPercent= " + startPercent + "; endPercent" + endPercent);
+        String templeSql = ConfigurationManager.getProperty("sql_http_get_by_date");
 
-        List<RegContentHttp> list = jdbcTemplate.query(sql, new Object[]{date, startPercent, date, endPercent}, new BeanPropertyRowMapper<>(RegContentHttp.class));
+        String sql = templeSql.replace("${date}", date);
+        sql = sql.replace("${startPercent}", startPercent + "");
+        sql = sql.replace("${endPercent}", endPercent + "");
 
-        return list;
+        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " HTTP获取Oracle数据sql: " + sql);
+
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentHttp.class));
     }
 }

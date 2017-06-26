@@ -24,14 +24,13 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
     public List<RegContentFtp> getFtpBydate(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
+        String templeSql = ConfigurationManager.getProperty("sql_ftp_get_by_date");
 
-        String sql = ConfigurationManager.getProperty("sql_ftp_get_by_date");
+        String sql = templeSql.replace("${date}", date);
         System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " FTP数据获取一天数据的sql: " + sql);
 
 
-        List<RegContentFtp> list = jdbcTemplate.query(sql, new Object[]{date, date}, new BeanPropertyRowMapper<RegContentFtp>(RegContentFtp.class));
-
-        return list;
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentFtp.class));
     }
 
 
