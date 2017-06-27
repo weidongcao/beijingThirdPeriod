@@ -5,7 +5,10 @@ import com.rainsoft.dao.HttpDao;
 import com.rainsoft.dao.ImchatDao;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -14,9 +17,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by CaoWeiDong on 2017-06-28.
@@ -24,8 +25,6 @@ import java.util.Map;
 public class BaseOracleDataCreateSolrIndex {
     private static final Logger logger = LoggerFactory.getLogger(BaseOracleDataCreateSolrIndex.class);
 
-    //批量索引的数据量
-    protected static int dataFileLines = 1000000;
     //一次写入文件的数据量
     protected static final int writeSize = 100000;
     //系统分隔符
@@ -36,31 +35,16 @@ public class BaseOracleDataCreateSolrIndex {
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
 
-    //ftpDao
-    protected static FtpDao ftpDao = (FtpDao) context.getBean("ftpDao");
-
-    //httpDao
-    protected static HttpDao httpDao = (HttpDao) context.getBean("httpDao");
-
-    //imChatDao
-    protected static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
+    protected static final String SOLR_URL = "http://192.168.10.11:8080/solr/yisou";
 
     //创建Solr客户端
-    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
 
     //导入记录文件
     protected static File recordFile;
 
     //导入记录
     protected static Map<String, String> recordMap = new HashMap<>();
-
-    //创建模式：一次创建，多次创建
-    protected static String createMode;
-
-    //字段间分隔符
-    protected static final String kvOutSeparator = "\\|;\\|";
-
-    protected static final String kvInnerSeparator = "\\|=\\|";
 
     protected static final String FTP = "ftp";
     protected static final String HTTP = "http";
@@ -116,5 +100,50 @@ public class BaseOracleDataCreateSolrIndex {
             String[] kv = record.split("\t");
             recordMap.put(kv[0], kv[1]);
         }
+    }
+
+    /**
+     * 提交导入Solr索引
+     *
+     * @param cacheList 要导入Solr的索引
+     * @param client    SolrClient
+     * @return 提交状态
+     */
+    public static boolean submitSolr(List<SolrInputDocument> cacheList, SolrClient client) {
+        /*
+         * 异常捕获
+         * 如果失败尝试3次
+         */
+        int tryCount = 0;
+        boolean flat = false;
+        while (tryCount < 3) {
+            try {
+                if (!cacheList.isEmpty()) {
+                    client.add(cacheList, 1000);
+                }
+                flat = true;
+                //如果索引成功,跳出循环
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+                tryCount++;
+                flat = false;
+            }
+        }
+        return flat;
+    }
+
+    public static boolean delSolrDocTypeByDate(String docType, Date curDate) {
+        String templateDelCmd = "docType:${docType} and capture_time:[${startSec} TO ${endSec}]";
+        long startSec = curDate.getTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(curDate);
+        calendar.add(Calendar.DATE, 1);
+        long endSec = calendar.getTimeInMillis();
+        String delCmd = templateDelCmd.replace("${docType}", docType)
+                .replace("${startSec}", startSec+"")
+                .replace("${endSec}", endSec+"");
+
+        return SolrUtil.delSolrByCondition(delCmd);
     }
 }
