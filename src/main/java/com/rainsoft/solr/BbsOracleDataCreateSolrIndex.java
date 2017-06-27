@@ -29,6 +29,10 @@ public class BbsOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
 
     private static BbsDao bbsDao = (BbsDao) context.getBean("bbsDao");
 
+    public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
+        bbsCreateSolrIndexByDay("2017-06-28");
+    }
+
     private static boolean bbsCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         logger.info("bbs : 开始索引 {} 的数据", captureTime);
 

@@ -20,7 +20,7 @@ public class WeiboDaoImpl extends JdbcDaoSupport implements WeiboDao {
     public List<RegContentWeibo> getWeiboByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "";
+        String templeSql = "select * from reg_content_weibo";
 
         String sql = templeSql.replace("${date}", date);
         logger.info(" sql: {}", sql);

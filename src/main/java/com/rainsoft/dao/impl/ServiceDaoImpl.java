@@ -20,7 +20,7 @@ public class ServiceDaoImpl extends JdbcDaoSupport implements ServiceDao {
     public List<ServiceInfo> getServiceByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "";
+        String templeSql = "select * from service_info";
 
         String sql = templeSql.replace("${date}", date);
         logger.info(" sql: {}", sql);

@@ -20,7 +20,7 @@ public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
     public List<RegVidInfo> getVidByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "";
+        String templeSql = "select * from reg_vid_info";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("sql: {}", sql);

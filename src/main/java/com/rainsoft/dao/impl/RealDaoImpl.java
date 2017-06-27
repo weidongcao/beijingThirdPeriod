@@ -19,7 +19,7 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
     public List<RegRealIdInfo> getRealByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "";
+        String templeSql = "select * from reg_realid_info";
 
         String sql = templeSql.replace("${date}", date);
         logger.info(" sql: {}", sql);

@@ -20,7 +20,7 @@ public class EmailDaoImpl extends JdbcDaoSupport implements EmailDao{
     public List<RegContentEmail> getEmailByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "";
+        String templeSql = "select * from reg_content_email";
 
         String sql = templeSql.replace("${date}", date);
         logger.info(" sql: {}", sql);

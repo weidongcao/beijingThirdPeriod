@@ -20,7 +20,7 @@ public class SearchDaoImpl extends JdbcDaoSupport implements SearchDao {
     public List<RegContentSearch> getSearchByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "";
+        String templeSql = "select * from reg_content_search";
 
         String sql = templeSql.replace("${date}", date);
         logger.info(" sql: {}", sql);
