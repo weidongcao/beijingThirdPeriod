@@ -38,6 +38,8 @@ public class BaseOracleDataCreateSolrIndex {
     protected static final String SOLR_URL = "http://192.168.10.11:8080/solr/yisou";
 
     //创建Solr客户端
+    //创建Solr客户端
+//    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
     protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
 
     //导入记录文件
