@@ -102,7 +102,7 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
             }
 
             //索引到Solr
-            flat = OracleDataCreateSolrIndex.submitSolr(cacheList, client);
+            flat = submitSolr(cacheList, client);
 
             //有一次索引失败就认为失败
             if (!flat) {

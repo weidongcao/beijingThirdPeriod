@@ -17,14 +17,5 @@ import java.util.List;
  */
 public class ReflectClass {
     public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, SolrServerException {
-        AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
-
-        FtpDao ftpDao = (FtpDao) context.getBean("ftpDao");
-        //获取数据库一天的数据
-        List<RegContentFtp> datalist = ftpDao.getFtpBydate("2016-07-11");
-//        datalist = datalist.subList(0,5);
-        OracleDataCreateSolrIndex.writeFtpDisk(datalist);
-
-        context.close();
     }
 }
