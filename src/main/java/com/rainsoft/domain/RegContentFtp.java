@@ -11,51 +11,51 @@ public class RegContentFtp implements Serializable {
     private static final long serialVersionUID = 2236145089427356882L;
 
     //ID
-    private String id;
+    public String id;
     //会话ID
-    private String sessionid;
+    public String sessionid;
     //场所编号
-    private String service_code;
+    public String service_code;
     //房间号/座位号
-    private String room_id;
+    public String room_id;
     //证件类型
-    private String certificate_type;
+    public String certificate_type;
     //证件号
-    private String certificate_code;
+    public String certificate_code;
     //证件姓名
-    private String user_name;
+    public String user_name;
     //协议类型
-    private String protocol_type;
+    public String protocol_type;
     //帐号
-    private String account;
+    public String account;
     //密码
-    private String passwd;
+    public String passwd;
     //文件名
-    private String file_name;
+    public String file_name;
     //文件路径
-    private String file_path;
+    public String file_path;
     //操作类型
-    private String action_type;
+    public String action_type;
     //是否完成
-    private String is_completed;
+    public String is_completed;
     //目标IP
-    private String dest_ip;
+    public String dest_ip;
     //目标端口
-    private String dest_port;
+    public String dest_port;
     //源IP
-    private String src_ip;
+    public String src_ip;
     //源端口
-    private String src_port;
+    public String src_port;
     //源MAC地址
-    private String src_mac;
+    public String src_mac;
     //捕获时间
-    private String capture_time;
+    public String capture_time;
     //用户登记ID
-    private String checkin_id;
+    public String checkin_id;
     //数据来源
-    private String data_source;
+    public String data_source;
     //设备编号
-    private String machine_id;
+    public String machine_id;
 
     public String getId() {
         return id;

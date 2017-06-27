@@ -4,28 +4,28 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegRealIdInfo {
-    private String certificate_type;
-    private String certificate_code;
-    private String user_name;
-    private String sex;
-    private String birthday;
-    private String people;
-    private String country;
-    private String org_name;
-    private String remark;
-    private String last_logintime;
-    private String last_service_code;
-    private String use_nums;
-    private String first_logintime;
-    private String first_service_code;
-    private String first_room_id;
-    private String last_room_id;
-    private String qq_nums;
-    private String user_address;
-    private String user_phone;
-    private String id_expiretime;
-    private String id;
-    private String mac_source;
+    public String certificate_type;
+    public String certificate_code;
+    public String user_name;
+    public String sex;
+    public String birthday;
+    public String people;
+    public String country;
+    public String org_name;
+    public String remark;
+    public String last_logintime;
+    public String last_service_code;
+    public String use_nums;
+    public String first_logintime;
+    public String first_service_code;
+    public String first_room_id;
+    public String last_room_id;
+    public String qq_nums;
+    public String user_address;
+    public String user_phone;
+    public String id_expiretime;
+    public String id;
+    public String mac_source;
 
     @Override
     public String toString() {

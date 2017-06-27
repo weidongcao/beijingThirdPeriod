@@ -4,28 +4,28 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegContentSearch {
-    private String id;
-    private String sessionid;
-    private String service_code;
-    private String room_id;
-    private String certificate_type;
-    private String certificate_code;
-    private String user_name;
-    private String protocol_type;
-    private String url;
-    private String domain_name;
-    private String ref_url;
-    private String ref_domain;
-    private String keyword;
-    private String keyword_code;
-    private String dest_ip;
-    private String dest_port;
-    private String src_ip;
-    private String src_port;
-    private String src_mac;
-    private String capture_time;
-    private String checkin_id;
-    private String machine_id;
+    public String id;
+    public String sessionid;
+    public String service_code;
+    public String room_id;
+    public String certificate_type;
+    public String certificate_code;
+    public String user_name;
+    public String protocol_type;
+    public String url;
+    public String domain_name;
+    public String ref_url;
+    public String ref_domain;
+    public String keyword;
+    public String keyword_code;
+    public String dest_ip;
+    public String dest_port;
+    public String src_ip;
+    public String src_port;
+    public String src_mac;
+    public String capture_time;
+    public String checkin_id;
+    public String machine_id;
 
     @Override
     public String toString() {

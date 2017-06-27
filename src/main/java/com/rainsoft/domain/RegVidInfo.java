@@ -4,19 +4,19 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegVidInfo {
-    private String protocol_type;
-    private String account;
-    private String nick_name;
-    private String passwd;
-    private String use_nums;
-    private String last_logintime;
-    private String last_service_code;
-    private String first_logintime;
-    private String first_service_code;
-    private String first_room_id;
-    private String last_room_id;
-    private String realid_nums;
-    private String id;
+    public String protocol_type;
+    public String account;
+    public String nick_name;
+    public String passwd;
+    public String use_nums;
+    public String last_logintime;
+    public String last_service_code;
+    public String first_logintime;
+    public String first_service_code;
+    public String first_room_id;
+    public String last_room_id;
+    public String realid_nums;
+    public String id;
 
     @Override
     public String toString() {
