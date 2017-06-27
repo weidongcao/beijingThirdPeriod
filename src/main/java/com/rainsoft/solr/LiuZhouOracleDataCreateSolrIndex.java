@@ -7,7 +7,6 @@ import com.rainsoft.domain.RegContentFtp;
 import com.rainsoft.domain.RegContentHttp;
 import com.rainsoft.domain.RegContentImChat;
 import com.rainsoft.utils.ReflectUtils;
-import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.io.FileUtils;
@@ -15,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,8 @@ import java.util.stream.Collectors;
  * <p>
  * Created by CaoWeiDong on 2017-06-12.
  */
-public class OracleDataCreateSolrIndex {
-    private static final Logger logger = LoggerFactory.getLogger(OracleDataCreateSolrIndex.class);
+public class LiuZhouOracleDataCreateSolrIndex {
+    private static final Logger logger = LoggerFactory.getLogger(LiuZhouOracleDataCreateSolrIndex.class);
 
     //批量索引的数据量
     private static int dataFileLines = 1000000;
@@ -77,8 +76,10 @@ public class OracleDataCreateSolrIndex {
     //imChatDao
     private static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
 
+    private static final String SOLR_URL = "http://192.168.10.11:8080/solr/yisou";
+
     //创建Solr客户端
-    private static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+    private static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
 
     //导入记录文件
     private static File recordFile;
@@ -192,7 +193,6 @@ public class OracleDataCreateSolrIndex {
                  */
                 if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
                     //删除当天的数据(如果有数据的话)
-                    delSolrDocTypeByDate(FTP_TYPE, startDate);
 
                     //对当天的数据重新添加索引
                     importResultStatus = ftpCreateSolrIndexByDay(captureTime);
@@ -212,8 +212,6 @@ public class OracleDataCreateSolrIndex {
                  */
                 if (!SUCCESS_STATUS.equals(recordMap.get(httpRecord))) {
                     //删除当天的数据(如果有数据的话)
-                    delSolrDocTypeByDate(HTTP_TYPE, startDate);
-
 
                     importResultStatus = httpCreateSolrIndexByDay(captureTime);
                 } else {
@@ -231,9 +229,6 @@ public class OracleDataCreateSolrIndex {
                  * 如果已经导入成功过了，则不再导入
                  */
                 if (!SUCCESS_STATUS.equals(recordMap.get(imchatRecord))) {
-                    //删除当天的数据(如果有数据的话)
-                    delSolrDocTypeByDate(IMCHAT_TYPE, startDate);
-
                     //对当天的数据重新添加索引
                     importResultStatus = imChatCreateSolrIndexByDay(captureTime);
                 } else {
@@ -364,7 +359,7 @@ public class OracleDataCreateSolrIndex {
             //获取数据库一天的数据
             List<RegContentHttp> dataList = httpDao.getHttpBydate(captureTime, startPercent, endPercent);
 
-            logger.info("从数据库查询结束...");
+            logger.info("从数据库查询结束....");
 
             //一次性处理一天的数据
             if ("once".equals(createMode)) {
@@ -416,7 +411,7 @@ public class OracleDataCreateSolrIndex {
             recordMap.put(captureTime + "_" + HTTP, SUCCESS_STATUS);
         } else {
             recordMap.put(captureTime + "_" + HTTP, FAIL_STATUS);
-            logger.info("当天数据导入失败");
+            logger.info("当天数据导入失败 ");
 
         }
 
@@ -428,7 +423,7 @@ public class OracleDataCreateSolrIndex {
 
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
-        logger.info("http : {} 的数据,索引完成", captureTime);
+        logger.info("http : {} 的数据, 索引完成", captureTime);
         return flat;
 
     }
@@ -946,7 +941,7 @@ public class OracleDataCreateSolrIndex {
      * @param client    SolrClient
      * @return 提交状态
      */
-    public static boolean submitSolr(List<SolrInputDocument> cacheList, SolrClient client) {
+    private static boolean submitSolr(List<SolrInputDocument> cacheList, SolrClient client) {
         /*
          * 异常捕获
          * 如果失败尝试3次
@@ -968,19 +963,5 @@ public class OracleDataCreateSolrIndex {
             }
         }
         return flat;
-    }
-
-    public static boolean delSolrDocTypeByDate(String docType, Date curDate) {
-        String templateDelCmd = "docType:${docType} and capture_time:[${startSec} TO ${endSec}]";
-        long startSec = curDate.getTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(curDate);
-        calendar.add(Calendar.DATE, 1);
-        long endSec = calendar.getTimeInMillis();
-        String delCmd = templateDelCmd.replace("${docType}", docType)
-                .replace("${startSec}", startSec+"")
-                .replace("${endSec}", endSec+"");
-
-        return SolrUtil.delSolrByCondition(delCmd);
     }
 }

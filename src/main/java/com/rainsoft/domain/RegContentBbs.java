@@ -1,61 +1,75 @@
 package com.rainsoft.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-
 /**
- * Created by Administrator on 2017-06-12.
+ * Created by CaoWeiDong on 2017-06-28.
  */
-public class RegContentFtp implements Serializable {
-
-    private static final long serialVersionUID = 2236145089427356882L;
-
-    //ID
+public class RegContentBbs {
     private String id;
-    //会话ID
     private String sessionid;
-    //场所编号
     private String service_code;
-    //房间号/座位号
     private String room_id;
-    //证件类型
     private String certificate_type;
-    //证件号
     private String certificate_code;
-    //证件姓名
     private String user_name;
-    //协议类型
     private String protocol_type;
-    //帐号
     private String account;
-    //密码
     private String passwd;
-    //文件名
-    private String file_name;
-    //文件路径
-    private String file_path;
-    //操作类型
+    private String url;
+    private String domain_name;
+    private String ref_url;
+    private String ref_domain;
+    private String posting_id;
+    private String title;
+    private String author;
+    private String source;
     private String action_type;
-    //是否完成
-    private String is_completed;
-    //目标IP
+    private String summary;
+    private String file_path;
     private String dest_ip;
-    //目标端口
     private String dest_port;
-    //源IP
     private String src_ip;
-    //源端口
     private String src_port;
-    //源MAC地址
     private String src_mac;
-    //捕获时间
     private String capture_time;
-    //用户登记ID
     private String checkin_id;
-    //数据来源
     private String data_source;
-    //设备编号
     private String machine_id;
+
+    @Override
+    public String toString() {
+        return "RegContentBbs{" +
+                "id='" + id + '\'' +
+                ", sessionid='" + sessionid + '\'' +
+                ", service_code='" + service_code + '\'' +
+                ", room_id='" + room_id + '\'' +
+                ", certificate_type='" + certificate_type + '\'' +
+                ", certificate_code='" + certificate_code + '\'' +
+                ", user_name='" + user_name + '\'' +
+                ", protocol_type='" + protocol_type + '\'' +
+                ", account='" + account + '\'' +
+                ", passwd='" + passwd + '\'' +
+                ", url='" + url + '\'' +
+                ", domain_name='" + domain_name + '\'' +
+                ", ref_url='" + ref_url + '\'' +
+                ", ref_domain='" + ref_domain + '\'' +
+                ", posting_id='" + posting_id + '\'' +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", source='" + source + '\'' +
+                ", action_type='" + action_type + '\'' +
+                ", summary='" + summary + '\'' +
+                ", file_path='" + file_path + '\'' +
+                ", dest_ip='" + dest_ip + '\'' +
+                ", dest_port='" + dest_port + '\'' +
+                ", src_ip='" + src_ip + '\'' +
+                ", src_port='" + src_port + '\'' +
+                ", src_mac='" + src_mac + '\'' +
+                ", capture_time='" + capture_time + '\'' +
+                ", checkin_id='" + checkin_id + '\'' +
+                ", data_source='" + data_source + '\'' +
+                ", machine_id='" + machine_id + '\'' +
+                '}';
+    }
 
     public String getId() {
         return id;
@@ -137,20 +151,68 @@ public class RegContentFtp implements Serializable {
         this.passwd = passwd;
     }
 
-    public String getFile_name() {
-        return file_name;
+    public String getUrl() {
+        return url;
     }
 
-    public void setFile_name(String file_name) {
-        this.file_name = file_name;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public String getFile_path() {
-        return file_path;
+    public String getDomain_name() {
+        return domain_name;
     }
 
-    public void setFile_path(String file_path) {
-        this.file_path = file_path;
+    public void setDomain_name(String domain_name) {
+        this.domain_name = domain_name;
+    }
+
+    public String getRef_url() {
+        return ref_url;
+    }
+
+    public void setRef_url(String ref_url) {
+        this.ref_url = ref_url;
+    }
+
+    public String getRef_domain() {
+        return ref_domain;
+    }
+
+    public void setRef_domain(String ref_domain) {
+        this.ref_domain = ref_domain;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public String getAction_type() {
@@ -161,12 +223,20 @@ public class RegContentFtp implements Serializable {
         this.action_type = action_type;
     }
 
-    public String getIs_completed() {
-        return is_completed;
+    public String getSummary() {
+        return summary;
     }
 
-    public void setIs_completed(String is_completed) {
-        this.is_completed = is_completed;
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
     }
 
     public String getDest_ip() {
@@ -241,32 +311,5 @@ public class RegContentFtp implements Serializable {
         this.machine_id = machine_id;
     }
 
-    @Override
-    public String toString() {
-        return "RegContentFtp{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", account='" + account + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", file_name='" + file_name + '\'' +
-                ", file_path='" + file_path + '\'' +
-                ", action_type='" + action_type + '\'' +
-                ", is_completed='" + is_completed + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", data_source='" + data_source + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
-    }
+
 }

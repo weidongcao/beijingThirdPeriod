@@ -1,61 +1,75 @@
 package com.rainsoft.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-
 /**
- * Created by Administrator on 2017-06-12.
+ * Created by CaoWeiDong on 2017-06-28.
  */
-public class RegContentFtp implements Serializable {
-
-    private static final long serialVersionUID = 2236145089427356882L;
-
-    //ID
+public class RegContentEmail {
     private String id;
-    //会话ID
     private String sessionid;
-    //场所编号
     private String service_code;
-    //房间号/座位号
     private String room_id;
-    //证件类型
     private String certificate_type;
-    //证件号
     private String certificate_code;
-    //证件姓名
     private String user_name;
-    //协议类型
     private String protocol_type;
-    //帐号
     private String account;
-    //密码
     private String passwd;
-    //文件名
-    private String file_name;
-    //文件路径
+    private String mailid;
+    private String send_time;
+    private String mail_from;
+    private String mail_to;
+    private String cc;
+    private String bcc;
+    private String subject;
+    private String summary;
+    private String attachment;
     private String file_path;
-    //操作类型
     private String action_type;
-    //是否完成
-    private String is_completed;
-    //目标IP
     private String dest_ip;
-    //目标端口
     private String dest_port;
-    //源IP
     private String src_ip;
-    //源端口
     private String src_port;
-    //源MAC地址
     private String src_mac;
-    //捕获时间
     private String capture_time;
-    //用户登记ID
     private String checkin_id;
-    //数据来源
     private String data_source;
-    //设备编号
     private String machine_id;
+
+    @Override
+    public String toString() {
+        return "RegContentEmail{" +
+                "id='" + id + '\'' +
+                ", sessionid='" + sessionid + '\'' +
+                ", service_code='" + service_code + '\'' +
+                ", room_id='" + room_id + '\'' +
+                ", certificate_type='" + certificate_type + '\'' +
+                ", certificate_code='" + certificate_code + '\'' +
+                ", user_name='" + user_name + '\'' +
+                ", protocol_type='" + protocol_type + '\'' +
+                ", account='" + account + '\'' +
+                ", passwd='" + passwd + '\'' +
+                ", mailid='" + mailid + '\'' +
+                ", send_time='" + send_time + '\'' +
+                ", mail_from='" + mail_from + '\'' +
+                ", mail_to='" + mail_to + '\'' +
+                ", cc='" + cc + '\'' +
+                ", bcc='" + bcc + '\'' +
+                ", subject='" + subject + '\'' +
+                ", summary='" + summary + '\'' +
+                ", attachment='" + attachment + '\'' +
+                ", file_path='" + file_path + '\'' +
+                ", action_type='" + action_type + '\'' +
+                ", dest_ip='" + dest_ip + '\'' +
+                ", dest_port='" + dest_port + '\'' +
+                ", src_ip='" + src_ip + '\'' +
+                ", src_port='" + src_port + '\'' +
+                ", src_mac='" + src_mac + '\'' +
+                ", capture_time='" + capture_time + '\'' +
+                ", checkin_id='" + checkin_id + '\'' +
+                ", data_source='" + data_source + '\'' +
+                ", machine_id='" + machine_id + '\'' +
+                '}';
+    }
 
     public String getId() {
         return id;
@@ -137,12 +151,76 @@ public class RegContentFtp implements Serializable {
         this.passwd = passwd;
     }
 
-    public String getFile_name() {
-        return file_name;
+    public String getMailid() {
+        return mailid;
     }
 
-    public void setFile_name(String file_name) {
-        this.file_name = file_name;
+    public void setMailid(String mailid) {
+        this.mailid = mailid;
+    }
+
+    public String getSend_time() {
+        return send_time;
+    }
+
+    public void setSend_time(String send_time) {
+        this.send_time = send_time;
+    }
+
+    public String getMail_from() {
+        return mail_from;
+    }
+
+    public void setMail_from(String mail_from) {
+        this.mail_from = mail_from;
+    }
+
+    public String getMail_to() {
+        return mail_to;
+    }
+
+    public void setMail_to(String mail_to) {
+        this.mail_to = mail_to;
+    }
+
+    public String getCc() {
+        return cc;
+    }
+
+    public void setCc(String cc) {
+        this.cc = cc;
+    }
+
+    public String getBcc() {
+        return bcc;
+    }
+
+    public void setBcc(String bcc) {
+        this.bcc = bcc;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public String getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
     }
 
     public String getFile_path() {
@@ -159,14 +237,6 @@ public class RegContentFtp implements Serializable {
 
     public void setAction_type(String action_type) {
         this.action_type = action_type;
-    }
-
-    public String getIs_completed() {
-        return is_completed;
-    }
-
-    public void setIs_completed(String is_completed) {
-        this.is_completed = is_completed;
     }
 
     public String getDest_ip() {
@@ -239,34 +309,5 @@ public class RegContentFtp implements Serializable {
 
     public void setMachine_id(String machine_id) {
         this.machine_id = machine_id;
-    }
-
-    @Override
-    public String toString() {
-        return "RegContentFtp{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", account='" + account + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", file_name='" + file_name + '\'' +
-                ", file_path='" + file_path + '\'' +
-                ", action_type='" + action_type + '\'' +
-                ", is_completed='" + is_completed + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", data_source='" + data_source + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
     }
 }

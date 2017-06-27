@@ -1,69 +1,59 @@
 package com.rainsoft.domain;
 
-import java.io.Serializable;
-
 /**
- * Created by Administrator on 2017-06-12.
+ * Created by CaoWeiDong on 2017-06-28.
  */
-public class RegContentHttp implements Serializable {
-
-    private static final long serialVersionUID = 8165248988135633545L;
-
-    //ID
+public class RegContentSearch {
     private String id;
-    //会话ID
     private String sessionid;
-    //场所编号
     private String service_code;
-    //房间号
     private String room_id;
-    //证件类型
     private String certificate_type;
-    //证件号
     private String certificate_code;
-    //证件姓名
     private String user_name;
-    //协议类型
     private String protocol_type;
-    //
     private String url;
-    //域名
     private String domain_name;
-    //引用URL
     private String ref_url;
-    //引用域名
     private String ref_domain;
-    //操作类型1=上线；2=下线；3=订单；4=注册信息
-    private String action_type;
-    //页面主题
-    private String subject;
-    //正文摘要
-    private String summary;
-    //cookie路径
-    private String cookie_path;
-    //上传文件
-    private String upload_file;
-    //下载文件
-    private String download_file;
-    //目标IP
+    private String keyword;
+    private String keyword_code;
     private String dest_ip;
-    //目标端口
     private String dest_port;
-    //源IP
     private String src_ip;
-    //源端口
     private String src_port;
-    //源MAC地址
     private String src_mac;
-    //捕获时间
     private String capture_time;
-    //用户登记ID
     private String checkin_id;
-    //数据来源
-    private String data_source;
-    //设备编号
     private String machine_id;
 
+    @Override
+    public String toString() {
+        return "RegContentSearch{" +
+                "id='" + id + '\'' +
+                ", sessionid='" + sessionid + '\'' +
+                ", service_code='" + service_code + '\'' +
+                ", room_id='" + room_id + '\'' +
+                ", certificate_type='" + certificate_type + '\'' +
+                ", certificate_code='" + certificate_code + '\'' +
+                ", user_name='" + user_name + '\'' +
+                ", protocol_type='" + protocol_type + '\'' +
+                ", url='" + url + '\'' +
+                ", domain_name='" + domain_name + '\'' +
+                ", ref_url='" + ref_url + '\'' +
+                ", ref_domain='" + ref_domain + '\'' +
+                ", keyword='" + keyword + '\'' +
+                ", keyword_code='" + keyword_code + '\'' +
+                ", dest_ip='" + dest_ip + '\'' +
+                ", dest_port='" + dest_port + '\'' +
+                ", src_ip='" + src_ip + '\'' +
+                ", src_port='" + src_port + '\'' +
+                ", src_mac='" + src_mac + '\'' +
+                ", capture_time='" + capture_time + '\'' +
+                ", checkin_id='" + checkin_id + '\'' +
+                ", machine_id='" + machine_id + '\'' +
+                '}';
+    }
 
     public String getId() {
         return id;
@@ -161,52 +151,20 @@ public class RegContentHttp implements Serializable {
         this.ref_domain = ref_domain;
     }
 
-    public String getAction_type() {
-        return action_type;
+    public String getKeyword() {
+        return keyword;
     }
 
-    public void setAction_type(String action_type) {
-        this.action_type = action_type;
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
-    public String getSubject() {
-        return subject;
+    public String getKeyword_code() {
+        return keyword_code;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
-
-    public String getCookie_path() {
-        return cookie_path;
-    }
-
-    public void setCookie_path(String cookie_path) {
-        this.cookie_path = cookie_path;
-    }
-
-    public String getUpload_file() {
-        return upload_file;
-    }
-
-    public void setUpload_file(String upload_file) {
-        this.upload_file = upload_file;
-    }
-
-    public String getDownload_file() {
-        return download_file;
-    }
-
-    public void setDownload_file(String download_file) {
-        this.download_file = download_file;
+    public void setKeyword_code(String keyword_code) {
+        this.keyword_code = keyword_code;
     }
 
     public String getDest_ip() {
@@ -265,52 +223,11 @@ public class RegContentHttp implements Serializable {
         this.checkin_id = checkin_id;
     }
 
-    public String getData_source() {
-        return data_source;
-    }
-
-    public void setData_source(String data_source) {
-        this.data_source = data_source;
-    }
-
     public String getMachine_id() {
         return machine_id;
     }
 
     public void setMachine_id(String machine_id) {
         this.machine_id = machine_id;
-    }
-
-    @Override
-    public String toString() {
-        return "RegContentHttp{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", url='" + url + '\'' +
-                ", domain_name='" + domain_name + '\'' +
-                ", ref_url='" + ref_url + '\'' +
-                ", ref_domain='" + ref_domain + '\'' +
-                ", action_type='" + action_type + '\'' +
-                ", subject='" + subject + '\'' +
-                ", summary='" + summary + '\'' +
-                ", cookie_path='" + cookie_path + '\'' +
-                ", upload_file='" + upload_file + '\'' +
-                ", download_file='" + download_file + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", data_source='" + data_source + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
     }
 }

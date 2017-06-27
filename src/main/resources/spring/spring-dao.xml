@@ -19,4 +19,29 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <bean id="bbsDao" class="com.rainsoft.dao.impl.BbsDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="emailDao" class="com.rainsoft.dao.impl.EmailDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="realDao" class="com.rainsoft.dao.impl.RealDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="searchDao" class="com.rainsoft.dao.impl.SearchDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="shopDao" class="com.rainsoft.dao.impl.ShopDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="serviceDao" class="com.rainsoft.dao.impl.ServiceDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="vidDao" class="com.rainsoft.dao.impl.VidDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="weiboDao" class="com.rainsoft.dao.impl.WeiboDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
 </beans>

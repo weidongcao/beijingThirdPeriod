@@ -9,57 +9,57 @@ public class RegContentImChat implements Serializable {
 
     private static final long serialVersionUID = 6332056501619172496L;
     //ID
-    public String id;
+    private String id;
     //会话ID
-    public String sessionid;
+    private String sessionid;
     //场所编号
-    public String service_code;
+    private String service_code;
     //房间号/座位号
-    public String room_id;
+    private String room_id;
     //证件类型
-    public String certificate_type;
+    private String certificate_type;
     //证件号
-    public String certificate_code;
+    private String certificate_code;
     //证件姓名
-    public String user_name;
+    private String user_name;
     //协议类型
-    public String protocol_type;
+    private String protocol_type;
     //账号
-    public String account;
+    private String account;
     //帐号昵称
-    public String acount_name;
+    private String acount_name;
     //好友账号或群号
-    public String friend_account;
+    private String friend_account;
     //好友昵称或群名
-    public String friend_name;
+    private String friend_name;
     //聊天类型 0为好友聊天，1为群聊天,2,讨论组
-    public String chat_type;
+    private String chat_type;
     //发送者账号
-    public String sender_account;
+    private String sender_account;
     //发送者昵称
-    public String sender_name;
+    private String sender_name;
     //聊天时间
-    public String chat_time;
+    private String chat_time;
     //目标IP
-    public String dest_ip;
+    private String dest_ip;
     //目标端口
-    public String dest_port;
+    private String dest_port;
     //源IP
-    public String src_ip;
+    private String src_ip;
     //源端口
-    public String src_port;
+    private String src_port;
     //源MAC地址
-    public String src_mac;
+    private String src_mac;
     //捕获时间
-    public String capture_time;
+    private String capture_time;
     //聊天内容
-    public String msg;
+    private String msg;
     //用户登记ID
-    public String checkin_id;
+    private String checkin_id;
     //数据来源
-    public String data_source;
+    private String data_source;
     //设备编号
-    public String machine_id;
+    private String machine_id;
 
     public String getId() {
         return id;
