@@ -27,7 +27,6 @@ public class SolrUtil {
      * @return Solr客户端连接
      */
     public static CloudSolrClient getSolrClient(String collection) {
-        System.out.println(zkHost);
         if (client == null) {
             client = new CloudSolrClient.Builder().withZkHost(zkHost).build();
             logger.info("Solr 客户端初始化成功");

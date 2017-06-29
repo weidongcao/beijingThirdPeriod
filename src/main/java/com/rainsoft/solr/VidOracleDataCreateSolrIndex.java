@@ -27,6 +27,8 @@ public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
         vidCreateSolrIndexByDay("2017-06-28");
+
+        client.close();
     }
     private static boolean vidCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         logger.info("vid : 开始索引 {} 的数据", captureTime);

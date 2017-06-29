@@ -27,6 +27,8 @@ public class RealOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
         realCreateSolrIndexByDay("2017-06-28");
+
+        client.close();
     }
     private static boolean realCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         logger.info("real : 开始索引 {} 的数据", captureTime);

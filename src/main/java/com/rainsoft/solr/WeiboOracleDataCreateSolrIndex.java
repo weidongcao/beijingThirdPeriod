@@ -27,6 +27,8 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
         weiboCreateSolrIndexByDay("2017-06-28");
+
+        client.close();
     }
     private static boolean weiboCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         logger.info("weibo : 开始索引 {} 的数据", captureTime);

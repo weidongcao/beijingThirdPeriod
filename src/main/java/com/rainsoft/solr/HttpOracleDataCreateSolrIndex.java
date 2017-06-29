@@ -153,6 +153,7 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
         } else {
             logger.info("{} : {} has already imported", date, HTTP);
         }
+        client.close();
 
     }
 

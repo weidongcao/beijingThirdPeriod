@@ -156,6 +156,8 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
             logger.info("{} : {} has already imported", date, FTP);
         }
 
+        client.close();
+
     }
 
 }

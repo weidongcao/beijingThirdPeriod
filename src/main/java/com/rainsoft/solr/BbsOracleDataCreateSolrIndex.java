@@ -31,6 +31,8 @@ public class BbsOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
         bbsCreateSolrIndexByDay("2017-06-28");
+
+        client.close();
     }
 
     private static boolean bbsCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {

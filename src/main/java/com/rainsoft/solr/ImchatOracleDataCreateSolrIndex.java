@@ -146,5 +146,7 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
             logger.info("{} : {} has already imported", date, IMCHAT);
         }
 
+        client.close();
+
     }
 }

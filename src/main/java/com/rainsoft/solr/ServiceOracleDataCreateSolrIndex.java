@@ -27,6 +27,7 @@ public class ServiceOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIn
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
         serviceCreateSolrIndexByDay("2017-06-28");
+        client.close();
     }
     private static boolean serviceCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         logger.info("service : 开始索引 {} 的数据", captureTime);
