@@ -186,12 +186,12 @@ public class SimpleSolr {
     }
 
     public static void main(String args[]) throws IOException, SolrServerException {
-        String url = "http://dn3.hadoop.com:8080/solr/yisou";
+        String url = "http://192.168.10.11:8080/solr/index.html#/yisou";
 //        PropertyConfigurator.configure("./etc/log4j.properties");
         SimpleSolr ss = new SimpleSolr(url, 2);
         SolrInputDocument doc = new SolrInputDocument();
-        doc.addField("ID", "aaaa");
-        doc.addField("USER_NAME", "曹伟东");
+        doc.addField("id", "aaaa");
+        doc.addField("username", "曹伟东");
 
         // 查询文档
         ss.client.add(doc);

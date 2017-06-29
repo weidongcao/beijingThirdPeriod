@@ -39,8 +39,8 @@ public class BaseOracleDataCreateSolrIndex {
 
     //创建Solr客户端
     //创建Solr客户端
-    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
-//    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
+//    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
 
     //导入记录文件
     protected static File recordFile;
