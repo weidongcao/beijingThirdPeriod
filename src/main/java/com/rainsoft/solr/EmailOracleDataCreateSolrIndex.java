@@ -73,7 +73,7 @@ public class EmailOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
 
                 //生成Solr的唯一ID
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                email.setId(uuid);
+                doc.addField("ID", uuid);
 
                 //添加FTP数据类型为文件
                 doc.addField("docType", EMAIL_TYPE);
@@ -82,12 +82,7 @@ public class EmailOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
                 Field[] fields = RegContentEmail.class.getFields();
 
                 //遍历实体属性,将之赋值给Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, email));
-                }
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                addFieldToSolr(doc, fields, email);
 
                 //捕获时间转为毫秒赋值给Solr导入实体
                 try {

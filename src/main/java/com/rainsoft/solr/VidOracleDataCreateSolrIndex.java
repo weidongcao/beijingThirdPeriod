@@ -73,7 +73,7 @@ public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
 
                 //生成Solr的唯一ID
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                vid.setId(uuid);
+                doc.addField("ID", uuid);
 
                 //添加FTP数据类型为文件
                 doc.addField("docType", VID_TYPE);

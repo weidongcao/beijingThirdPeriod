@@ -73,7 +73,7 @@ public class ShopOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
                 //生成Solr的唯一ID
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                shop.setId(uuid);
+                doc.addField("ID", uuid);
 
                 //添加FTP数据类型为文件
                 doc.addField("docType", SHOP_TYPE);
@@ -82,10 +82,7 @@ public class ShopOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
                 Field[] fields = RegContentShop.class.getFields();
 
                 //遍历实体属性,将之赋值给Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, shop));
-                }
+                addFieldToSolr(doc, fields, shop);
                 //导入时间
                 doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
 

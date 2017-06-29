@@ -3,6 +3,7 @@ package com.rainsoft.solr;
 import com.rainsoft.dao.FtpDao;
 import com.rainsoft.dao.HttpDao;
 import com.rainsoft.dao.ImchatDao;
+import com.rainsoft.utils.ReflectUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -16,10 +17,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.*;
 
 /**
+ * Oracle数据导入Solr基础信息类
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class BaseOracleDataCreateSolrIndex {
@@ -28,14 +31,14 @@ public class BaseOracleDataCreateSolrIndex {
     //一次写入文件的数据量
     protected static final int writeSize = 100000;
     //系统分隔符
-    protected static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     //数字输出格式
     protected static NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
 
-    protected static final String SOLR_URL = "http://192.168.10.11:8080/solr/yisou";
+    private static final String SOLR_URL = "http://192.168.10.11:8080/solr/yisou";
 
     //创建Solr客户端
     //创建Solr客户端
@@ -43,30 +46,30 @@ public class BaseOracleDataCreateSolrIndex {
     protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
 
     //导入记录文件
-    protected static File recordFile;
+    static File recordFile;
 
     //导入记录
-    protected static Map<String, String> recordMap = new HashMap<>();
+    static Map<String, String> recordMap = new HashMap<>();
 
-    protected static final String FTP = "ftp";
-    protected static final String HTTP = "http";
-    protected static final String IMCHAT = "imchat";
+    static final String FTP = "ftp";
+    static final String HTTP = "http";
+    static final String IMCHAT = "imchat";
 
-    protected static final String FTP_TYPE = "文件";
-    protected static final String HTTP_TYPE = "网页";
-    protected static final String IMCHAT_TYPE = "聊天";
+    static final String FTP_TYPE = "文件";
+    static final String HTTP_TYPE = "网页";
+    static final String IMCHAT_TYPE = "聊天";
 
-    protected static final String BBS_TYPE = "论坛";
-    protected static final String EMAIL_TYPE = "邮件";
-    protected static final String SEARCH_TYPE = "搜索";
-    protected static final String SHOP_TYPE = "SHOP";
-    protected static final String SERVICE_TYPE = "场所";
-    protected static final String REAL_TYPE = "真实";
-    protected static final String VID_TYPE = "虚拟";
-    protected static final String WEIBO_TYPE = "微博";
+    static final String BBS_TYPE = "论坛";
+    static final String EMAIL_TYPE = "邮件";
+    static final String SEARCH_TYPE = "搜索";
+    static final String SHOP_TYPE = "SHOP";
+    static final String SERVICE_TYPE = "场所";
+    static final String REAL_TYPE = "真实";
+    static final String VID_TYPE = "虚拟";
+    static final String WEIBO_TYPE = "微博";
 
-    protected static final String SUCCESS_STATUS = "success";
-    protected static final String FAIL_STATUS = "fail";
+    static final String SUCCESS_STATUS = "success";
+    static final String FAIL_STATUS = "fail";
 
     static {
         //导入记录
@@ -102,6 +105,8 @@ public class BaseOracleDataCreateSolrIndex {
             String[] kv = record.split("\t");
             recordMap.put(kv[0], kv[1]);
         }
+
+        logger.info("程序初始化完成...");
     }
 
     /**
@@ -147,5 +152,19 @@ public class BaseOracleDataCreateSolrIndex {
                 .replace("${endSec}", endSec+"");
 
         return SolrUtil.delSolrByCondition(delCmd);
+    }
+
+    static void addFieldToSolr(SolrInputDocument doc, Field[] fields, Object obj) {
+        //遍历实体属性,将之赋值给Solr导入实体
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            if ("id".equals(fieldName)) {
+                doc.addField("SID", ReflectUtils.getFieldValueByName(fieldName, obj));
+            } else {
+                doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, obj));
+            }
+        }
+        //导入时间
+        doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
     }
 }

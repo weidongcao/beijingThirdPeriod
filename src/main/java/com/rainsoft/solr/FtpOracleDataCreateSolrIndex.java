@@ -88,7 +88,7 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
 
                 //生成Solr的唯一ID
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                ftp.setId(uuid);
+                doc.addField("ID", uuid);
 
                 //添加FTP数据类型为文件
                 doc.addField("docType", FTP_TYPE);
@@ -97,12 +97,7 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
                 Field[] fields = RegContentFtp.class.getFields();
 
                 //遍历实体属性,将之赋值给Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, ftp));
-                }
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                addFieldToSolr(doc, fields, ftp);
 
                 //捕获时间转为毫秒赋值给Solr导入实体
                 try {
@@ -150,6 +145,17 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
     }
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
-        ftpCreateSolrIndexByDay(args[0]);
+
+        String date = args[0];
+
+        String ftpRecord = date + "_" + FTP;
+        if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
+            ftpCreateSolrIndexByDay(args[0]);
+            //对当天的数据重新添加索引
+        } else {
+            logger.info("{} : {} has already imported", date, FTP);
+        }
+
     }
+
 }

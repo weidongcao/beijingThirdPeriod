@@ -37,23 +37,26 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
         boolean flat = httpCreateIndex(dataList, client);
 
-        //数据索引结果成功或者失败写入记录文件,
-        if (flat) {
-            recordMap.put(captureTime + "_" + HTTP, SUCCESS_STATUS);
-        } else {
-            recordMap.put(captureTime + "_" + HTTP, FAIL_STATUS);
-            logger.info("当天数据导入失败");
+        if (endPercent == 1) {
+            //数据索引结果成功或者失败写入记录文件,
+            if (flat) {
+                recordMap.put(captureTime + "_" + HTTP, SUCCESS_STATUS);
+            } else {
+                recordMap.put(captureTime + "_" + HTTP, FAIL_STATUS);
+                logger.info("当天数据导入失败");
+            }
+
+            List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
+
+            Collections.sort(newRecordList);
+
+            String newRecords = StringUtils.join(newRecordList, "\r\n");
+
+            FileUtils.writeStringToFile(recordFile, newRecords, false);
+
+            logger.info("http : {} 的数据,索引完成", captureTime);
         }
 
-        List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
-
-        Collections.sort(newRecordList);
-
-        String newRecords = StringUtils.join(newRecordList, "\r\n");
-
-        FileUtils.writeStringToFile(recordFile, newRecords, false);
-
-        logger.info("http : {} 的数据,索引完成", captureTime);
         return flat;
     }
 
@@ -88,20 +91,16 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
                 SolrInputDocument doc = new SolrInputDocument();
 
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                http.setId(uuid);
+                doc.addField("ID", uuid);
 
                 doc.addField("docType", HTTP_TYPE);
 
                 //数据实体属性集合
                 Field[] fields = RegContentHttp.class.getFields();
 
-                //生成Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, http));
-                }
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                //遍历实体属性,将之赋值给Solr导入实体
+                addFieldToSolr(doc, fields, http);
+
                 try {
                     doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(http.getCapture_time().split("\\.")[0]).getTime());
                 } catch (ParseException e) {
@@ -145,11 +144,16 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
         return flat;
     }
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, SolrServerException, IOException {
-        String capture_time = args[0];
+        String date = args[0];
         float startPercent = Float.valueOf(args[1]);
         float endPercent = Float.valueOf(args[2]);
+        String httpRecord = date + "_" + HTTP;
+        if (!SUCCESS_STATUS.equals(recordMap.get(httpRecord))) {
+            httpCreateSolrIndexByDay(date, startPercent, endPercent);
+        } else {
+            logger.info("{} : {} has already imported", date, HTTP);
+        }
 
-        httpCreateSolrIndexByDay(capture_time, startPercent, endPercent);
     }
 
 }

@@ -73,7 +73,7 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
 
                 //生成Solr的唯一ID
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                weibo.setId(uuid);
+                doc.addField("ID", uuid);
 
                 //添加FTP数据类型为文件
                 doc.addField("docType", WEIBO_TYPE);

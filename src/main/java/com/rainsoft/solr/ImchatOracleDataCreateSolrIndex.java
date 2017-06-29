@@ -84,20 +84,16 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
                 SolrInputDocument doc = new SolrInputDocument();
 
                 String uuid = UUID.randomUUID().toString().replace("-", "");
-                imChat.setId(uuid);
+                doc.addField("ID", uuid);
 
                 doc.addField("docType", IMCHAT_TYPE);
 
                 //数据实体属性集合
                 Field[] fields = RegContentImChat.class.getFields();
 
-                //生成Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, imChat));
-                }
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                //遍历实体属性,将之赋值给Solr导入实体
+                addFieldToSolr(doc, fields, imChat);
+
                 try {
                     doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(imChat.getCapture_time().split("\\.")[0]).getTime());
                 } catch (Exception e) {
@@ -141,6 +137,14 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
     }
 
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, SolrServerException, IOException {
-        imChatCreateSolrIndexByDay(args[0]);
+        String date = args[0];
+        String imchatRecord = date + "_" + IMCHAT;
+        if (!SUCCESS_STATUS.equals(recordMap.get(imchatRecord))) {
+            imChatCreateSolrIndexByDay(date);
+            //对当天的数据重新添加索引
+        } else {
+            logger.info("{} : {} has already imported", date, IMCHAT);
+        }
+
     }
 }
