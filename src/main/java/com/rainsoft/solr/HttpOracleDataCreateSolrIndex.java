@@ -42,7 +42,7 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
             recordMap.put(captureTime + "_" + HTTP, SUCCESS_STATUS);
         } else {
             recordMap.put(captureTime + "_" + HTTP, FAIL_STATUS);
-            logger.info("当天数据导入失败");
+            logger.info("当前数据导入失败");
         }
 
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
@@ -54,6 +54,8 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
         logger.info("http : {} 的数据,索引完成", captureTime);
+
+        client.close();
         return flat;
     }
 

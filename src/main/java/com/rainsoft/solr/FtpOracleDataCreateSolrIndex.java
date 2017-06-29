@@ -54,6 +54,9 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
         logger.info("FTP : {} 的数据,索引完成", captureTime);
+
+        client.close();
+
         return flat;
     }
     private static boolean ftpCreateIndex(List<RegContentFtp> dataList, SolrClient client) throws IOException, SolrServerException {

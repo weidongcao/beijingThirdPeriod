@@ -51,6 +51,9 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
         FileUtils.writeStringToFile(recordFile, newRecords, false);
 
         logger.info("imchat : {} 的数据,索引完成", captureTime);
+
+        client.close();
+
         return flat;
     }
     private static boolean imChatCreateIndex(List<RegContentImChat> dataList, SolrClient client) throws IOException, SolrServerException {
