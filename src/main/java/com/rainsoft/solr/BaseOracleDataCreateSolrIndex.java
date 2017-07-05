@@ -158,10 +158,14 @@ public class BaseOracleDataCreateSolrIndex {
         //遍历实体属性,将之赋值给Solr导入实体
         for (Field field : fields) {
             String fieldName = field.getName();
+            String fieldValue = (String) ReflectUtils.getFieldValueByName(fieldName, obj);
+            if (null == fieldValue) {
+                fieldValue = "";
+            }
             if ("id".equals(fieldName)) {
-                doc.addField("SID", ReflectUtils.getFieldValueByName(fieldName, obj));
+                doc.addField("SID", fieldValue);
             } else {
-                doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, obj));
+                doc.addField(fieldName.toUpperCase(), fieldValue);
             }
         }
         //导入时间
