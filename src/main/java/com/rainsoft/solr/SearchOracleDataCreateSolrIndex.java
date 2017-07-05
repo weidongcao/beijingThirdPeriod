@@ -30,7 +30,10 @@ public class SearchOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
 
         client.close();
     }
+
     private static boolean searchCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.SearchOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("search : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据

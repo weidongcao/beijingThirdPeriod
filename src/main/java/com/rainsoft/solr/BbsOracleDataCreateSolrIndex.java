@@ -36,6 +36,8 @@ public class BbsOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
     }
 
     private static boolean bbsCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.BbsOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("bbs : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据

@@ -4,73 +4,56 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegContentShop {
-    public String id;
-    public String sessionid;
-    public String service_code;
-    public String room_id;
-    public String certificate_type;
-    public String certificate_code;
-    public String user_name;
-    public String protocol_type;
-    public String account;
-    public String passwd;
-    public String url;
-    public String domain_name;
-    public String ref_url;
-    public String ref_domain;
-    public String buyer_name;
-    public String buyer_address;
-    public String buyer_mobile;
-    public String buyer_phone;
-    public String buyer_email;
-    public String zipcode;
-    public String idcode;
-    public String action_type;
-    public String dest_ip;
-    public String dest_port;
-    public String src_ip;
-    public String src_port;
-    public String capture_time;
-    public String src_mac;
-    public String checkin_id;
-    public String data_source;
-    public String machine_id;
+    public String id = "";
+    public String sessionid = "";
+    public String service_code = "";
+    public String room_id = "";
+    public String certificate_type = "";
+    public String certificate_code = "";
+    public String user_name = "";
+    public String protocol_type = "";
+    public String account = "";
+    public String passwd = "";
+    public String url = "";
+    public String domain_name = "";
+    public String ref_url = "";
+    public String ref_domain = "";
+    public String buyer_name = "";
+    public String buyer_address = "";
+    public String buyer_mobile = "";
+    public String buyer_phone = "";
+    public String buyer_email = "";
+    public String zipcode = "";
+    public String idcode = "";
+    public String action_type = "";
+    public String dest_ip = "";
+    public String dest_port = "";
+    public String src_ip = "";
+    public String src_port = "";
+    public String capture_time = "";
+    public String src_mac = "";
+    public String checkin_id = "";
+    public String data_source = "";
+    public String machine_id = "";
 
-    @Override
-    public String toString() {
-        return "RegContentShop{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", account='" + account + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", url='" + url + '\'' +
-                ", domain_name='" + domain_name + '\'' +
-                ", ref_url='" + ref_url + '\'' +
-                ", ref_domain='" + ref_domain + '\'' +
-                ", buyer_name='" + buyer_name + '\'' +
-                ", buyer_address='" + buyer_address + '\'' +
-                ", buyer_mobile='" + buyer_mobile + '\'' +
-                ", buyer_phone='" + buyer_phone + '\'' +
-                ", buyer_email='" + buyer_email + '\'' +
-                ", zipcode='" + zipcode + '\'' +
-                ", idcode='" + idcode + '\'' +
-                ", action_type='" + action_type + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", data_source='" + data_source + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
+
+    public String file_path = "";
+    public String posting_id = "";
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
     }
 
     public String getId() {

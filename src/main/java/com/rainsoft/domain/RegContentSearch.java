@@ -4,55 +4,64 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegContentSearch {
-    public String id;
-    public String sessionid;
-    public String service_code;
-    public String room_id;
-    public String certificate_type;
-    public String certificate_code;
-    public String user_name;
-    public String protocol_type;
-    public String url;
-    public String domain_name;
-    public String ref_url;
-    public String ref_domain;
-    public String keyword;
-    public String keyword_code;
-    public String dest_ip;
-    public String dest_port;
-    public String src_ip;
-    public String src_port;
-    public String src_mac;
-    public String capture_time;
-    public String checkin_id;
-    public String machine_id;
+    public String id = "";
+    public String sessionid = "";
+    public String service_code = "";
+    public String room_id = "";
+    public String certificate_type = "";
+    public String certificate_code = "";
+    public String user_name = "";
+    public String protocol_type = "";
+    public String url = "";
+    public String domain_name = "";
+    public String ref_url = "";
+    public String ref_domain = "";
+    public String keyword = "";
+    public String keyword_code = "";
+    public String dest_ip = "";
+    public String dest_port = "";
+    public String src_ip = "";
+    public String src_port = "";
+    public String src_mac = "";
+    public String capture_time = "";
+    public String checkin_id = "";
+    public String machine_id = "";
 
-    @Override
-    public String toString() {
-        return "RegContentSearch{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", url='" + url + '\'' +
-                ", domain_name='" + domain_name + '\'' +
-                ", ref_url='" + ref_url + '\'' +
-                ", ref_domain='" + ref_domain + '\'' +
-                ", keyword='" + keyword + '\'' +
-                ", keyword_code='" + keyword_code + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
+    public String action_type = "";
+    public String file_path = "";
+    public String passwd = "";
+    public String posting_id = "";
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
+    }
+
+    public String getAction_type() {
+        return action_type;
+    }
+
+    public void setAction_type(String action_type) {
+        this.action_type = action_type;
     }
 
     public String getId() {

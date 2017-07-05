@@ -30,7 +30,10 @@ public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
 
         client.close();
     }
+
     private static boolean vidCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.VidOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("vid : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据
@@ -84,12 +87,7 @@ public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
                 Field[] fields = RegVidInfo.class.getFields();
 
                 //遍历实体属性,将之赋值给Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, vid));
-                }
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                addFieldToSolr(doc, fields, vid);
 
                 //索引实体添加缓冲区
                 cacheList.add(doc);

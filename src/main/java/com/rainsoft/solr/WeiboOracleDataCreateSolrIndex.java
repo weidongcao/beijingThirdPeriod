@@ -30,7 +30,10 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
 
         client.close();
     }
+
     private static boolean weiboCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.WeiboOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("weibo : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据
@@ -44,6 +47,7 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
     }
 
     private static boolean weiboCreateIndex(List<RegContentWeibo> dataList, SolrClient client) throws IOException, SolrServerException {
+
         logger.info("当前要索引的数据量 = {}", numberFormat.format(dataList.size()));
         long startIndexTime = new Date().getTime();
 
@@ -84,12 +88,7 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
                 Field[] fields = RegContentWeibo.class.getFields();
 
                 //遍历实体属性,将之赋值给Solr导入实体
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    doc.addField(fieldName.toUpperCase(), ReflectUtils.getFieldValueByName(fieldName, weibo));
-                }
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
+                addFieldToSolr(doc, fields, weibo);
 
                 //捕获时间转为毫秒赋值给Solr导入实体
                 try {

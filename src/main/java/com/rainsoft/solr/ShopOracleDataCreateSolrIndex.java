@@ -30,7 +30,10 @@ public class ShopOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
         client.close();
     }
+
     private static boolean shopCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ShopOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("shop : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据
@@ -85,8 +88,6 @@ public class ShopOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
                 //遍历实体属性,将之赋值给Solr导入实体
                 addFieldToSolr(doc, fields, shop);
-                //导入时间
-                doc.addField("IMPORT_TIME", com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()));
 
                 //捕获时间转为毫秒赋值给Solr导入实体
                 try {

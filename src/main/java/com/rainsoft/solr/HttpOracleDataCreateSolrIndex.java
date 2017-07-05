@@ -28,6 +28,8 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
     protected static HttpDao httpDao = (HttpDao) context.getBean("httpDao");
 
     private static boolean httpCreateSolrIndexByDay(String captureTime, float startPercent, float endPercent) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.HttpOracleDataCreateSolrIndex {} {} {}", captureTime, startPercent, endPercent);
+
         logger.info("http : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据

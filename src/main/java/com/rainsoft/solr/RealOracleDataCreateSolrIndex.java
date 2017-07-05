@@ -30,7 +30,10 @@ public class RealOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
         client.close();
     }
+
     private static boolean realCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RealOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("real : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据

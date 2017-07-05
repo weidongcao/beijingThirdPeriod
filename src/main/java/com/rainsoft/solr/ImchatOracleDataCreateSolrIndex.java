@@ -27,6 +27,8 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
     protected static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
 
     private static boolean imChatCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ImchatOracleDataCreateSolrIndex {}", captureTime);
+
         logger.info("imChat : 开始索引 {} 的数据", captureTime);
 
         //获取数据库一天的数据

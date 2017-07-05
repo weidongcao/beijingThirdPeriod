@@ -4,58 +4,131 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class ServiceInfo {
-    public String group_id;
-    public String service_type;
-    public String service_code;
-    public String service_name;
-    public String address;
-    public String postal_code;
-    public String principal;
-    public String principal_tel;
-    public String infor_man;
-    public String infor_man_tel;
-    public String infor_man_email;
-    public String isp;
-    public String status;
-    public String ending_nums;
-    public String server_nums;
-    public String service_ip;
-    public String net_type;
-    public String practitioner_count;
-    public String net_monitor_department;
-    public String net_monitor_man;
-    public String net_monitor_man_tel;
-    public String remark;
-    public String data_source;
-    public String machine_id;
-    public String service_name_pin_yin;
-    public String online_status;
-    public String update_time;
-    public String probe_version;
-    public String templet_version;
-    public String longitude_latitude;
-    public String space_size;
-    public String latitude;
-    public String ip_address;
-    public String is_outline_alert;
-    public String elevation;
-    public String service_img;
-    public String agen_lave_time;
-    public String real_ending_nums;
-    public String cause;
-    public String is_allow_insert;
-    public String business_nature;
-    public String law_principal_certificate_type;
-    public String law_principal_certificate_id;
-    public String start_time;
-    public String end_time;
-    public String is_read;
-    public String zipname;
-    public String bcpname;
-    public String rownumber;
-    public String install_time;
-    public String polic_station;
-    public String manufacturer_code;
+    public String group_id = "";
+    public String service_type = "";
+    public String service_code = "";
+    public String service_name = "";
+    public String address = "";
+    public String postal_code = "";
+    public String principal = "";
+    public String principal_tel = "";
+    public String infor_man = "";
+    public String infor_man_tel = "";
+    public String infor_man_email = "";
+    public String isp = "";
+    public String status = "";
+    public String ending_nums = "";
+    public String server_nums = "";
+    public String service_ip = "";
+    public String net_type = "";
+    public String practitioner_count = "";
+    public String net_monitor_department = "";
+    public String net_monitor_man = "";
+    public String net_monitor_man_tel = "";
+    public String remark = "";
+    public String data_source = "";
+    public String machine_id = "";
+    public String service_name_pin_yin = "";
+    public String online_status = "";
+    public String update_time = "";
+    public String probe_version = "";
+    public String templet_version = "";
+    public String longitude_latitude = "";
+    public String space_size = "";
+    public String latitude = "";
+    public String ip_address = "";
+    public String is_outline_alert = "";
+    public String elevation = "";
+    public String service_img = "";
+    public String agen_lave_time = "";
+    public String real_ending_nums = "";
+    public String cause = "";
+    public String is_allow_insert = "";
+    public String business_nature = "";
+    public String law_principal_certificate_type = "";
+    public String law_principal_certificate_id = "";
+    public String start_time = "";
+    public String end_time = "";
+    public String is_read = "";
+    public String zipname = "";
+    public String bcpname = "";
+    public String rownumber = "";
+    public String install_time = "";
+    public String polic_station = "";
+    public String manufacturer_code = "";
+
+    public String capture_time = "";
+    public String action_type = "";
+    public String dest_port = "";
+    public String file_path = "";
+    public String passwd = "";
+    public String posting_id = "";
+    public String protocol_type = "";
+    public String src_port = "";
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
+    }
+
+    public String getProtocol_type() {
+        return protocol_type;
+    }
+
+    public void setProtocol_type(String protocol_type) {
+        this.protocol_type = protocol_type;
+    }
+
+    public String getSrc_port() {
+        return src_port;
+    }
+
+    public void setSrc_port(String src_port) {
+        this.src_port = src_port;
+    }
+
+    public String getDest_port() {
+        return dest_port;
+    }
+
+    public void setDest_port(String dest_port) {
+        this.dest_port = dest_port;
+    }
+
+    public String getAction_type() {
+        return action_type;
+    }
+
+    public void setAction_type(String action_type) {
+        this.action_type = action_type;
+    }
+
+    public String getCapture_time() {
+        return capture_time;
+    }
+
+    public void setCapture_time(String capture_time) {
+        this.capture_time = capture_time;
+    }
 
     @Override
     public String toString() {

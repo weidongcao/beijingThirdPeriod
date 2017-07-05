@@ -4,71 +4,46 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegContentEmail {
-    public String id;
-    public String sessionid;
-    public String service_code;
-    public String room_id;
-    public String certificate_type;
-    public String certificate_code;
-    public String user_name;
-    public String protocol_type;
-    public String account;
-    public String passwd;
-    public String mailid;
-    public String send_time;
-    public String mail_from;
-    public String mail_to;
-    public String cc;
-    public String bcc;
-    public String subject;
-    public String summary;
-    public String attachment;
-    public String file_path;
-    public String action_type;
-    public String dest_ip;
-    public String dest_port;
-    public String src_ip;
-    public String src_port;
-    public String src_mac;
-    public String capture_time;
-    public String checkin_id;
-    public String data_source;
-    public String machine_id;
+    public String id = "";
+    public String sessionid = "";
+    public String service_code = "";
+    public String room_id = "";
+    public String certificate_type = "";
+    public String certificate_code = "";
+    public String user_name = "";
+    public String protocol_type = "";
+    public String account = "";
+    public String passwd = "";
+    public String mailid = "";
+    public String send_time = "";
+    public String mail_from = "";
+    public String mail_to = "";
+    public String cc = "";
+    public String bcc = "";
+    public String subject = "";
+    public String summary = "";
+    public String attachment = "";
+    public String file_path = "";
+    public String action_type = "";
+    public String dest_ip = "";
+    public String dest_port = "";
+    public String src_ip = "";
+    public String src_port = "";
+    public String src_mac = "";
+    public String capture_time = "";
+    public String checkin_id = "";
+    public String data_source = "";
+    public String machine_id = "";
 
-    @Override
-    public String toString() {
-        return "RegContentEmail{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", account='" + account + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", mailid='" + mailid + '\'' +
-                ", send_time='" + send_time + '\'' +
-                ", mail_from='" + mail_from + '\'' +
-                ", mail_to='" + mail_to + '\'' +
-                ", cc='" + cc + '\'' +
-                ", bcc='" + bcc + '\'' +
-                ", subject='" + subject + '\'' +
-                ", summary='" + summary + '\'' +
-                ", attachment='" + attachment + '\'' +
-                ", file_path='" + file_path + '\'' +
-                ", action_type='" + action_type + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", data_source='" + data_source + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
+
+    public String posting_id = "";
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
     }
 
     public String getId() {

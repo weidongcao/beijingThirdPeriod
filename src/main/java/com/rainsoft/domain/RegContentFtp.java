@@ -6,56 +6,56 @@ import java.util.Date;
 /**
  * Created by Administrator on 2017-06-12.
  */
-public class RegContentFtp implements Serializable {
-
-    private static final long serialVersionUID = 2236145089427356882L;
+public class RegContentFtp{
 
     //ID
-    public String id;
+    public String id = "";
     //会话ID
-    public String sessionid;
+    public String sessionid = "";
     //场所编号
-    public String service_code;
+    public String service_code = "";
     //房间号/座位号
-    public String room_id;
+    public String room_id = "";
     //证件类型
-    public String certificate_type;
+    public String certificate_type = "";
     //证件号
-    public String certificate_code;
+    public String certificate_code = "";
     //证件姓名
-    public String user_name;
+    public String user_name = "";
     //协议类型
-    public String protocol_type;
+    public String protocol_type = "";
     //帐号
-    public String account;
+    public String account = "";
     //密码
-    public String passwd;
+    public String passwd = "";
     //文件名
-    public String file_name;
+    public String file_name = "";
     //文件路径
-    public String file_path;
+    public String file_path = "";
     //操作类型
-    public String action_type;
+    public String action_type = "";
     //是否完成
-    public String is_completed;
+    public String is_completed = "";
     //目标IP
-    public String dest_ip;
+    public String dest_ip = "";
     //目标端口
-    public String dest_port;
+    public String dest_port = "";
     //源IP
-    public String src_ip;
+    public String src_ip = "";
     //源端口
-    public String src_port;
+    public String src_port = "";
     //源MAC地址
-    public String src_mac;
+    public String src_mac = "";
     //捕获时间
-    public String capture_time;
+    public String capture_time = "";
     //用户登记ID
-    public String checkin_id;
+    public String checkin_id = "";
     //数据来源
-    public String data_source;
+    public String data_source = "";
     //设备编号
-    public String machine_id;
+    public String machine_id = "";
+
+//    public String posting_id = "";
 
     public String getId() {
         return id;

@@ -4,28 +4,110 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegRealIdInfo {
-    public String certificate_type;
-    public String certificate_code;
-    public String user_name;
-    public String sex;
-    public String birthday;
-    public String people;
-    public String country;
-    public String org_name;
-    public String remark;
-    public String last_logintime;
-    public String last_service_code;
-    public String use_nums;
-    public String first_logintime;
-    public String first_service_code;
-    public String first_room_id;
-    public String last_room_id;
-    public String qq_nums;
-    public String user_address;
-    public String user_phone;
-    public String id_expiretime;
-    public String id;
-    public String mac_source;
+    public String certificate_type = "";
+    public String certificate_code = "";
+    public String user_name = "";
+    public String sex = "";
+    public String birthday = "";
+    public String people = "";
+    public String country = "";
+    public String org_name = "";
+    public String remark = "";
+    public String last_logintime = "";
+    public String last_service_code = "";
+    public String use_nums = "";
+    public String first_logintime = "";
+    public String first_service_code = "";
+    public String first_room_id = "";
+    public String last_room_id = "";
+    public String qq_nums = "";
+    public String user_address = "";
+    public String user_phone = "";
+    public String id_expiretime = "";
+    public String id = "";
+    public String mac_source = "";
+
+    public String capture_time = "";
+    public String action_type = "";
+    public String dest_port = "";
+    public String file_path = "";
+    public String machine_id = "";
+    public String passwd = "";
+    public String posting_id = "";
+    public String protocol_type = "";
+    public String src_port = "";
+
+    public String getDest_port() {
+        return dest_port;
+    }
+
+    public void setDest_port(String dest_port) {
+        this.dest_port = dest_port;
+    }
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getMachine_id() {
+        return machine_id;
+    }
+
+    public void setMachine_id(String machine_id) {
+        this.machine_id = machine_id;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
+    }
+
+    public String getProtocol_type() {
+        return protocol_type;
+    }
+
+    public void setProtocol_type(String protocol_type) {
+        this.protocol_type = protocol_type;
+    }
+
+    public String getSrc_port() {
+        return src_port;
+    }
+
+    public void setSrc_port(String src_port) {
+        this.src_port = src_port;
+    }
+
+    public String getAction_type() {
+        return action_type;
+    }
+
+    public void setAction_type(String action_type) {
+        this.action_type = action_type;
+    }
+
+    public String getCapture_time() {
+        return capture_time;
+    }
+
+    public void setCapture_time(String capture_time) {
+        this.capture_time = capture_time;
+    }
 
     @Override
     public String toString() {

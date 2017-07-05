@@ -4,37 +4,93 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegVidInfo {
-    public String protocol_type;
-    public String account;
-    public String nick_name;
-    public String passwd;
-    public String use_nums;
-    public String last_logintime;
-    public String last_service_code;
-    public String first_logintime;
-    public String first_service_code;
-    public String first_room_id;
-    public String last_room_id;
-    public String realid_nums;
-    public String id;
+    public String protocol_type = "";
+    public String account = "";
+    public String nick_name = "";
+    public String passwd = "";
+    public String use_nums = "";
+    public String last_logintime = "";
+    public String last_service_code = "";
+    public String first_logintime = "";
+    public String first_service_code = "";
+    public String first_room_id = "";
+    public String last_room_id = "";
+    public String realid_nums = "";
+    public String id = "";
 
-    @Override
-    public String toString() {
-        return "RegVidInfo{" +
-                "protocol_type='" + protocol_type + '\'' +
-                ", account='" + account + '\'' +
-                ", nick_name='" + nick_name + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", use_nums='" + use_nums + '\'' +
-                ", last_logintime='" + last_logintime + '\'' +
-                ", last_service_code='" + last_service_code + '\'' +
-                ", first_logintime='" + first_logintime + '\'' +
-                ", first_service_code='" + first_service_code + '\'' +
-                ", first_room_id='" + first_room_id + '\'' +
-                ", last_room_id='" + last_room_id + '\'' +
-                ", realid_nums='" + realid_nums + '\'' +
-                ", id='" + id + '\'' +
-                '}';
+    public String capture_time = "";
+    public String action_type = "";
+    public String dest_port = "";
+    public String file_path = "";
+    public String machine_id = "";
+    public String posting_id = "";
+    public String src_port = "";
+
+    public String getDest_port() {
+        return dest_port;
+    }
+
+    public void setDest_port(String dest_port) {
+        this.dest_port = dest_port;
+    }
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getMachine_id() {
+        return machine_id;
+    }
+
+    public void setMachine_id(String machine_id) {
+        this.machine_id = machine_id;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
+    }
+
+    public String getSrc_port() {
+        return src_port;
+    }
+
+    public void setSrc_port(String src_port) {
+        this.src_port = src_port;
+    }
+
+    public String getCertificate_type() {
+        return certificate_type;
+    }
+
+    public void setCertificate_type(String certificate_type) {
+        this.certificate_type = certificate_type;
+    }
+
+    public String certificate_type;
+
+    public String getAction_type() {
+        return action_type;
+    }
+
+    public void setAction_type(String action_type) {
+        this.action_type = action_type;
+    }
+
+
+    public String getCapture_time() {
+        return capture_time;
+    }
+
+    public void setCapture_time(String capture_time) {
+        this.capture_time = capture_time;
     }
 
     public String getProtocol_type() {

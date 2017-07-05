@@ -5,65 +5,90 @@ import java.io.Serializable;
 /**
  * Created by Administrator on 2017-06-12.
  */
-public class RegContentHttp implements Serializable {
-
-    private static final long serialVersionUID = 8165248988135633545L;
+public class RegContentHttp{
 
     //ID
-    public String id;
+    public String id = "";
     //会话ID
-    public String sessionid;
+    public String sessionid = "";
     //场所编号
-    public String service_code;
+    public String service_code = "";
     //房间号
-    public String room_id;
+    public String room_id = "";
     //证件类型
-    public String certificate_type;
+    public String certificate_type = "";
     //证件号
-    public String certificate_code;
+    public String certificate_code = "";
     //证件姓名
-    public String user_name;
+    public String user_name = "";
     //协议类型
-    public String protocol_type;
+    public String protocol_type = "";
     //
-    public String url;
+    public String url = "";
     //域名
-    public String domain_name;
+    public String domain_name = "";
     //引用URL
-    public String ref_url;
+    public String ref_url = "";
     //引用域名
-    public String ref_domain;
+    public String ref_domain = "";
     //操作类型1=上线；2=下线；3=订单；4=注册信息
-    public String action_type;
+    public String action_type = "";
     //页面主题
-    public String subject;
+    public String subject = "";
     //正文摘要
-    public String summary;
+    public String summary = "";
     //cookie路径
-    public String cookie_path;
+    public String cookie_path = "";
     //上传文件
-    public String upload_file;
+    public String upload_file = "";
     //下载文件
-    public String download_file;
+    public String download_file = "";
     //目标IP
-    public String dest_ip;
+    public String dest_ip = "";
     //目标端口
-    public String dest_port;
+    public String dest_port = "";
     //源IP
-    public String src_ip;
+    public String src_ip = "";
     //源端口
-    public String src_port;
+    public String src_port = "";
     //源MAC地址
-    public String src_mac;
+    public String src_mac = "";
     //捕获时间
-    public String capture_time;
+    public String capture_time = "";
     //用户登记ID
-    public String checkin_id;
+    public String checkin_id = "";
     //数据来源
-    public String data_source;
+    public String data_source = "";
     //设备编号
-    public String machine_id;
+    public String machine_id = "";
 
+    public String file_path = "";
+    public String passwd = "";
+    public String posting_id = "";
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    public String getPosting_id() {
+        return posting_id;
+    }
+
+    public void setPosting_id(String posting_id) {
+        this.posting_id = posting_id;
+    }
 
     public String getId() {
         return id;

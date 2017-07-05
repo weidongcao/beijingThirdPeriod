@@ -29,25 +29,30 @@ template_test_cmd = "python TestPython.py {start_date} {end_date}"
 
 def exec_command_shell(full_command, cwd_path):
     try:
-        result_cmd = subprocess.Popen(full_command, cwd=cwd_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(full_command, cwd=cwd_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, shell=True)
+
+        while True:
+            print process.stdout.readline()
+            if process.poll() is not None:
+                break
+
         # 等等命令行运行完
-        result_cmd.wait()
+        process.wait()
 
         # 获取命令行输出
-        stdout = result_cmd.stdout.read()
-        print("stdout = " + str(stdout))
+        stdout = process.stdout.read()
 
         # 获取命令行异常
-        stderr = result_cmd.stderr.read()
+        stderr = process.stderr.read()
         # print("stderr = " + str(stderr))
 
         # 获取shell 命令返回值,如果正常执行会返回0, 执行异常返回其他值
-        return_code = result_cmd.returncode
+        return_code = process.returncode
         # print("return_code = " + str(return_code))
 
         # 获取命令运行进程号
-        pid = result_cmd.pid
+        pid = process.pid
 
         result_dict = {"stdout": stdout, "stderr": stderr, "return_code": return_code, "pid": pid}
         return result_dict
@@ -56,14 +61,12 @@ def exec_command_shell(full_command, cwd_path):
         return False
 
 
-def exit_on_exception(result_dict):
+def run_shell(cmd, pwd_path):
+    result_dict = exec_command_shell(cmd, pwd_path)
     if result_dict["return_code"] != 0:
         print("程序执行失败,程序即将退出")
         os._exit(0)
-
-
-# 休眠,等等内存清理完毕
-def wait_to_clear_memory():
+    # 休眠, 等待内存清理完毕
     time.sleep(5)
 
 
@@ -80,37 +83,28 @@ def main(args):
         cur_date = start_date.strftime('%Y-%m-%d')
 
         # 索引FTP的数据
-        ftp_cmd = template_ftp_cmd.replace("${date}", cur_date)
-        result_dict = exec_command_shell(ftp_cmd, pwd_path)
-        exit_on_exception(result_dict)
-
-        # 休眠, 等待内存清理完毕
-        wait_to_clear_memory()
-
+        ftp_cmd = template_ftp_cmd.replace("${cur_date}", cur_date)
+        run_shell(ftp_cmd, pwd_path)
 
         # 索引聊天的数据
-        imchat_cmd = template_imchat_cmd.replace("${date}", cur_date)
-        result_dict = exec_command_shell(imchat_cmd, pwd_path)
-        exit_on_exception(result_dict)
-
-        # 休眠, 等待内存清理完毕
-        wait_to_clear_memory()
+        imchat_cmd = template_imchat_cmd.replace("${cur_date}", cur_date)
+        run_shell(imchat_cmd, pwd_path)
 
         http_run_count = 4
         # 休眠5秒, 等待内存清理完毕
         for num in range(http_run_count):
-            http_cmd = template_http_cmd.replace("${date}", cur_date)
+            http_cmd = template_http_cmd.replace("${cur_date}", cur_date)
             http_cmd = http_cmd.replace("${start_percent}", float(num) / http_run_count)
             http_cmd = http_cmd.replace("${end_percent}", float(num + 1) / http_run_count)
-            result_dict = exec_command_shell(http_cmd, pwd_path)
-            exit_on_exception(result_dict)
-            # 休眠, 等待内存清理完毕
-            wait_to_clear_memory()
+
+            run_shell(http_cmd, pwd_path)
+
         print("<--------------------------------- " + cur_date + "的数据索引完毕 ------------------------------------------>")
 
     print("<--------------------------------- 数据索引完毕程序退出 ------------------------------------------>")
 
 if __name__ == "__main__":
     main(sys.argv)
+
 
 

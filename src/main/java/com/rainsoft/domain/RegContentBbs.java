@@ -4,72 +4,36 @@ package com.rainsoft.domain;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class RegContentBbs {
-    public String id;
-    public String sessionid;
-    public String service_code;
-    public String room_id;
-    public String certificate_type;
-    public String certificate_code;
-    public String user_name;
-    public String protocol_type;
-    public String account;
-    public String passwd;
-    public String url;
-    public String domain_name;
-    public String ref_url;
-    public String ref_domain;
-    public String posting_id;
-    public String title;
-    public String author;
-    public String source;
-    public String action_type;
-    public String summary;
-    public String file_path;
-    public String dest_ip;
-    public String dest_port;
-    public String src_ip;
-    public String src_port;
-    public String src_mac;
-    public String capture_time;
-    public String checkin_id;
-    public String data_source;
-    public String machine_id;
-
-    @Override
-    public String toString() {
-        return "RegContentBbs{" +
-                "id='" + id + '\'' +
-                ", sessionid='" + sessionid + '\'' +
-                ", service_code='" + service_code + '\'' +
-                ", room_id='" + room_id + '\'' +
-                ", certificate_type='" + certificate_type + '\'' +
-                ", certificate_code='" + certificate_code + '\'' +
-                ", user_name='" + user_name + '\'' +
-                ", protocol_type='" + protocol_type + '\'' +
-                ", account='" + account + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", url='" + url + '\'' +
-                ", domain_name='" + domain_name + '\'' +
-                ", ref_url='" + ref_url + '\'' +
-                ", ref_domain='" + ref_domain + '\'' +
-                ", posting_id='" + posting_id + '\'' +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", source='" + source + '\'' +
-                ", action_type='" + action_type + '\'' +
-                ", summary='" + summary + '\'' +
-                ", file_path='" + file_path + '\'' +
-                ", dest_ip='" + dest_ip + '\'' +
-                ", dest_port='" + dest_port + '\'' +
-                ", src_ip='" + src_ip + '\'' +
-                ", src_port='" + src_port + '\'' +
-                ", src_mac='" + src_mac + '\'' +
-                ", capture_time='" + capture_time + '\'' +
-                ", checkin_id='" + checkin_id + '\'' +
-                ", data_source='" + data_source + '\'' +
-                ", machine_id='" + machine_id + '\'' +
-                '}';
-    }
+    public String id = "";
+    public String sessionid = "";
+    public String service_code = "";
+    public String room_id = "";
+    public String certificate_type = "";
+    public String certificate_code = "";
+    public String user_name = "";
+    public String protocol_type = "";
+    public String account = "";
+    public String passwd  = "";
+    public String url = "";
+    public String domain_name = "";
+    public String ref_url = "";
+    public String ref_domain = "";
+    public String posting_id  = "";
+    public String title = "";
+    public String author = "";
+    public String source = "";
+    public String action_type = "";
+    public String summary = "";
+    public String file_path  = "";
+    public String dest_ip = "";
+    public String dest_port  = "";
+    public String src_ip = "";
+    public String src_port  = "";
+    public String src_mac = "";
+    public String capture_time = "";
+    public String checkin_id = "";
+    public String data_source = "";
+    public String machine_id = "";
 
     public String getId() {
         return id;
