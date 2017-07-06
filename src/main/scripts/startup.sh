@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-# 现在柳州索引的情况：
-# Http索引了一天中的0 ~ 0.2的数据大约120万
-# FTP索引了29、28、27号的数据大约不到100万
-# 聊天索引了29、28、27号的数据大约不到150万
-# 其他的全量索引
-
-
 # Http：由于Http的数据量比较大,一天的数据分多次执行,
 # 第一个参数, 索引哪一天的数据
 # 第二个参数,开始的范围
@@ -37,4 +30,7 @@ java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ServiceOracleDataCreate
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ShopOracleDataCreateSolrIndex
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.VidOracleDataCreateSolrIndex
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.WeiboOracleDataCreateSolrIndex
+
+python startup.py [开始日期] [结束日期]
+python startup.py 2017-06-29 2017-06-20
 

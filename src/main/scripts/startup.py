@@ -69,42 +69,71 @@ def run_shell(cmd, pwd_path):
     # 休眠, 等待内存清理完毕
     time.sleep(5)
 
+def valid_date(str):
+    """判断是否是一个有效的日期字符串"""
+    try:
+        time.strptime(str, "%Y-%m-%d")
+        return True
+    except:
+        return False
+
 
 def main(args):
+
+    """参数校验"""
+    if valid_date(args[1]) == False:
+        print("开始日期参数不是合法的日期: " + args[1])
+        return
+
+    if valid_date(args[2]) == False:
+        print("结束日期参数不是合法的日期: " + args[2])
+        return
+
     # 开始日期
     start_date = datetime.datetime.strptime(args[1], '%Y-%m-%d')
     # 结束日期
     end_date = datetime.datetime.strptime(args[2], '%Y-%m-%d')
 
+    if(start_date < end_date):
+        print("开始日期必须大于结束日期,开始日期为：" + start_date.__str__() + "; 结束日期为： " + end_date.__str__())
+        return
+
     pwd_path = os.getcwd()
     print("当前根目录为：" + pwd_path)
 
+    """指执行命令"""
     while start_date >= end_date:
         cur_date = start_date.strftime('%Y-%m-%d')
 
         # 索引FTP的数据
         ftp_cmd = template_ftp_cmd.replace("${cur_date}", cur_date)
+        print("当前要执行的命令：" + ftp_cmd)
         run_shell(ftp_cmd, pwd_path)
 
         # 索引聊天的数据
         imchat_cmd = template_imchat_cmd.replace("${cur_date}", cur_date)
+        print("当前要执行的命令：" + imchat_cmd)
         run_shell(imchat_cmd, pwd_path)
 
         http_run_count = 4
         # 休眠5秒, 等待内存清理完毕
         for num in range(http_run_count):
             http_cmd = template_http_cmd.replace("${cur_date}", cur_date)
-            http_cmd = http_cmd.replace("${start_percent}", float(num) / http_run_count)
-            http_cmd = http_cmd.replace("${end_percent}", float(num + 1) / http_run_count)
+            http_cmd = http_cmd.replace("${start_percent}", str(float(num) / http_run_count))
+            http_cmd = http_cmd.replace("${end_percent}", str(float(num + 1) / http_run_count))
+
+            print("http_cmd = " + http_cmd)
+            print("当前要执行的命令：" + http_cmd)
 
             run_shell(http_cmd, pwd_path)
 
         print("<--------------------------------- " + cur_date + "的数据索引完毕 ------------------------------------------>")
 
+        start_date = start_date + datetime.timedelta(days=-1)
+
     print("<--------------------------------- 数据索引完毕程序退出 ------------------------------------------>")
 
 if __name__ == "__main__":
     main(sys.argv)
-
 
 

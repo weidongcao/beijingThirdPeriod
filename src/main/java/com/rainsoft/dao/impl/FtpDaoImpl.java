@@ -3,6 +3,8 @@ package com.rainsoft.dao.impl;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.dao.FtpDao;
 import com.rainsoft.domain.RegContentFtp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +21,7 @@ import java.util.List;
  * Created by CaoWeidong on 2017-06-12.
  */
 public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
+    private static final Logger logger = LoggerFactory.getLogger(FtpDaoImpl.class);
 
     @Override
     public List<RegContentFtp> getFtpBydate(String date) {
@@ -27,8 +30,7 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
         String templeSql = ConfigurationManager.getProperty("sql_ftp_get_by_date");
 
         String sql = templeSql.replace("${date}", date);
-        System.out.println(com.rainsoft.utils.DateUtils.TIME_FORMAT.format(new Date()) + " FTP数据获取一天数据的sql: " + sql);
-
+        logger.info("FTP数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentFtp.class));
     }
