@@ -131,11 +131,11 @@ def valid_param(args):
     """参数校验"""
     if not valid_date(args[1]):
         print("开始日期参数不是合法的日期: " + args[1])
-        return
+        os._exit(0)
 
     if not valid_date(args[2]):
         print("结束日期参数不是合法的日期: " + args[2])
-        return
+        os._exit(0)
     # 开始日期
     start_date = datetime.datetime.strptime(args[1], '%Y-%m-%d')
     # 结束日期
@@ -143,7 +143,7 @@ def valid_param(args):
 
     if start_date < end_date:
         print("开始日期必须大于结束日期,开始日期为：" + start_date.__str__() + "; 结束日期为： " + end_date.__str__())
-        return
+        os._exit(0)
 
 
 def main(args):
