@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,8 @@ public class BaseOracleDataCreateSolrIndex {
 
     //创建Solr客户端
     //创建Solr客户端
-//    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
-    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
+//    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
 
     //导入记录文件
     static File recordFile;

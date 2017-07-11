@@ -129,14 +129,14 @@ public class BbsOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
             //提交次数增加
             submitCount++;
 
+            int tempSubListSize = sublist.size();
             //移除已经索引过的数据
             if (writeSize < dataList.size()) {
                 dataList = dataList.subList(writeSize, dataList.size());
             } else {
                 dataList.clear();
             }
-
-            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
+            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(tempSubListSize), numberFormat.format(dataList.size()));
         }
 
         long endIndexTime = new Date().getTime();
