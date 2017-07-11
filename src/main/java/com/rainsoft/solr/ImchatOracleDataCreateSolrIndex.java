@@ -21,7 +21,7 @@ import java.util.UUID;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
-    private static final Logger logger = LoggerFactory.getLogger(FtpOracleDataCreateSolrIndex.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImchatOracleDataCreateSolrIndex.class);
 
     //imChatDao
     private static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");

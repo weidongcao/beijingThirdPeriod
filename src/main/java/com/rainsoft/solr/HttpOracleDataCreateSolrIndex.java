@@ -22,7 +22,7 @@ import java.util.UUID;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
-    private static final Logger logger = LoggerFactory.getLogger(FtpOracleDataCreateSolrIndex.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpOracleDataCreateSolrIndex.class);
 
     //httpDao
     private static HttpDao httpDao = (HttpDao) context.getBean("httpDao");
