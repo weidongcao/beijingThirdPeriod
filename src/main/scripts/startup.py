@@ -7,21 +7,26 @@ import sys
 import time
 import os
 
+# 按天导入的表
+day_cmd_template_dict = {
+    "bbs_class": "BbsOracleDataCreateSolrIndex",
+    "email_class": "EmailOracleDataCreateSolrIndex",
+    "ftp_class": "FtpOracleDataCreateSolrIndex",
+    "imchat_class": "ImchatOracleDataCreateSolrIndex",
+    "real_class": "RealOracleDataCreateSolrIndex",
+    "search_class": "SearchOracleDataCreateSolrIndex",
+    "service_class": "ServiceOracleDataCreateSolrIndex",
+    "shop_class": "ShopOracleDataCreateSolrIndex",
+    "vid_class": "VidOracleDataCreateSolrIndex",
+    "weibo_class": "WeiboOracleDataCreateSolrIndex"
+}
 
-template_bbs_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.BbsOracleDataCreateSolrIndex ${cur_date}"
-template_email_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.EmailOracleDataCreateSolrIndex ${cur_date}"
+# 一天分多次导入的表
+percent_cmd_template_dict = {"http_class": "HttpOracleDataCreateSolrIndex"}
 
-template_ftp_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.FtpOracleDataCreateSolrIndex ${cur_date}"
-template_http_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.HttpOracleDataCreateSolrIndex ${cur_date} ${start_percent} ${end_percent}"
-template_imchat_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ImchatOracleDataCreateSolrIndex ${cur_date}"
-
-template_real_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RealOracleDataCreateSolrIndex ${cur_date}"
-template_search_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.SearchOracleDataCreateSolrIndex ${cur_date}"
-template_service_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ServiceOracleDataCreateSolrIndex ${cur_date}"
-template_shop_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ShopOracleDataCreateSolrIndex ${cur_date}"
-template_vid_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.VidOracleDataCreateSolrIndex ${cur_date}"
-template_weibo_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.WeiboOracleDataCreateSolrIndex ${cur_date}"
-template_test_cmd = "python TestPython.py {start_date} {end_date}"
+pref_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr."
+suffix_date = " ${cur_date}"
+suffix_percent = " ${start_percent} ${end_percent}"
 
 
 def exec_command_shell(full_command, cwd_path):
@@ -78,11 +83,12 @@ def run_shell(cmd, pwd_path):
     :return:
     """
     result_dict = exec_command_shell(cmd, pwd_path)
+    # result_dict = {"return_code": 0}
     if result_dict["return_code"] != 0:
         print("程序执行失败,程序即将退出")
         os._exit(0)
     # 休眠, 等待内存清理完毕
-    time.sleep(5)
+    time.sleep(3)
 
 
 def run_shell_by_day(template_cmd, cur_date, pwd_path):
@@ -162,17 +168,19 @@ def main(args):
         sys_start_time = datetime.datetime.now()
         cur_date = start_date.strftime('%Y-%m-%d')
 
-        # 索引FTP的数据
-        run_shell_by_day(template_ftp_cmd, cur_date, pwd_path)
-        # 索引聊天的数据
-        run_shell_by_day(template_imchat_cmd, cur_date, pwd_path)
+        # 一天导入一次的任务
+        for cmd in day_cmd_template_dict.values():
+            template_cmd = pref_cmd + cmd + suffix_date
+            run_shell_by_day(template_cmd, cur_date, pwd_path)
 
-        # 索引HTTP的数据
-        run_shell_by_day_percent(template_http_cmd, cur_date, 4, pwd_path)
+        # 一天的数据分多次导入的任务
+        for cmd in percent_cmd_template_dict.values():
+            template_cmd = pref_cmd + cmd + suffix_date + suffix_percent
+            run_shell_by_day_percent(template_cmd, cur_date, 4, pwd_path)
 
         sys_end_time = datetime.datetime.now()
 
-        print("<------------------ " + cur_date + "的数据索引完毕,时间：" + str(sys_end_time - sys_start_time) + " ------------------>")
+        print("<------------------ " + cur_date + "的数据索引完毕,耗时：" + str(sys_end_time - sys_start_time).split(".")[0] + " ------------------>")
         # 日期减1
         start_date = start_date + datetime.timedelta(days=-1)
 
