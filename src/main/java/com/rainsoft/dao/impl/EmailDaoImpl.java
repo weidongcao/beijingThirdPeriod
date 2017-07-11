@@ -23,7 +23,7 @@ public class EmailDaoImpl extends JdbcDaoSupport implements EmailDao{
         String templeSql = "select * from reg_content_email";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Email数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentEmail.class));
     }

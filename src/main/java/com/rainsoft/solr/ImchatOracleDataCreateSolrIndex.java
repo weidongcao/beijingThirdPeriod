@@ -2,9 +2,6 @@ package com.rainsoft.solr;
 
 import com.rainsoft.dao.ImchatDao;
 import com.rainsoft.domain.RegContentImChat;
-import com.rainsoft.utils.ReflectUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -14,17 +11,23 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
+ * Oracle数据库聊天数据导入Solr
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
     private static final Logger logger = LoggerFactory.getLogger(FtpOracleDataCreateSolrIndex.class);
 
     //imChatDao
-    protected static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
+    private static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
+
+    private static final String IMCHAT = "imchat";
+    private static final String IMCHAT_TYPE = "聊天";
 
     private static boolean imChatCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ImchatOracleDataCreateSolrIndex {}", captureTime);
@@ -36,23 +39,9 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
 
         boolean flat = imChatCreateIndex(dataList, client);
 
-        //数据索引结果成功或者失败写入记录文件,
-        if (flat) {
-            recordMap.put(captureTime + "_" + IMCHAT, SUCCESS_STATUS);
-        } else {
-            recordMap.put(captureTime + "_" + IMCHAT, FAIL_STATUS);
-            logger.error("当天数据导入失败");
-        }
+        //导入完成后对不同的结果的处理
+        recordImportResult(IMCHAT, captureTime, flat);
 
-        List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
-
-        Collections.sort(newRecordList);
-
-        String newRecords = StringUtils.join(newRecordList, "\r\n");
-
-        FileUtils.writeStringToFile(recordFile, newRecords, false);
-
-        logger.info("imchat : {} 的数据,索引完成", captureTime);
         return flat;
     }
     private static boolean imChatCreateIndex(List<RegContentImChat> dataList, SolrClient client) throws IOException, SolrServerException {
@@ -126,8 +115,7 @@ public class ImchatOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInd
             } else {
                 dataList.clear();
             }
-
-            logger.info("第 {} 次索引10万条数据成功;剩余未索引的数据: {} 条", submitCount, numberFormat.format(dataList.size()));
+            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
         }
 
         long endIndexTime = new Date().getTime();

@@ -23,7 +23,7 @@ public class SearchDaoImpl extends JdbcDaoSupport implements SearchDao {
         String templeSql = "select * from reg_content_search";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Search数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentSearch.class));
     }

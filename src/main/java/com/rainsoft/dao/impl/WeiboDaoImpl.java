@@ -23,7 +23,7 @@ public class WeiboDaoImpl extends JdbcDaoSupport implements WeiboDao {
         String templeSql = "select * from reg_content_weibo";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Weibo数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentWeibo.class));
     }

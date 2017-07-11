@@ -23,7 +23,7 @@ public class ServiceDaoImpl extends JdbcDaoSupport implements ServiceDao {
         String templeSql = "select * from service_info";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Service数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ServiceInfo.class));
     }

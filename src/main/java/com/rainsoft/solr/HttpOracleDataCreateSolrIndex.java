@@ -2,9 +2,6 @@ package com.rainsoft.solr;
 
 import com.rainsoft.dao.HttpDao;
 import com.rainsoft.domain.RegContentHttp;
-import com.rainsoft.utils.ReflectUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -15,17 +12,22 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
+ * Oracle数据库 HTTP 数据导入Solr
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
     private static final Logger logger = LoggerFactory.getLogger(FtpOracleDataCreateSolrIndex.class);
 
     //httpDao
-    protected static HttpDao httpDao = (HttpDao) context.getBean("httpDao");
+    private static HttpDao httpDao = (HttpDao) context.getBean("httpDao");
+    private static final String HTTP = "http";
+    private static final String HTTP_TYPE = "网页";
 
     private static boolean httpCreateSolrIndexByDay(String captureTime, float startPercent, float endPercent) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.HttpOracleDataCreateSolrIndex {} {} {}", captureTime, startPercent, endPercent);
@@ -40,23 +42,8 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
         boolean flat = httpCreateIndex(dataList, client);
 
         if (endPercent == 1) {
-            //数据索引结果成功或者失败写入记录文件,
-            if (flat) {
-                recordMap.put(captureTime + "_" + HTTP, SUCCESS_STATUS);
-            } else {
-                recordMap.put(captureTime + "_" + HTTP, FAIL_STATUS);
-                logger.info("当天数据导入失败");
-            }
-
-            List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
-
-            Collections.sort(newRecordList);
-
-            String newRecords = StringUtils.join(newRecordList, "\r\n");
-
-            FileUtils.writeStringToFile(recordFile, newRecords, false);
-
-            logger.info("http : {} 的数据,索引完成", captureTime);
+            //导入完成后对不同的结果的处理
+            recordImportResult(HTTP, captureTime, flat);
         }
 
         return flat;
@@ -134,8 +121,7 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
             } else {
                 dataList.clear();
             }
-
-            logger.info("第 {} 次索引10万条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(dataList.size()));
+            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
         }
 
         long endIndexTime = new Date().getTime();

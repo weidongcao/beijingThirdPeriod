@@ -27,7 +27,7 @@ public class BbsDaoImpl extends JdbcDaoSupport implements BbsDao {
         String templeSql = "select * from reg_content_bbs";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Bbs数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentBbs.class));
     }

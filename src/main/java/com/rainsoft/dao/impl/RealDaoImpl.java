@@ -22,7 +22,7 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
         String templeSql = "select * from reg_realid_info";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Real数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegRealIdInfo.class));
     }

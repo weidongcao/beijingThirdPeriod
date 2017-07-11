@@ -2,7 +2,6 @@ package com.rainsoft.solr;
 
 import com.rainsoft.dao.VidDao;
 import com.rainsoft.domain.RegVidInfo;
-import com.rainsoft.utils.ReflectUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -19,14 +18,27 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * Oracle数据库 虚拟 数据导入Solr
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
     private static final Logger logger = LoggerFactory.getLogger(VidOracleDataCreateSolrIndex.class);
+
     private static VidDao vidDao = (VidDao) context.getBean("vidDao");
 
+    private static final String VID = "vid";
+    private static final String VID_TYPE = "虚拟";
+
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
-        vidCreateSolrIndexByDay("2017-06-28");
+        String date = args[0];
+
+        String ftpRecord = date + "_" + VID;
+        if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
+            vidCreateSolrIndexByDay(args[0]);
+            //对当天的数据重新添加索引
+        } else {
+            logger.info("{} : {} has already imported", date, VID);
+        }
 
         client.close();
     }
@@ -42,7 +54,9 @@ public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
         logger.info("从数据库查询数据结束");
         boolean flat = vidCreateIndex(dataList, client);
 
-        logger.info("vid : {} 的数据,索引完成", captureTime);
+        //导入完成后对不同的结果的处理
+        recordImportResult(VID, captureTime, flat);
+
         return flat;
     }
 
@@ -113,8 +127,7 @@ public class VidOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
             } else {
                 dataList.clear();
             }
-
-            logger.info("第 {} 次索引10万条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(dataList.size()));
+            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
         }
 
         long endIndexTime = new Date().getTime();

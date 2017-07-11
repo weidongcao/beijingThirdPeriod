@@ -2,9 +2,6 @@ package com.rainsoft.solr;
 
 import com.rainsoft.dao.FtpDao;
 import com.rainsoft.domain.RegContentFtp;
-import com.rainsoft.utils.ReflectUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -15,10 +12,13 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
+ * Oracle数据库Ftp数据导入Solr
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
@@ -27,6 +27,8 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
     //ftpDao
     private static FtpDao ftpDao = (FtpDao) context.getBean("ftpDao");
 
+    private static final String FTP = "ftp";
+    private static final String FTP_TYPE = "文件";
 
     private static boolean ftpCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
         logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.FtpOracleDataCreateSolrIndex {}", captureTime);
@@ -38,23 +40,9 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
         logger.info("从数据库查询数据结束");
         boolean flat = ftpCreateIndex(dataList, client);
 
-        //数据索引结果成功或者失败写入记录文件,
-        if (flat) {
-            recordMap.put(captureTime + "_" + FTP, SUCCESS_STATUS);
-        } else {
-            recordMap.put(captureTime + "_" + FTP, FAIL_STATUS);
-            logger.error("当天数据导入失败");
-        }
+        //导入完成后对不同的结果的处理
+        recordImportResult(FTP, captureTime, flat);
 
-        List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
-
-        Collections.sort(newRecordList);
-
-        String newRecords = StringUtils.join(newRecordList, "\r\n");
-
-        FileUtils.writeStringToFile(recordFile, newRecords, false);
-
-        logger.info("FTP : {} 的数据,索引完成", captureTime);
         return flat;
     }
     private static boolean ftpCreateIndex(List<RegContentFtp> dataList, SolrClient client) throws IOException, SolrServerException {
@@ -132,8 +120,7 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
             } else {
                 dataList.clear();
             }
-
-            logger.info("第 {} 次索引10万条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(dataList.size()));
+            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
         }
 
         long endIndexTime = new Date().getTime();

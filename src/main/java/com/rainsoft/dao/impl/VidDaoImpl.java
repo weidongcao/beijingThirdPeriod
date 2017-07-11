@@ -23,7 +23,7 @@ public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
         String templeSql = "select * from reg_vid_info";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info("sql: {}", sql);
+        logger.info("Vid数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegVidInfo.class));
     }

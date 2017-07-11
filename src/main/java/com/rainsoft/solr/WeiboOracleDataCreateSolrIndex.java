@@ -2,7 +2,6 @@ package com.rainsoft.solr;
 
 import com.rainsoft.dao.WeiboDao;
 import com.rainsoft.domain.RegContentWeibo;
-import com.rainsoft.utils.ReflectUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -19,14 +18,27 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * Oracle数据库 微博 数据导入Solr
  * Created by CaoWeiDong on 2017-06-28.
  */
 public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex {
     private static final Logger logger = LoggerFactory.getLogger(WeiboOracleDataCreateSolrIndex.class);
+
     private static WeiboDao weiboDao = (WeiboDao) context.getBean("weiboDao");
 
+    private static final String WEIBO = "weibo";
+    private static final String WEIBO_TYPE = "微博";
+
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
-        weiboCreateSolrIndexByDay("2017-06-28");
+        String date = args[0];
+
+        String ftpRecord = date + "_" + WEIBO;
+        if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
+            weiboCreateSolrIndexByDay(args[0]);
+            //对当天的数据重新添加索引
+        } else {
+            logger.info("{} : {} has already imported", date, WEIBO);
+        }
 
         client.close();
     }
@@ -42,7 +54,9 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
         logger.info("从数据库查询数据结束");
         boolean flat = weiboCreateIndex(dataList, client);
 
-        logger.info("weibo : {} 的数据,索引完成", captureTime);
+        //导入完成后对不同的结果的处理
+        recordImportResult(WEIBO, captureTime, flat);
+
         return flat;
     }
 
@@ -122,8 +136,7 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
             } else {
                 dataList.clear();
             }
-
-            logger.info("第 {} 次索引10万条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(dataList.size()));
+            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
         }
 
         long endIndexTime = new Date().getTime();

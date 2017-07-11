@@ -23,7 +23,7 @@ public class ShopDaoImpl extends JdbcDaoSupport implements ShopDao{
         String templeSql = "select * from reg_content_shop";
 
         String sql = templeSql.replace("${date}", date);
-        logger.info(" sql: {}", sql);
+        logger.info("Shop数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentShop.class));
     }
