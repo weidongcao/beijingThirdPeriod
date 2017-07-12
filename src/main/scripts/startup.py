@@ -13,11 +13,11 @@ day_cmd_template_dict = {
     "email_class": "EmailOracleDataCreateSolrIndex",
     "ftp_class": "FtpOracleDataCreateSolrIndex",
     "imchat_class": "ImchatOracleDataCreateSolrIndex",
-    "real_class": "RealOracleDataCreateSolrIndex",
+    #    "real_class": "RealOracleDataCreateSolrIndex",
     "search_class": "SearchOracleDataCreateSolrIndex",
-    "service_class": "ServiceOracleDataCreateSolrIndex",
+    #    "service_class": "ServiceOracleDataCreateSolrIndex",
     "shop_class": "ShopOracleDataCreateSolrIndex",
-    "vid_class": "VidOracleDataCreateSolrIndex",
+    #    "vid_class": "VidOracleDataCreateSolrIndex",
     "weibo_class": "WeiboOracleDataCreateSolrIndex"
 }
 
@@ -47,7 +47,7 @@ def exec_command_shell(full_command, cwd_path):
                                    stderr=subprocess.PIPE, shell=True)
 
         while True:
-            print process.stdout.readline()
+            print process.stdout.readline() ,
             if process.poll() is not None:
                 break
 
@@ -88,7 +88,7 @@ def run_shell(cmd, pwd_path):
         print("程序执行失败,程序即将退出")
         os._exit(0)
     # 休眠, 等待内存清理完毕
-    time.sleep(3)
+    time.sleep(5)
 
 
 def run_shell_by_day(template_cmd, cur_date, pwd_path):
@@ -165,23 +165,31 @@ def main(args):
 
     """指执行命令"""
     while start_date >= end_date:
+        # 导入一天的数据程序开始时间
         sys_start_time = datetime.datetime.now()
         cur_date = start_date.strftime('%Y-%m-%d')
 
         # 一天导入一次的任务
         for cmd in day_cmd_template_dict.values():
+            # 拼接命令模板
             template_cmd = pref_cmd + cmd + suffix_date
+            # 执行导入
             run_shell_by_day(template_cmd, cur_date, pwd_path)
 
         # 一天的数据分多次导入的任务
         for cmd in percent_cmd_template_dict.values():
+            # 拼接命令模板
             template_cmd = pref_cmd + cmd + suffix_date + suffix_percent
+            # 执行导入
             run_shell_by_day_percent(template_cmd, cur_date, 4, pwd_path)
 
+        # 导入一天的数据程序结束时间
         sys_end_time = datetime.datetime.now()
 
-        print("<------------------ " + cur_date + "的数据索引完毕,耗时：" + str(sys_end_time - sys_start_time).split(".")[0] + " ------------------>")
-        # 日期减1
+        # 导入一天的数据程序消耗的时间
+        print("<------------------------- " + cur_date + "的数据索引完毕,耗时：" + str(sys_end_time - sys_start_time).split(".")[0] + " ------------------------->")
+
+        # 日期向前推进一天
         start_date = start_date + datetime.timedelta(days=-1)
 
 
@@ -191,6 +199,8 @@ if __name__ == "__main__":
     # 结束日期
     end_date_param = datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d')
 
+    # 是否要导入实时数据
+    real_time_import = True
     """
     逻辑：
     历史的和实现的一起导入
@@ -198,25 +208,40 @@ if __name__ == "__main__":
     其他时间段执行历史的数据，如果历史的数据索引完了则程序休眠1小时
     """
     while True:
+        # 获取当前时间的小时
         cur_time = datetime.datetime.now()
         hour = cur_time.hour
         # 导入实时的数据
-        if hour == 1:
+        if hour < 3 and real_time_import:
+            # 每天的前3个小时导入前一天的数据
             yesterday = cur_time + datetime.timedelta(days=-1)
+            # 获取昨天的日期
             yest_date = datetime.datetime.strftime(yesterday, "%Y-%m-%d")
             print("start_date = " + yest_date)
+            # 参数
             param_list = ['startup-daily.py', yest_date, yest_date]
+            # 导入主程序
             main(param_list)
+            # 不需要再导入实时数据
+            real_time_import = False
         # 导入历史数据或休眠
         else:
             # 索引历史数据
             if start_date_param >= end_date_param:
+                # 历史数据日期
                 cur_date_param = datetime.datetime.strftime(start_date_param, "%Y-%m-%d")
+                # 历史数据参数
                 param_list = ['startup-daily.py', cur_date_param, cur_date_param]
+                # 导入主程序
                 main(param_list)
+                # 日期向前推进一天
                 start_date_param = start_date_param + datetime.timedelta(days=-1)
             # 如果历史数据已经索引完毕则程序休眠一个小时
             else:
                 time.sleep(3600)
+
+        # 每天3小时后重置实时数据导入状态
+        if hour >= 3 and real_time_import == False:
+            real_time_import = True
 
 
