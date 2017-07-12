@@ -51,7 +51,6 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
 
     private static boolean httpCreateIndex(List<RegContentHttp> dataList, SolrClient client) throws IOException, SolrServerException {
         logger.info("当前要索引的数据量 = {}", numberFormat.format(dataList.size()));
-        long startIndexTime = new Date().getTime();
 
         //缓冲数据list
         List<SolrInputDocument> cacheList = new ArrayList<>();
@@ -124,14 +123,13 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
             logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(sublist.size()), numberFormat.format(dataList.size()));
         }
 
-        long endIndexTime = new Date().getTime();
-        //计算索引一天的数据执行的时间（秒）
-        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
-        logger.info("HTTP索引数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
 
         return flat;
     }
+
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, SolrServerException, IOException {
+        long startIndexTime = new Date().getTime();
+
         String date = args[0];
         float startPercent = Float.valueOf(args[1]);
         float endPercent = Float.valueOf(args[2]);
@@ -141,6 +139,12 @@ public class HttpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex
         } else {
             logger.info("{} : {} has already imported", date, HTTP);
         }
+
+        long endIndexTime = new Date().getTime();
+        //计算索引一天的数据执行的时间（秒）
+        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+        logger.info("HTTP索引数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
+
         client.close();
 
     }

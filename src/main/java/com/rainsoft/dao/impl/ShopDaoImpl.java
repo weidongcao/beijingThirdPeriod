@@ -20,7 +20,7 @@ public class ShopDaoImpl extends JdbcDaoSupport implements ShopDao{
     public List<RegContentShop> getShopByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from reg_content_shop";
+        String templeSql = "select * from reg_content_shop where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("Shop数据获取一天数据的sql: {}", sql);
