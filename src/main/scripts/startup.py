@@ -88,7 +88,7 @@ def run_shell(cmd, pwd_path):
         print("程序执行失败,程序即将退出")
         os._exit(0)
     # 休眠, 等待内存清理完毕
-    time.sleep(5)
+    time.sleep(3)
 
 
 def run_shell_by_day(template_cmd, cur_date, pwd_path):

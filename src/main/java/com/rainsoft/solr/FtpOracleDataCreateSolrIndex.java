@@ -47,7 +47,6 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
     }
     private static boolean ftpCreateIndex(List<RegContentFtp> dataList, SolrClient client) throws IOException, SolrServerException {
         logger.info("当前要索引的数据量 = {}", numberFormat.format(dataList.size()));
-        long startIndexTime = new Date().getTime();
 
         //缓冲数据
         List<SolrInputDocument> cacheList = new ArrayList<>();
@@ -124,19 +123,14 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
             logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(tempSubListSize), numberFormat.format(dataList.size()));
         }
 
-        long endIndexTime = new Date().getTime();
-        //计算索引一天的数据执行的时间（秒）
-        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
-
-        logger.info("FTP索引一天的数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
 
         return flat;
     }
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
+        long startIndexTime = new Date().getTime();
 
         String date = args[0];
-
         String ftpRecord = date + "_" + FTP;
         if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
             ftpCreateSolrIndexByDay(args[0]);
@@ -144,6 +138,11 @@ public class FtpOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrIndex 
         } else {
             logger.info("{} : {} has already imported", date, FTP);
         }
+
+        long endIndexTime = new Date().getTime();
+        //计算索引一天的数据执行的时间（秒）
+        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+        logger.info("FTP索引一天的数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
 
         client.close();
 

@@ -30,8 +30,9 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
     private static final String WEIBO_TYPE = "微博";
 
     public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
-        String date = args[0];
+        long startIndexTime = new Date().getTime();
 
+        String date = args[0];
         String ftpRecord = date + "_" + WEIBO;
         if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
             weiboCreateSolrIndexByDay(args[0]);
@@ -39,6 +40,11 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
         } else {
             logger.info("{} : {} has already imported", date, WEIBO);
         }
+
+        long endIndexTime = new Date().getTime();
+        //计算索引数据执行的时间（秒）
+        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+        logger.info("weibo索引数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
 
         client.close();
     }
@@ -63,7 +69,6 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
     private static boolean weiboCreateIndex(List<RegContentWeibo> dataList, SolrClient client) throws IOException, SolrServerException {
 
         logger.info("当前要索引的数据量 = {}", numberFormat.format(dataList.size()));
-        long startIndexTime = new Date().getTime();
 
         //缓冲数据
         List<SolrInputDocument> cacheList = new ArrayList<>();
@@ -140,11 +145,6 @@ public class WeiboOracleDataCreateSolrIndex extends BaseOracleDataCreateSolrInde
             logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(tempSubListSize), numberFormat.format(dataList.size()));
         }
 
-        long endIndexTime = new Date().getTime();
-        //计算索引数据执行的时间（秒）
-        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
-
-        logger.info("weibo索引数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
 
         return flat;
     }

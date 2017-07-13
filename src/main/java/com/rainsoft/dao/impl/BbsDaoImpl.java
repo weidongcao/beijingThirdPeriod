@@ -24,7 +24,7 @@ public class BbsDaoImpl extends JdbcDaoSupport implements BbsDao {
     public List<RegContentBbs> getBbsByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from reg_content_bbs";
+        String templeSql = "select * from reg_content_bbs where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("Bbs数据获取一天数据的sql: {}", sql);
