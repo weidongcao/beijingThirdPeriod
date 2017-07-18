@@ -9,16 +9,8 @@ import os
 
 # 按天导入的表
 day_cmd_template_dict = {
-    #"bbs_class": "BbsOracleDataCreateSolrIndex",
-    #"email_class": "EmailOracleDataCreateSolrIndex",
     "ftp_class": "FtpOracleDataCreateSolrIndex",
     "imchat_class": "ImchatOracleDataCreateSolrIndex",
-    #    "real_class": "RealOracleDataCreateSolrIndex",
-    # "search_class": "SearchOracleDataCreateSolrIndex",
-    #    "service_class": "ServiceOracleDataCreateSolrIndex",
-    # "shop_class": "ShopOracleDataCreateSolrIndex",
-    #    "vid_class": "VidOracleDataCreateSolrIndex",
-    # "weibo_class": "WeiboOracleDataCreateSolrIndex"
 }
 
 # 一天分多次导入的表
@@ -50,7 +42,7 @@ def exec_command_shell(full_command, cwd_path):
             print process.stdout.readline() ,
             if process.poll() is not None:
                 break
-
+        print("")
         # 等等命令行运行完
         process.wait()
 
@@ -74,6 +66,11 @@ def exec_command_shell(full_command, cwd_path):
         print(e.message)
         return False
 
+def format_print(content):
+    suffex_info = "[" + datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S") + " INFO] "
+
+    print(suffex_info + content)
+
 
 def run_shell(cmd, pwd_path):
     """
@@ -88,7 +85,7 @@ def run_shell(cmd, pwd_path):
         print("程序执行失败,程序即将退出")
         os._exit(0)
     # 休眠, 等待内存清理完毕
-    time.sleep(3)
+    time.sleep(1)
 
 
 def run_shell_by_day(template_cmd, cur_date, pwd_path):
@@ -100,7 +97,9 @@ def run_shell_by_day(template_cmd, cur_date, pwd_path):
     :return:
     """
     cmd = template_cmd.replace("${cur_date}", cur_date)
-    print("当前要执行的命令：" + cmd)
+
+    format_print("当前要执行的命令：" + cmd)
+
     run_shell(cmd, pwd_path)
 
 
@@ -113,14 +112,12 @@ def run_shell_by_day_percent(template_cmd, cur_date, run_count, pwd_path):
     :param pwd_path: 执行Shell命令时所在的目录
     :return:
     """
-    # 休眠5秒, 等待内存清理完毕
     for num in range(run_count):
         cmd = template_cmd.replace("${cur_date}", cur_date)
         cmd = cmd.replace("${start_percent}", str(float(num) / run_count))
         cmd = cmd.replace("${end_percent}", str(float(num + 1) / run_count))
 
-        print("当前要执行的命令：" + cmd)
-
+        format_print("当前要执行的命令：" + cmd)
         run_shell(cmd, pwd_path)
 
 
@@ -136,11 +133,11 @@ def valid_date(date_param):
 def valid_param(args):
     """参数校验"""
     if not valid_date(args[1]):
-        print("开始日期参数不是合法的日期: " + args[1])
+        format_print("开始日期参数不是合法的日期: " + args[1])
         os._exit(0)
 
     if not valid_date(args[2]):
-        print("结束日期参数不是合法的日期: " + args[2])
+        format_print("结束日期参数不是合法的日期: " + args[2])
         os._exit(0)
     # 开始日期
     start_date = datetime.datetime.strptime(args[1], '%Y-%m-%d')
@@ -148,7 +145,7 @@ def valid_param(args):
     end_date = datetime.datetime.strptime(args[2], '%Y-%m-%d')
 
     if start_date < end_date:
-        print("开始日期必须大于结束日期,开始日期为：" + start_date.__str__() + "; 结束日期为： " + end_date.__str__())
+        format_print("开始日期必须大于结束日期,开始日期为：" + start_date.__str__() + "; 结束日期为： " + end_date.__str__())
         os._exit(0)
 
 
@@ -187,20 +184,23 @@ def main(args):
         sys_end_time = datetime.datetime.now()
 
         # 导入一天的数据程序消耗的时间
-        print("<------------------------- " + cur_date + "的数据索引完毕,耗时：" + str(sys_end_time - sys_start_time).split(".")[0] + " ------------------------->")
+        format_print("<------------------------- " + cur_date + "的数据索引完毕,耗时：" + str(sys_end_time - sys_start_time).split(".")[0] + " ------------------------->")
 
         # 日期向前推进一天
         start_date = start_date + datetime.timedelta(days=-1)
 
 
 if __name__ == "__main__":
-    # 开始日期
-    start_date_param = datetime.datetime.strptime(sys.argv[1], '%Y-%m-%d')
-    # 结束日期
-    end_date_param = datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d')
+
+    # 开始日期 默认从昨天开始导入
+    start_date_param = datetime.datetime.now() + datetime.timedelta(days=-1)
 
     # 是否要导入实时数据
     real_time_import = True
+
+    # 数据库保留1年的数据
+    data_store_days = 365
+
     """
     逻辑：
     历史的和实现的一起导入
@@ -217,9 +217,9 @@ if __name__ == "__main__":
             yesterday = cur_time + datetime.timedelta(days=-1)
             # 获取昨天的日期
             yest_date = datetime.datetime.strftime(yesterday, "%Y-%m-%d")
-            print("start_date = " + yest_date)
+            format_print("start_date = " + yest_date)
             # 参数
-            param_list = ['startup-daily.py', yest_date, yest_date]
+            param_list = ['startup.py', yest_date, yest_date]
             # 导入主程序
             main(param_list)
             # 不需要再导入实时数据
@@ -227,19 +227,26 @@ if __name__ == "__main__":
         # 导入历史数据或休眠
         else:
             # 索引历史数据
-            if start_date_param >= end_date_param:
+            if data_store_days > 0:
                 # 历史数据日期
                 cur_date_param = datetime.datetime.strftime(start_date_param, "%Y-%m-%d")
+
                 # 历史数据参数
-                param_list = ['startup-daily.py', cur_date_param, cur_date_param]
+                param_list = ['startup.py', cur_date_param, cur_date_param]
+
                 # 导入主程序
                 main(param_list)
+
                 # 日期向前推进一天
                 start_date_param = start_date_param + datetime.timedelta(days=-1)
+                data_store_days -= 1
             # 如果历史数据已经索引完毕则程序休眠一个小时
             else:
-                time.sleep(3600)
+                format_print("程序休眠 60 秒")
+                time.sleep(60)
 
         # 每天3小时后重置实时数据导入状态
         if hour >= 3 and real_time_import == False:
             real_time_import = True
+
+
