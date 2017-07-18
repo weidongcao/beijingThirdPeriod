@@ -1,5 +1,6 @@
 package com.rainsoft.solr;
 
+import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.ReflectUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
@@ -37,12 +38,10 @@ public class BaseOracleDataCreateSolrIndex {
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
 
-    private static final String SOLR_URL = "http://192.168.10.11:8080/solr/yisou";
+    private static final String SOLR_URL = ConfigurationManager.getProperty("solr_url");
 
     //创建Solr客户端
-    //创建Solr客户端
-//    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
-    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+    protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
 
     //导入记录文件
     static File recordFile;
