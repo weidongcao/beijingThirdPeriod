@@ -11,7 +11,7 @@ java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.HttpOracleDataCreateSol
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.HttpOracleDataCreateSolrIndex 2017-06-29 0.6 0.8
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.HttpOracleDataCreateSolrIndex 2017-06-29 0.8 1
 
-# 单独执行一个表一天的数据：
+# 根据捕获时间单独执行一个表一天的数据：
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.FtpOracleDataCreateSolrIndex 2017-01-01
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ImchatOracleDataCreateSolrIndex 2017-01-01
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.BbsOracleDataCreateSolrIndex 2017-01-01
@@ -20,9 +20,11 @@ java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.SearchOracleDataCreateS
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ShopOracleDataCreateSolrIndex 2017-01-01
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.WeiboOracleDataCreateSolrIndex 2017-01-01
 
+# 下面的表没有捕获时间，执行索引全部的数据
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RealOracleDataCreateSolrIndex
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.VidOracleDataCreateSolrIndex
 java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.ServiceOracleDataCreateSolrIndex
 
+# 指定执行的命令
 nohup python startup.py &
 
