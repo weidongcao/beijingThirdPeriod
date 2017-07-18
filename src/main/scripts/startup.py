@@ -9,8 +9,13 @@ import os
 
 # 按天导入的表
 day_cmd_template_dict = {
+    # "bbs_class": "BbsOracleDataCreateSolrIndex",
+    # "email_class": "EmailOracleDataCreateSolrIndex",
     "ftp_class": "FtpOracleDataCreateSolrIndex",
     "imchat_class": "ImchatOracleDataCreateSolrIndex",
+    # "search_class": "SearchOracleDataCreateSolrIndex",
+    # "shop_class": "ShopOracleDataCreateSolrIndex",
+    # "weibo_class": "WeiboOracleDataCreateSolrIndex"
 }
 
 # 一天分多次导入的表
