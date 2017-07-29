@@ -24,7 +24,7 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
         JdbcTemplate jdbcTemplate = this.getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
 
-        String templeSql = ConfigurationManager.getProperty("sql_http_get_by_date");
+        String templeSql = "select * from REG_CONTENT_HTTP where capture_time >= (to_date('${date}' ,'yyyy-mm-dd') + ${startPercent}) and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + ${endPercent})";
 
         String sql = templeSql.replace("${date}", date);
         sql = sql.replace("${startPercent}", startPercent + "");

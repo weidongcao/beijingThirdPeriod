@@ -27,7 +27,7 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
     public List<RegContentFtp> getFtpBydate(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = ConfigurationManager.getProperty("sql_ftp_get_by_date");
+        String templeSql = "select * from REG_CONTENT_FTP where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("FTP数据获取一天数据的sql: {}", sql);
