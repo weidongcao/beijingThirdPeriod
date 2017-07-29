@@ -8,6 +8,7 @@ import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.JsonUtils;
 import net.sf.json.JSONArray;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
@@ -17,6 +18,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
@@ -68,7 +70,15 @@ public class FtpSparkOperateBcp {
         );
 
         JSONArray ftpFields = JsonUtils.getJsonValueByFile("oracleTableField.json", ORACLE_TABLE_NAME);
-
+        valueArrrayRDD.checkpoint();
+        valueArrrayRDD.foreach(
+                new VoidFunction<String[]>() {
+                    @Override
+                    public void call(String[] strings) throws Exception {
+                        System.out.println(StringUtils.join(strings, "\t\t"));
+                    }
+                }
+        );
         /**
          * 数据写入HBase
          */
