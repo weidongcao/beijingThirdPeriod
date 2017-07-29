@@ -1,0 +1,3 @@
+{
+  "reg_content_ftp":["sessionid", "service_code", "certificate_type", "certificate_code", "user_name", "protocol_type", "account", "passwd", "file_name", "file_path", "action_type", "is_completed", "dest_ip", "dest_port", "src_ip", "src_port", "src_mac", "capture_time", "room_id", "checkin_id", "machine_id", "data_source", "file_size", "file_url", "manufacturer_code", "zipname", "bcpname", "rownumber"]
+}
