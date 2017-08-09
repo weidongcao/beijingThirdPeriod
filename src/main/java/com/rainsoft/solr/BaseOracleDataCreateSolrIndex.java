@@ -121,20 +121,6 @@ public class BaseOracleDataCreateSolrIndex {
         return flat;
     }
 
-    public static boolean delSolrDocTypeByDate(String docType, Date curDate) {
-        String templateDelCmd = "docType:${docType} and capture_time:[${startSec} TO ${endSec}]";
-        long startSec = curDate.getTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(curDate);
-        calendar.add(Calendar.DATE, 1);
-        long endSec = calendar.getTimeInMillis();
-        String delCmd = templateDelCmd.replace("${docType}", docType)
-                .replace("${startSec}", startSec+"")
-                .replace("${endSec}", endSec+"");
-
-        return SolrUtil.delSolrByCondition(delCmd);
-    }
-
     static void addFieldToSolr(SolrInputDocument doc, Field[] fields, Object obj) {
         //遍历实体属性,将之赋值给Solr导入实体
         for (Field field : fields) {

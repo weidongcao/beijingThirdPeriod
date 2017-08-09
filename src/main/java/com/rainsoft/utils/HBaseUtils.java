@@ -111,9 +111,14 @@ public class HBaseUtils {
      *
      * @return
      */
-    public static Connection getConn() throws IOException {
+    public static Connection getConn() {
         if (null == conn) {
-            init();
+            try {
+                init();
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.error("获取Hbase数据连接失败");
+            }
         }
         return conn;
     }
@@ -177,7 +182,7 @@ public class HBaseUtils {
      * @param tempHDFSPath HFile文件临时保存目录，如果已经存在先删除再创建，导入HBase后再删除
      * @throws Exception
      */
-    public static void writeData2HBase(JavaPairRDD<RowkeyColumnSecondarySort, String> infoRDD, String tablename, String cf, String tempHDFSPath) throws Exception {
+    public static void writeData2HBase(JavaPairRDD<RowkeyColumnSecondarySort, String> infoRDD, String tablename, String cf, String tempHDFSPath) {
         logger.info("开始Spark生成HFile文件并写HBase...");
         //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
         JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = infoRDD.mapToPair(
@@ -202,50 +207,54 @@ public class HBaseUtils {
         Path path = new Path(tempHDFSPath);
 
         //判断HDFS上是否存在此路径，如果存在删除此路径
-        FileSystem fileSystem = path.getFileSystem(HBaseUtils.getConf());
-        if (fileSystem.exists(path)) {
-            logger.info("删除HDFS上的目录：{}", path);
-            fileSystem.delete(path, true);
-        }
+        FileSystem fileSystem = null;
+        try {
+            fileSystem = path.getFileSystem(HBaseUtils.getConf());
+            if (fileSystem.exists(path)) {
+                logger.info("删除HDFS上的目录：{}", path);
+                fileSystem.delete(path, true);
+            }
+            //生成HFile文件并保存到临时目录
+            //此处运行完成之后,在临时目录会有我们生成的Hfile文件
+            hfileRDD.saveAsNewAPIHadoopFile(tempHDFSPath, ImmutableBytesWritable.class, KeyValue.class, HFileOutputFormat2.class, HBaseUtils.getConf());
+            logger.info("Spark 生成HBase的{}表的HFile成功,HFile", tablename);
+            //开始导入HBase表
+            RegionLocator regionLocator = HBaseUtils.getConn().getRegionLocator(TableName.valueOf(tablename));
 
-        //生成HFile文件并保存到临时目录
-        //此处运行完成之后,在临时目录会有我们生成的Hfile文件
-        hfileRDD.saveAsNewAPIHadoopFile(tempHDFSPath, ImmutableBytesWritable.class, KeyValue.class, HFileOutputFormat2.class, HBaseUtils.getConf());
-        logger.info("Spark 生成HBase的{}表的HFile成功,HFile", tablename);
+            //创建一个hadoop的mapreduce的job
+            Job job = Job.getInstance();
 
-        //开始导入HBase表
-        RegionLocator regionLocator = HBaseUtils.getConn().getRegionLocator(TableName.valueOf(tablename));
+            //此处最重要,需要设置文件输出的key,因为我们要生成HFil,所以outkey要用ImmutableBytesWritable
+            job.setMapOutputKeyClass(ImmutableBytesWritable.class);
 
-        //创建一个hadoop的mapreduce的job
-        Job job = Job.getInstance();
+            //输出文件的内容KeyValue
+            job.setMapOutputValueClass(KeyValue.class);
 
-        //此处最重要,需要设置文件输出的key,因为我们要生成HFil,所以outkey要用ImmutableBytesWritable
-        job.setMapOutputKeyClass(ImmutableBytesWritable.class);
+            //根据表名获取表
+            HTable table = getTable(tablename);
 
-        //输出文件的内容KeyValue
-        job.setMapOutputValueClass(KeyValue.class);
+            //配置HFileOutputFormat2的信息
+            HFileOutputFormat2.configureIncrementalLoad(job, table, regionLocator);
 
-        //根据表名获取表
-        HTable table = getTable(tablename);
+            //创建导入Hbase的对象
+            LoadIncrementalHFiles bulkLoader = new LoadIncrementalHFiles(conf);
 
-        //配置HFileOutputFormat2的信息
-        HFileOutputFormat2.configureIncrementalLoad(job, table, regionLocator);
+            //正式开始导入
+            logger.info("HFile文件开始导入{}表...", tablename);
+            bulkLoader.doBulkLoad(path, table);
+            logger.info("HFile文件导入{}表成功", tablename);
 
-        //创建导入Hbase的对象
-        LoadIncrementalHFiles bulkLoader = new LoadIncrementalHFiles(conf);
-
-        //正式开始导入
-        logger.info("HFile文件开始导入{}表...", tablename);
-        bulkLoader.doBulkLoad(path, table);
-        logger.info("HFile文件导入{}表成功", tablename);
-
-        //删除在HDFS上创建的临时目录
-        if (fileSystem.exists(path)) {
-            logger.info("清空生成HFile文件所在的目录");
+            //删除在HDFS上创建的临时目录
+            if (fileSystem.exists(path)) {
+                logger.info("清空生成HFile文件所在的目录");
 //            fileSystem.delete(path, true);
+            }
+            //关闭连接
+            IOUtils.closeQuietly(table);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
-        //关闭连接
-        IOUtils.closeQuietly(table);
     }
 
     /**

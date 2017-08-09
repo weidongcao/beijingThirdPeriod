@@ -1,13 +1,17 @@
 package com.rainsoft.utils;
 
 import com.rainsoft.conf.ConfigurationManager;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.UpdateRequest;
+import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Administrator on 2017-04-06.
@@ -15,28 +19,70 @@ import java.io.IOException;
 public class SolrUtil {
     private static final Logger logger = LoggerFactory.getLogger(SolrUtil.class);
 
-    //Solr的Zookeeper地址
-//    private static String zkHost = "dn1.hadoop.com,dn2.hadoop.com,dn3.hadoop.com,nn1.hadoop.com,nn2.hadoop.com";
-    private static String zkHost = ConfigurationManager.getProperty("zkHost");
-    //Solr客户端
-    private static CloudSolrClient client;
+    private static SolrClient client;
 
     /**
-     * 获取Solr客户端连接
-     * @param collection Solr的核心（集合）
-     * @return Solr客户端连接
+     * 获取Solr的客户端连接
+     * @param isClusterSolrClient 是否是集群版的Solr
+     * @return
      */
-    public static CloudSolrClient getSolrClient(String collection) {
-        if (client == null) {
-            client = new CloudSolrClient.Builder().withZkHost(zkHost).build();
-            logger.info("Solr 客户端初始化成功");
+    public static SolrClient getSolrClient(boolean isClusterSolrClient) {
+        if (null == client) {
+            if (isClusterSolrClient) {
+                String zkHost = ConfigurationManager.getProperty("zkHost");
+                CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
+                clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
+                client = clusterClient;
+            } else {
+                client = new HttpSolrClient.Builder(ConfigurationManager.getProperty("solr_url")).build();
+            }
         }
-        client.setDefaultCollection(collection);
-
         return client;
     }
+    /**
+     * 获取Solr的客户端连接
+     * @return
+     */
+    public static CloudSolrClient getClusterSolrClient() {
+        String zkHost = ConfigurationManager.getProperty("zkHost");
+        CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
+        clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
+        return clusterClient;
+    }
+    /**
+     * 提交到Solr
+     *
+     * @param list
+     * @param client 是否提交到集群版Solr
+     * @return
+     */
+    public static boolean submit(List<SolrInputDocument> list, SolrClient client) {
+        /*
+         * 异常捕获
+         * 如果失败尝试3次
+         */
+        int tryCount = 0;
+        boolean flat = false;
+        while (tryCount < 3) {
+            try {
+                if (!list.isEmpty()) {
+                    client.add(list, 1000);
+                }
+                flat = true;
+                //关闭Solr连接
+//                client.close();
+                //如果索引成功,跳出循环
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+                tryCount++;
+                flat = false;
+            }
+        }
+        return flat;
+    }
+    public static boolean delSolrByCondition(String condition, SolrClient client) {
 
-    public static boolean delSolrByCondition(String condition) {
         UpdateRequest commit = new UpdateRequest();
 
         boolean commitStatus = false;
@@ -45,6 +91,7 @@ public class SolrUtil {
             commit.setCommitWithin(10000);
             commit.process(client);
             commitStatus = true;
+//            client.close();
         } catch (SolrServerException e) {
             logger.error("Solr 删除数据失败： {}", e);
         } catch (IOException e) {
@@ -54,4 +101,19 @@ public class SolrUtil {
         return commitStatus;
     }
 
+    public static void closeSolrClient(SolrClient client) {
+        try {
+            if (null != client) {
+                client.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                client.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

@@ -28,7 +28,7 @@ public class SparkExportSolr {
 
     //创建Solr客户端
     protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
-//    protected static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+//    protected static CloudSolrClient client = SolrUtil.getClusterClient("yisou");
 
     public static void main(String[] args) {
         SparkConf conf = new SparkConf()
