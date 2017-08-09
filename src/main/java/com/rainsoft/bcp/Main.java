@@ -3,13 +3,11 @@ package com.rainsoft.bcp;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.utils.JsonUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.File;
 
 /**
@@ -20,14 +18,15 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final String tmpHFilePath = BigDataConstants.TMP_HFILE_HDFS;
-    private static final String bcpPath = "file://" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
-//    private static final String bcpPath = "file:///" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
+    private static final String tsvDataPathTemplate = "file://" + ConfigurationManager.getProperty("load_data_workspace") + "/work/bcp-${taskType}";
+//    private static final String tsvDataPathTemplate = "file:///" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
     private static final String hbaseTablePrefix = BigDataConstants.HBASE_TABLE_PREFIX;
     public static void main(String[] args) {
         String type = args[0];
         SparkConf conf = new SparkConf()
-                .setAppName("import bcp to solr and hbase");
+                .setAppName("import bcp to solr and hbase").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(conf);
+
 
         if (BigDataConstants.CONTENT_TYPE_FTP.equalsIgnoreCase(type)) {
             getFtpJob().run(sc);
@@ -45,7 +44,7 @@ public class Main {
         String oracleTableName = BigDataConstants.ORACLE_TABLE_FTP_NAME;
         String contentType = BigDataConstants.CONTENT_TYPE_FTP;
         SparkOperateBcp ftp = new SparkOperateBcp();
-        ftp.setBcpPath(bcpPath + contentType);
+        ftp.setBcpPath(tsvDataPathTemplate.replace("${taskType}",contentType));
         ftp.setCaptureTimeIndexBcpFileLine(17);
         ftp.setContentType(contentType);
         ftp.setDocType(BigDataConstants.SOLR_DOC_TYPE_FTP_VALUE);
@@ -53,6 +52,7 @@ public class Main {
         ftp.setHbaseCF(BigDataConstants.HBASE_TABLE_FTP_CF);
         ftp.setHfileTmpStorePath(tmpHFilePath + contentType);
         ftp.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
+
         return ftp;
     }
 
@@ -60,7 +60,7 @@ public class Main {
         String contentType = BigDataConstants.CONTENT_TYPE_IM_CHAT;
         String oracleTableName = BigDataConstants.ORACLE_TABLE_IM_CHAT_NAME;
         SparkOperateBcp imChat = new SparkOperateBcp();
-        imChat.setBcpPath(bcpPath + contentType);
+        imChat.setBcpPath(tsvDataPathTemplate.replace("${taskType}",contentType));
         imChat.setCaptureTimeIndexBcpFileLine(20);
         imChat.setContentType(contentType);
         imChat.setDocType(BigDataConstants.SOLR_DOC_TYPE_IMCHAT_VALUE);
@@ -79,7 +79,7 @@ public class Main {
         String contentType = BigDataConstants.CONTENT_TYPE_HTTP;
         String oracleTableName = BigDataConstants.ORACLE_TABLE_HTTP_NAME;
         SparkOperateBcp http = new SparkOperateBcp();
-        http.setBcpPath(bcpPath + contentType);
+        http.setBcpPath(tsvDataPathTemplate.replace("${taskType}",contentType));
         http.setCaptureTimeIndexBcpFileLine(22);
         http.setContentType(contentType);
         http.setDocType(BigDataConstants.SOLR_DOC_TYPE_HTTP_VALUE);

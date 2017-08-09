@@ -7,6 +7,7 @@ import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -59,30 +60,15 @@ public class SparkOperateBcp implements Serializable {
         JavaRDD<String> originalRDD = sc.textFile(getBcpPath());
 
         //对BCP文件数据进行基本的处理，并生成ID(HBase的RowKey，Solr的Sid)
-        JavaRDD<String[]> valueArrrayRDD = originalRDD.flatMap(
-                new FlatMapFunction<String, String[]>() {
+        JavaRDD<String[]> valueArrrayRDD = originalRDD.mapPartitions(
+                new FlatMapFunction<Iterator<String>, String[]>() {
                     @Override
-                    public Iterable<String[]> call(String s) throws Exception {
+                    public Iterable<String[]> call(Iterator<String> iter) throws Exception {
                         List<String[]> list = new ArrayList<>();
-                        //对一行的数据按字段分隔符进行切分
-                        String[] cols = s.split(BigDataConstants.BCP_LINE_SEPARATOR);
-                        for (String line : cols) {
-                            //字段值列
-                            String[] values = line.split(BigDataConstants.BCP_FIELD_SEPARATOR);
-                            //生成唯一ID(HBase的RowKey，Solr的Sid)
-                            long captureTimeLong;
-                            try {
-                                captureTimeLong = DateUtils.TIME_FORMAT.parse(values[getCaptureTimeIndexBcpFileLine()]).getTime();
-                            } catch (Exception e) {
-                                continue;
-                            }
-                            if (captureTimeLong > curTimeLong) {
-                                continue;
-                            }
-                            String uuid = UUID.randomUUID().toString().replace("-", "");
-                            String rowkey = captureTimeLong + "_" + uuid;
-                            //生成新数据写加入到list
-                            list.add(ArrayUtils.addAll(new String[]{rowkey}, values));
+                        while (iter.hasNext()) {
+                            String str = iter.next();
+                            String[] fields = str.split("\t");
+                            list.add(fields);
                         }
                         return list;
                     }
@@ -113,14 +99,8 @@ public class SparkOperateBcp implements Serializable {
                     return false;
                 }
         ).repartition(4);
-        //缓存数据
-        filterValuesRDD.cache();
-
         //BCP文件数据写入HBase
         bcpWriteIntoHBase(filterValuesRDD);
-
-        //BCP文件数据写入Solr
-        bcpWriteIntoSolr(filterValuesRDD);
 
         logger.info("<---------------------------------------------- {}的BCP数据处理完毕 ---------------------------------------------->", getContentType());
     }

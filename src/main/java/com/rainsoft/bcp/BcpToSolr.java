@@ -28,16 +28,15 @@ public class BcpToSolr {
 
 
     public static void main(String[] args) throws IOException {
-        String taskType = "ftp";
-        int captureTimeIndex = 17;
+        String taskType = args[0];
 
         String taskDataDir = "bcp-" + taskType;
         //获取字段名数组
         String[] fieldNames = FieldConstants.BCP_FIELD_MAP.get(taskType);
         //数据文件所在目录
         File dataDir = FileUtils.getFile(basePath + File.separator + taskDataDir);
-        //一次最多向Solr提交多少条数据
-        int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
+        //一次最多向Solr提交5万条数据
+        int maxFileDataSize = 50000;
         //当前时间
         Date curDate = new Date();
 
@@ -108,7 +107,5 @@ public class BcpToSolr {
         } else {
             logger.info("没有{}类型的BCP数据需要处理", taskType);
         }
-
-
     }
 }
