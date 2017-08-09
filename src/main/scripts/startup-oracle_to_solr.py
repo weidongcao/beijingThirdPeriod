@@ -224,7 +224,7 @@ if __name__ == "__main__":
             yest_date = datetime.datetime.strftime(yesterday, "%Y-%m-%d")
             format_print("start_date = " + yest_date)
             # 参数
-            param_list = ['startup.py', yest_date, yest_date]
+            param_list = ['startup-oracle_to_solr.py', yest_date, yest_date]
             # 导入主程序
             main(param_list)
             # 不需要再导入实时数据
@@ -237,7 +237,7 @@ if __name__ == "__main__":
                 cur_date_param = datetime.datetime.strftime(start_date_param, "%Y-%m-%d")
 
                 # 历史数据参数
-                param_list = ['startup.py', cur_date_param, cur_date_param]
+                param_list = ['startup-oracle_to_solr.py', cur_date_param, cur_date_param]
 
                 # 导入主程序
                 main(param_list)

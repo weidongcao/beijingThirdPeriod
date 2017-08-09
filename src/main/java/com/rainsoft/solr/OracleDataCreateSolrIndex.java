@@ -3,34 +3,21 @@ package com.rainsoft.solr;
 import com.rainsoft.dao.FtpDao;
 import com.rainsoft.dao.HttpDao;
 import com.rainsoft.dao.ImchatDao;
-import com.rainsoft.domain.RegContentFtp;
-import com.rainsoft.domain.RegContentHttp;
-import com.rainsoft.domain.RegContentImChat;
-import com.rainsoft.utils.ReflectUtils;
 import com.rainsoft.utils.SolrUtil;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 功能说明：
@@ -78,7 +65,7 @@ public class OracleDataCreateSolrIndex {
     private static ImchatDao imchatDao = (ImchatDao) context.getBean("imchatDao");
 
     //创建Solr客户端
-    private static CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+    private static CloudSolrClient client = (CloudSolrClient) SolrUtil.getSolrClient(true);
 
     //导入记录文件
     private static File recordFile;
