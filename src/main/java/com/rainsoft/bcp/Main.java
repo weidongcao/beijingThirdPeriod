@@ -71,7 +71,7 @@ public class Main {
 
         String path = ConfigurationManager.getProperty("bcp_file_path") + File.separator + contentType;
         logger.info("替换 {} 的BCP数据的目录： {}", imChat.getContentType(), path);
-        imChat.replaceFileRN(path);
+//        imChat.replaceFileRN(path);
         return imChat;
     }
 

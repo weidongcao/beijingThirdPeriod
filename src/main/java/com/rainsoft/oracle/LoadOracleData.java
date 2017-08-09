@@ -36,7 +36,7 @@ public class LoadOracleData {
         sql = sql.replace("${startTime}", startTime);
         sql = sql.replace("${endTime}", endTime);
 
-        int maxFileDataSize = ConfigurationManager.getInteger("max_oracle_data_file_lines");
+        int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
 
         JDBCHelper helper = JDBCHelper.getInstance();
 

@@ -212,33 +212,10 @@ public class SparkOperateBcp implements Serializable {
         logger.info("####### {}的BCP数据写入HBase完成 #######", getContentType());
     }
 
-    /**
-     * 替换BCP数据文件中非正常的回车换行
-     *
-     * @param path
-     */
-    public void replaceFileRN(String path) {
-        File dir = FileUtils.getFile(path);
 
-        File[] files = dir.listFiles();
-        for (File file : files) {
-            try {
-                String content = FileUtils.readFileToString(file, "utf-8");
-                content = content.replace("\r\n", "")   //替换Win下的换行
-                        .replace("\n", "")              //替换Linux下的换行
-                        .replace("\r", "");              //替换Mac下的换行
-                content = content.replaceAll(BigDataConstants.BCP_LINE_SEPARATOR, BigDataConstants.BCP_LINE_SEPARATOR + "\r\n");
-                FileUtils.writeStringToFile(file, content, "utf-8", false);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        }
-        logger.info("回车换行符替换完成,替换路径： {}", path);
-    }
 
     public static void main(String[] args) {
-        new SparkOperateBcp().replaceFileRN("E:\\work\\RainSoft\\data\\im_chat");
+//        new SparkOperateBcp().replaceFileRN("E:\\work\\RainSoft\\data\\im_chat");
     }
 
     public String getHbaseTableName() {
