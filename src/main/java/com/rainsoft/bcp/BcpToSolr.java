@@ -24,7 +24,7 @@ import java.util.List;
 public class BcpToSolr {
     private static final Logger logger = LoggerFactory.getLogger(BcpToSolr.class);
     private static final String basePath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "work";
-//    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
+    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
 
 
     public static void main(String[] args) throws IOException {
@@ -79,13 +79,20 @@ public class BcpToSolr {
                         doc.addField("capture_time".toLowerCase(), captureTimeMinSecond );
 
                         for (int i = 1; i < fieldValues.length; i++) {
-                            doc.addField(fieldNames[i -1], fieldValues[i]);
+                            String value = fieldValues[i];
+                            String key = fieldNames[i -1].toUpperCase();
+                            //如果字段的值为空则不写入Solr
+                            if ((null != value) && (!"".equals(value))) {
+                                if (!"FILE_URL".equalsIgnoreCase(key) && !"FILE_SIZE".equalsIgnoreCase(key)) {
+                                    doc.addField(key, value);
+                                }
+                            }
                         }
                         docList.add(doc);
 
                         if (docList.size() >= maxFileDataSize) {
                             //写入Solr
-//                            SolrUtil.submit(docList, client);
+                            SolrUtil.submit(docList, client);
                             logger.info("写入Solr {} 的 {} 数据成功", docList.size(), taskType);
                             docList.clear();
                         }
@@ -93,7 +100,7 @@ public class BcpToSolr {
                 }
                 if (docList.size() > 0) {
                     //write into solr
-//                    SolrUtil.submit(docList, client);
+                    SolrUtil.submit(docList, client);
                     logger.info("写入Solr {} 的 {} 数据成功", docList.size(), taskType);
                 }
             }
