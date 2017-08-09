@@ -24,7 +24,7 @@ import java.util.List;
 public class BcpToSolr {
     private static final Logger logger = LoggerFactory.getLogger(BcpToSolr.class);
     private static final String basePath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "work";
-    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
+//    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
 
 
     public static void main(String[] args) throws IOException {
@@ -62,10 +62,10 @@ public class BcpToSolr {
                     //标准有多少个字段名
                     int fieldNamesLength = fieldNames.length;
 
-                    if ((fieldNamesLength == fieldValuesLength) ||     //BCP文件是最新的版本(最新版本的BCP文件HTTP增加了7个字段，其他的增加了3个字段)
-                            (fieldNamesLength == (fieldValuesLength + 3)) ||     //BCP文件不是最新的版本(没有升级)，且只添加了三个字段
+                    if ((fieldNamesLength + 1 == fieldValuesLength) ||     //BCP文件是最新的版本(最新版本的BCP文件HTTP增加了7个字段，其他的增加了3个字段)
+                            (fieldNamesLength + 1 == (fieldValuesLength + 3)) ||     //BCP文件不是最新的版本(没有升级)，且只添加了三个字段
                             (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(taskType) &&
-                                    (fieldNamesLength == (fieldValuesLength + 3 + 4)))) {    //BCP文件不是最新的版本(没有升级)，BCP文件是http数据，没有增加7个字段
+                                    (fieldNamesLength + 1 == (fieldValuesLength + 3 + 4)))) {    //BCP文件不是最新的版本(没有升级)，BCP文件是http数据，没有增加7个字段
 
                         String rowkey = fieldValues[0];
                         String captureTimeMinSecond = rowkey.split("_")[0];
@@ -78,14 +78,14 @@ public class BcpToSolr {
                         doc.addField("IMPORT_TIME".toUpperCase(), DateUtils.TIME_FORMAT.format(curDate));
                         doc.addField("capture_time".toLowerCase(), captureTimeMinSecond );
 
-                        for (int i = 0; i < fieldValues.length; i++) {
-                            doc.addField(fieldNames[i], fieldValues[i]);
+                        for (int i = 1; i < fieldValues.length; i++) {
+                            doc.addField(fieldNames[i -1], fieldValues[i]);
                         }
                         docList.add(doc);
 
                         if (docList.size() >= maxFileDataSize) {
                             //写入Solr
-                            SolrUtil.submit(docList, client);
+//                            SolrUtil.submit(docList, client);
                             logger.info("写入Solr {} 的 {} 数据成功", docList.size(), taskType);
                             docList.clear();
                         }
@@ -93,7 +93,7 @@ public class BcpToSolr {
                 }
                 if (docList.size() > 0) {
                     //write into solr
-                    SolrUtil.submit(docList, client);
+//                    SolrUtil.submit(docList, client);
                     logger.info("写入Solr {} 的 {} 数据成功", docList.size(), taskType);
                 }
             }
