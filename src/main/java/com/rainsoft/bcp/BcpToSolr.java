@@ -6,6 +6,7 @@ import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
@@ -24,10 +25,10 @@ import java.util.List;
 public class BcpToSolr {
     private static final Logger logger = LoggerFactory.getLogger(BcpToSolr.class);
     private static final String basePath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "work";
-    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
+    private static final CloudSolrClient client = (CloudSolrClient) SolrUtil.getSolrClient(true);
 
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SolrServerException {
+        logger.info("开始将BCP数据索引到Solr...");
         String taskType = args[0];
 
         String taskDataDir = "bcp-" + taskType;
@@ -35,8 +36,10 @@ public class BcpToSolr {
         String[] fieldNames = FieldConstants.BCP_FIELD_MAP.get(taskType);
         //数据文件所在目录
         File dataDir = FileUtils.getFile(basePath + File.separator + taskDataDir);
+        logger.info("转存的TSV文件所在目录:{}", dataDir.getAbsolutePath());
         //一次最多向Solr提交5万条数据
-        int maxFileDataSize = 50000;
+        int maxFileDataSize = ConfigurationManager.getInteger("import_to_solr_data_count");
+
         //当前时间
         Date curDate = new Date();
 
@@ -46,13 +49,9 @@ public class BcpToSolr {
         //要写入Solr的数据集合
         List<SolrInputDocument> docList = new ArrayList<>();
         if (null != dataFileList) {
-            for (File file :
-                    dataFileList) {
-
+            for (File file : dataFileList) {
                 List<String> lines = FileUtils.readLines(file, "utf-8");
-                for (String line :
-                        lines) {
-
+                for (String line : lines) {
                     //一条数据切分成多个字段的值
                     String[] fieldValues = line.split("\t");
 
@@ -66,16 +65,17 @@ public class BcpToSolr {
                             (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(taskType) &&
                                     (fieldNamesLength + 1 == (fieldValuesLength + 3 + 4)))) {    //BCP文件不是最新的版本(没有升级)，BCP文件是http数据，没有增加7个字段
 
-                        String rowkey = fieldValues[0];
-                        String captureTimeMinSecond = rowkey.split("_")[0];
-                        String id = rowkey.split("_")[1];
+                        String rowKey = fieldValues[0];
+                        String captureTimeMinSecond = rowKey.split("_")[0];
+                        String id = rowKey.split("_")[1];
 
                         SolrInputDocument doc = new SolrInputDocument();
                         doc.addField("ID".toUpperCase(), id);
-                        doc.addField("SID".toUpperCase(), rowkey);
+                        doc.addField("SID".toUpperCase(), rowKey);
                         doc.addField("docType", FieldConstants.DOC_TYPE_MAP.get(taskType));
                         doc.addField("IMPORT_TIME".toUpperCase(), DateUtils.TIME_FORMAT.format(curDate));
-                        doc.addField("capture_time".toLowerCase(), captureTimeMinSecond );
+                        doc.addField("import_time", curDate.getTime());
+                        doc.addField("capture_time".toLowerCase(), Long.valueOf(captureTimeMinSecond) );
 
                         for (int i = 1; i < fieldValues.length; i++) {
                             String value = fieldValues[i];
@@ -91,21 +91,23 @@ public class BcpToSolr {
 
                         if (docList.size() >= maxFileDataSize) {
                             //写入Solr
-                            SolrUtil.submit(docList, client);
-                            logger.info("写入Solr {} 的 {} 数据成功", docList.size(), taskType);
+                             client.add(docList, 1000);
+                            logger.info(" {} 写入Solr {} 数据成功", taskType, docList.size());
                             docList.clear();
                         }
                     }
                 }
-                if (docList.size() > 0) {
-                    //write into solr
-                    SolrUtil.submit(docList, client);
-                    logger.info("写入Solr {} 的 {} 数据成功", docList.size(), taskType);
-                }
+            }
+            if (docList.size() > 0) {
+                //write into solr
+                client.add(docList, 1000);
+                logger.info("{} 写入Solr {} 数据成功", taskType, docList.size());
             }
             logger.info("{}类型的BCP数据处理写成", taskType);
         } else {
             logger.info("没有{}类型的BCP数据需要处理", taskType);
         }
+
+        SolrUtil.closeSolrClient(client);
     }
 }

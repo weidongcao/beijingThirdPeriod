@@ -34,9 +34,10 @@ public class SparkExportToHBase {
 
         //作业类型
         String taskType = args[0];
+        //hdfs数据临时存储根目录
         String hdfsDataPath = args[1];
         SparkConf conf = new SparkConf()
-                .setAppName(SparkExportToHBase.class.getName()).setMaster("local");
+                .setAppName(SparkExportToHBase.class.getName());
         JavaSparkContext sc = new JavaSparkContext(conf);
 
         //oracle表名
@@ -44,7 +45,7 @@ public class SparkExportToHBase {
         //列簇名
         String cf = BigDataConstants.TEMPLATE_HBASE_CF.replace("${type}", taskType.toUpperCase());
         //HFile的HDFS临时存储目录
-        String tmepHDFSPath = BigDataConstants.TEMPLATE_HFILE_TEMP_STORE_HDFS.replace("${type}", taskType);
+        String tempHDFSPath = BigDataConstants.TEMPLATE_HFILE_TEMP_STORE_HDFS.replace("${type}", taskType);
 
         InputStream in = SparkExportToHBase.class.getClassLoader().getResourceAsStream("metadata/" + tableName.toLowerCase());
 
@@ -91,7 +92,8 @@ public class SparkExportToHBase {
         /*
          * Spark将HFile文件写HDFS并转存入HBase
          */
-        HBaseUtils.writeData2HBase(hbasePairRDD, BigDataConstants.HBASE_TABLE_PREFIX + tableName, cf, tmepHDFSPath);
-
+        HBaseUtils.writeData2HBase(hbasePairRDD, BigDataConstants.HBASE_TABLE_PREFIX + tableName, cf, tempHDFSPath);
+        logger.info("写入HBase完成");
+        sc.close();
     }
 }

@@ -1,6 +1,7 @@
 package com.rainsoft.bcp;
 
 import com.rainsoft.BigDataConstants;
+import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.HBaseUtils;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -35,29 +37,13 @@ import java.util.*;
  */
 public class SparkOperateBcp implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(SparkOperateBcp.class);
-//    public static CloudSolrClient client = SolrUtil.getClusterSolrClient();
-    //    public static HttpSolrClient client = new HttpSolrClient.Builder(ConfigurationManager.getProperty("solr_url")).build();
-    //BCP文件路径
-    private String bcpPath;
-    //HBase表名
-    private String hbaseTableName;
-    //HBase列簇
-    private String hbaseCF;
-    //HFile在HDFS上的临时存储目录
-    private String hfileTmpStorePath;
-    //数据类型
-    private String contentType;
-    //获取Oracle表字段名
-    private String[] fields;
-    //Sorl的docType
-    private String docType;
-    public static final long curTimeLong = new Date().getTime();
-    //捕获时间在在bcp文件里一行的位置（第一个从0开始）
-    private int CaptureTimeIndexBcpFileLine;
 
-    public void run(JavaSparkContext sc) {
-        logger.info("开始处理 {} 的BCP数据", getContentType());
-        JavaRDD<String> originalRDD = sc.textFile(getBcpPath());
+    public static void run(TaskBean task) {
+        logger.info("开始处理 {} 的BCP数据", task.getContentType());
+        SparkConf conf = new SparkConf()
+                .setAppName(task.getContentType());
+        JavaSparkContext sc = new JavaSparkContext(conf);
+        JavaRDD<String> originalRDD = sc.textFile(task.getBcpPath());
 
         //对BCP文件数据进行基本的处理，并生成ID(HBase的RowKey，Solr的Sid)
         JavaRDD<String[]> valueArrrayRDD = originalRDD.mapPartitions(
@@ -85,14 +71,14 @@ public class SparkOperateBcp implements Serializable {
          */
         JavaRDD<String[]> filterValuesRDD = valueArrrayRDD.filter(
                 (Function<String[], Boolean>) strings -> {
-                    if (getFields().length + 1 == strings.length) {
+                    if (task.getFields().length + 1 == strings.length) {
                         //BCP文件 没有新加字段，
                         return true;
-                    } else if ((getFields().length + 1) == (strings.length + 3)) {
+                    } else if ((task.getFields().length + 1) == (strings.length + 3)) {
                         //BCP文件添加了新的字段，且只添加了三个字段
                         return true;
-                    } else if (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(getContentType()) &&
-                            ((getFields().length + 1) == (strings.length + 3 + 4))) {
+                    } else if (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(task.getContentType()) &&
+                            ((task.getFields().length + 1) == (strings.length + 3 + 4))) {
                         //HTTP的BCP文件添加了新的字段，且添加了7个字段
                         return true;
                     }
@@ -100,15 +86,15 @@ public class SparkOperateBcp implements Serializable {
                 }
         ).repartition(4);
         //BCP文件数据写入HBase
-        bcpWriteIntoHBase(filterValuesRDD);
+        bcpWriteIntoHBase(filterValuesRDD, task);
 
-        logger.info("<---------------------------------------------- {}的BCP数据处理完毕 ---------------------------------------------->", getContentType());
+        sc.close();
     }
 
-    public void bcpWriteIntoSolr(JavaRDD<String[]> javaRDD) {
-        logger.info("开始将 {} 的BCP数据索引到Solr", getContentType());
+    public static void bcpWriteIntoSolr(JavaRDD<String[]> javaRDD, TaskBean task) {
+        logger.info("开始将 {} 的BCP数据索引到Solr", task.getContentType());
 
-        String docType = getDocType();
+        String docType = task.getDocType();
         /*
          * 数据写入Solr
          */
@@ -135,7 +121,7 @@ public class SparkOperateBcp implements Serializable {
                             String[] values = ArrayUtils.subarray(str, 1, str.length);
                             for (int i = 0; i < values.length; i++) {
                                 String value = values[i];
-                                String key = getFields()[i].toUpperCase();
+                                String key = task.getFields()[i].toUpperCase();
                                 //如果字段的值为空则不写入Solr
                                 if ((null != value) && (!"".equals(value))) {
                                     if (!"FILE_URL".equalsIgnoreCase(key) && !"FILE_SIZE".equalsIgnoreCase(key)) {
@@ -154,16 +140,16 @@ public class SparkOperateBcp implements Serializable {
                             SolrUtil.closeSolrClient(client);
                             logger.info("写入Solr成功...");
                         } else {
-                            logger.info("{} 此Spark Partition 数据为空", getContentType());
+                            logger.info("{} 此Spark Partition 数据为空", task.getContentType());
                         }
                     }
                 }
         );
-        logger.info("####### {}的BCP数据索引Solr完成 #######", getContentType());
+        logger.info("####### {}的BCP数据索引Solr完成 #######", task.getContentType());
     }
 
-    public void bcpWriteIntoHBase(JavaRDD<String[]> javaRDD) {
-        logger.info("{}的BCP数据开始写入HBase...", getContentType());
+    public static void bcpWriteIntoHBase(JavaRDD<String[]> javaRDD, TaskBean task) {
+        logger.info("{}的BCP数据开始写入HBase...", task.getContentType());
 
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
                 new PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>() {
@@ -175,7 +161,7 @@ public class SparkOperateBcp implements Serializable {
                         String rowkey = strings[0];
                         String[] values = ArrayUtils.subarray(strings, 1, strings.length);
                         for (int i = 0; i < values.length; i++) {
-                            String key = getFields()[i].toUpperCase();
+                            String key = task.getFields()[i].toUpperCase();
                             String value = values[i];
                             //如果字段的值为空则不写入HBase
                             if ((null != value) && (!"".equals(value))) {
@@ -188,8 +174,8 @@ public class SparkOperateBcp implements Serializable {
                 }
         ).sortByKey();
         //写入HBase
-        HBaseUtils.writeData2HBase(hfileRDD, getHbaseTableName(), getHbaseCF(), getHfileTmpStorePath());
-        logger.info("####### {}的BCP数据写入HBase完成 #######", getContentType());
+        HBaseUtils.writeData2HBase(hfileRDD, task.getHbaseTableName(), task.getHbaseCF(), task.getHfileTmpStorePath());
+        logger.info("####### {}的BCP数据写入HBase完成 #######", task.getContentType());
     }
 
 
@@ -198,82 +184,5 @@ public class SparkOperateBcp implements Serializable {
 //        new SparkOperateBcp().replaceFileRN("E:\\work\\RainSoft\\data\\im_chat");
     }
 
-    public String getHbaseTableName() {
-        return hbaseTableName;
-    }
-
-    public void setHbaseTableName(String hbaseTableName) {
-        this.hbaseTableName = hbaseTableName;
-    }
-
-    public String getHbaseCF() {
-        return hbaseCF;
-    }
-
-    public void setHbaseCF(String hbaseCF) {
-        this.hbaseCF = hbaseCF;
-    }
-
-    public String getHfileTmpStorePath() {
-        return hfileTmpStorePath;
-    }
-
-    public void setHfileTmpStorePath(String hfileTmpStorePath) {
-        this.hfileTmpStorePath = hfileTmpStorePath;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public String[] getFields() {
-        return fields;
-    }
-
-    public void setFields(String[] fields) {
-        this.fields = fields;
-    }
-
-    public String getDocType() {
-        return docType;
-    }
-
-    public void setDocType(String docType) {
-        this.docType = docType;
-    }
-
-    public int getCaptureTimeIndexBcpFileLine() {
-        return CaptureTimeIndexBcpFileLine;
-    }
-
-    public void setCaptureTimeIndexBcpFileLine(int captureTimeIndexBcpFileLine) {
-        CaptureTimeIndexBcpFileLine = captureTimeIndexBcpFileLine;
-    }
-
-    public String getBcpPath() {
-        return bcpPath;
-    }
-
-    public void setBcpPath(String bcpPath) {
-        this.bcpPath = bcpPath;
-    }
-
-    @Override
-    public String toString() {
-        return "SparkOperateBcp{" +
-                "bcpPath='" + bcpPath + '\'' +
-                ", hbaseTableName='" + hbaseTableName + '\'' +
-                ", hbaseCF='" + hbaseCF + '\'' +
-                ", hfileTmpStorePath='" + hfileTmpStorePath + '\'' +
-                ", contentType='" + contentType + '\'' +
-                ", fields=" + fields +
-                ", docType='" + docType + '\'' +
-                ", CaptureTimeIndexBcpFileLine=" + CaptureTimeIndexBcpFileLine +
-                '}';
-    }
 }
 

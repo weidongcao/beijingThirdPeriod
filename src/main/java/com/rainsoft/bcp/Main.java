@@ -3,6 +3,7 @@ package com.rainsoft.bcp;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
+import com.rainsoft.domain.TaskBean;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
@@ -23,27 +24,25 @@ public class Main {
     private static final String hbaseTablePrefix = BigDataConstants.HBASE_TABLE_PREFIX;
     public static void main(String[] args) {
         String type = args[0];
-        SparkConf conf = new SparkConf()
-                .setAppName("import bcp to solr and hbase").setMaster("local");
-        JavaSparkContext sc = new JavaSparkContext(conf);
-
 
         if (BigDataConstants.CONTENT_TYPE_FTP.equalsIgnoreCase(type)) {
-            getFtpJob().run(sc);
+            SparkOperateBcp.run(getFtpTask());
         } else if (BigDataConstants.CONTENT_TYPE_IM_CHAT.equalsIgnoreCase(type)) {
-            getImchatJob().run(sc);
+            SparkOperateBcp.run(getImchatTask());
         } else if (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(type)) {
-            getHttpJob().run(sc);
+            SparkOperateBcp.run(getHttpTask());
         }
-        sc.stop();
         logger.info("############ 数据处理完成 ############");
-        System.exit(0);
     }
 
-    public static SparkOperateBcp getFtpJob() {
+    /**
+     * ftp的任务
+     * @return
+     */
+    private static TaskBean getFtpTask() {
         String oracleTableName = BigDataConstants.ORACLE_TABLE_FTP_NAME;
         String contentType = BigDataConstants.CONTENT_TYPE_FTP;
-        SparkOperateBcp ftp = new SparkOperateBcp();
+        TaskBean ftp = new TaskBean();
         ftp.setBcpPath(tsvDataPathTemplate.replace("${taskType}",contentType));
         ftp.setCaptureTimeIndexBcpFileLine(17);
         ftp.setContentType(contentType);
@@ -56,10 +55,14 @@ public class Main {
         return ftp;
     }
 
-    public static SparkOperateBcp getImchatJob() {
+    /**
+     *  聊天的任务
+     * @return
+     */
+    private static TaskBean getImchatTask() {
         String contentType = BigDataConstants.CONTENT_TYPE_IM_CHAT;
         String oracleTableName = BigDataConstants.ORACLE_TABLE_IM_CHAT_NAME;
-        SparkOperateBcp imChat = new SparkOperateBcp();
+        TaskBean imChat = new TaskBean();
         imChat.setBcpPath(tsvDataPathTemplate.replace("${taskType}",contentType));
         imChat.setCaptureTimeIndexBcpFileLine(20);
         imChat.setContentType(contentType);
@@ -75,10 +78,14 @@ public class Main {
         return imChat;
     }
 
-    public static SparkOperateBcp getHttpJob() {
+    /**
+     * 网页的任务
+     * @return
+     */
+    private static TaskBean getHttpTask() {
         String contentType = BigDataConstants.CONTENT_TYPE_HTTP;
         String oracleTableName = BigDataConstants.ORACLE_TABLE_HTTP_NAME;
-        SparkOperateBcp http = new SparkOperateBcp();
+        TaskBean http = new TaskBean();
         http.setBcpPath(tsvDataPathTemplate.replace("${taskType}",contentType));
         http.setCaptureTimeIndexBcpFileLine(22);
         http.setContentType(contentType);
