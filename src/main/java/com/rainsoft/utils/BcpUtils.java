@@ -45,16 +45,30 @@ public class BcpUtils {
         logger.info("回车换行符替换完成,替换路径： {}", path);
     }
 
-    public static void transformBcpToTsv(String resourcePath, String targetpath, int captureTimeIndex) {
+    /**
+     * 将BCP文件转为Tsv文件
+     * @param resourcePath  BCP文件所在目录
+     * @param targetPath    转换成Tsv文件后存储的目录
+     * @param captureTimeIndex  捕获时间是是每几个字段(从0开始)
+     */
+    public static void transformBcpToTsv(String resourcePath, String targetPath, String taskType, int captureTimeIndex) {
+        //BCP文件所在目录
         File dir = FileUtils.getFile(resourcePath);
+        //BCP文件列表
         File[] files = dir.listFiles();
+        //当前时间
         Date curDate = new Date();
+        //转成TSV文件后最大行数
         int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
+        //统计BCP文件行数
         int lineCount = 0;
+        //写入TSV文件前的缓存
         StringBuffer sb = new StringBuffer();
+
+        //遍历BCP文件将转换后的内容写入TSV
         assert files != null;
-        for (File file :
-                files) {
+        for (File file : files) {
+            //将一个BCP文件读出为字符串
             String content = null;
             try {
                 content = FileUtils.readFileToString(file, "utf-8");
@@ -62,32 +76,35 @@ public class BcpUtils {
                 logger.info("读取文件内容失败");
                 e.printStackTrace();
             }
+            //替换BCP文件中所有的换行
             assert content != null;
             content = content.replace("\r\n", "")   //替换Win下的换行
                     .replace("\n", "")              //替换Linux下的换行
                     .replace("\r", "")              //替换Mac下的换行
                     .replace("\t", "");
 
+            //将BCP文件内容按BCP文件列分隔符(|$|)切分为数组
             String[] lines = content.split(BigDataConstants.BCP_LINE_SEPARATOR);
-            for (String line :
-                    lines) {
+
+            //按列将BCP格式转为TSV格式
+            for (String line : lines) {
+                //将BCP文件的一列数据按BCP的字段分隔符(|#|)切分成多列的值
                 String[] fieldValues = line.split(BigDataConstants.BCP_FIELD_SEPARATOR);
 
+                //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
                 long captureTimeMinSecond;
                 try {
                     captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[captureTimeIndex]).getTime();
                 } catch (Exception e) {
                     continue;
                 }
-                if (captureTimeMinSecond > curDate.getTime()) {
-                    logger.warn("脏数据,捕获日期大于当前日期,捕获日期为：{}", fieldValues[captureTimeIndex]);
-                    logger.warn("此条数据全部信息为: {}", line);
-                    continue;
-                }
-                String uuid = UUID.randomUUID().toString().replace("-", "");
-                String rowkey = captureTimeMinSecond + "_" + uuid;
-                sb.append(rowkey).append("\t");
 
+                //捕获时间的毫秒+UUID作为数据的ID(HBase的rowKey,Solr的SID, Oracle的ID)
+                String uuid = UUID.randomUUID().toString().replace("-", "");
+                String rowKey = captureTimeMinSecond + "_" + uuid;
+                sb.append(rowKey).append("\t");
+
+                //写入StringBuffer缓存
                 for (int i = 0; i < fieldValues.length; i++) {
                     String fieldValue = fieldValues[i];
 
@@ -97,31 +114,42 @@ public class BcpUtils {
                         sb.append(fieldValue);
                     }
                 }
+                //行数加1
                 lineCount++;
+                //换行
                 sb.append("\r\n");
 
+                //达到最大行数写入TSV文件
                 if (lineCount >= maxFileDataSize) {
                     //写入本地文件
-                    writeStringToFile(sb, targetpath);
+                    writeStringToFile(sb, targetPath, taskType);
                     sb = new StringBuffer();
                     lineCount = 0;
                 }
             }
         }
+        //写入TSV文件
         if (sb.length() > 0) {
             //write into local file
-            writeStringToFile(sb, targetpath);
+            writeStringToFile(sb, targetPath, taskType);
         }
     }
 
     /**
-     * 将数据写入到文件
+     * 将转换后的TSV数据写入文件
+     * 转换后的TSV文件命名：${数据类型(ftp/http/im_chat)}_${日期的毫秒数}_${8位随机字符串}.tsv
      *
-     * @param sb
+     * @param sb    TSV数据内容
+     * @param targetPath    TSV文件路径
+     * @return
      */
-    private static String writeStringToFile(StringBuffer sb, String targetPath) {
+    private static String writeStringToFile(StringBuffer sb, String targetPath, String taskType) {
+        //生成8位随机数
         String random = RandomStringUtils.randomAlphabetic(8);
-        String fileName = new Date().getTime() + "_" + random + ".tsv";
+        //根据时间的毫秒及8位随机数合为TSV文件 的名字
+        String fileName = taskType + "_data_" + new Date().getTime() + "_" + random + ".tsv";
+
+        //判断目录及文件是否存在
         File parentDir = new File(targetPath);
         File dataFile = new File(parentDir, fileName);
         if (!parentDir.exists() || !parentDir.isDirectory()) {
@@ -131,6 +159,7 @@ public class BcpUtils {
             dataFile.delete();
         }
 
+        //写入文件
         try {
             dataFile.createNewFile();
             FileUtils.writeStringToFile(dataFile, sb.toString(), "utf-8", false);
@@ -144,6 +173,6 @@ public class BcpUtils {
     }
 
     public static void main(String[] args) {
-        transformBcpToTsv("E:\\work\\RainSoft\\data\\ftp", "E:\\data\\data\\ftp", 17);
+        transformBcpToTsv("E:\\work\\RainSoft\\data\\ftp", "E:\\data\\data\\ftp", "ftp", 17);
     }
 }

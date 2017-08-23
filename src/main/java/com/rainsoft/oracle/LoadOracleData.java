@@ -43,49 +43,41 @@ public class LoadOracleData {
         logger.info("开始执行sql: {}", sql);
         logger.info("数据文件本地生成目录: {}", ConfigurationManager.getProperty("load_data_workspace") + File.separator + "data" + File.separator + tableName);
         logger.info("文件生成后移动的目录: {}", ConfigurationManager.getProperty("load_data_workspace") + File.separator + "pool" + File.separator + tableName);
-        helper.executeQueryBySql(sql, new JDBCHelper.QueryCallback() {
-            @Override
-            public void process(ResultSet rs) throws Exception {
-                logger.info("查询完成,开始处理数据...");
-                ResultSetMetaData rsm = rs.getMetaData();
-                int colSize = rsm.getColumnCount();
-                int fileDataSize = 0;
-                int fileCount = 0;
-                StringBuffer sb = new StringBuffer();
+        helper.executeQueryBySql(sql, rs -> {
+            logger.info("查询完成,开始处理数据...");
+            ResultSetMetaData rsm = rs.getMetaData();
+            int colSize = rsm.getColumnCount();
+            int fileDataSize = 0;
+            int fileCount = 0;
+            StringBuffer sb = new StringBuffer();
 
-                while (rs.next()) {
-                    for (int i = 1; i <= colSize; i++) {
-                        String fieldName = rsm.getColumnName(i);
-                        int type = rsm.getColumnType(i);
-                        if (i < colSize) {
-                            sb.append(JdbcUtils.getFieldValue(rs, type, i)).append("\t");
-                        } else {
-                            sb.append(JdbcUtils.getFieldValue(rs, type, i));
-                        }
-                    }
-                    sb.append("\r\n");
-
-                    fileDataSize++;
-                    if (fileDataSize >= maxFileDataSize) {
-                        String fileName = writeStringToFile(sb, tableName);
-                        sb = new StringBuffer();
-                        fileCount++;
-                        fileDataSize = 0;
-                        logger.info("sql返回结果生成第 {} 个数据文件,文件名{}", fileCount, fileName);
+            while (rs.next()) {
+                for (int i = 1; i <= colSize; i++) {
+                    int type = rsm.getColumnType(i);
+                    if (i < colSize) {
+                        sb.append(JdbcUtils.getFieldValue(rs, type, i)).append("\t");
+                    } else {
+                        sb.append(JdbcUtils.getFieldValue(rs, type, i));
                     }
                 }
-                if (sb.length() > 0) {
+                sb.append("\r\n");
+
+                fileDataSize++;
+                if (fileDataSize >= maxFileDataSize) {
                     String fileName = writeStringToFile(sb, tableName);
+                    sb = new StringBuffer();
                     fileCount++;
-                    logger.info("sql返回结果生成最后一个数据第 {} 个数据文件,文件名{}", fileCount, fileName);
+                    fileDataSize = 0;
+                    logger.info("sql返回结果生成第 {} 个数据文件,文件名{}", fileCount, fileName);
                 }
-                logger.info("一次查询的数据处理完毕...");
             }
+            if (sb.length() > 0) {
+                String fileName = writeStringToFile(sb, tableName);
+                fileCount++;
+                logger.info("sql返回结果生成最后一个数据第 {} 个数据文件,文件名{}", fileCount, fileName);
+            }
+            logger.info("一次查询的数据处理完毕...");
         });
-
-        /**
-         * 将数据文件上传到HDFS
-         */
 
     }
 

@@ -1,5 +1,8 @@
 package com.rainsoft.j2se;
 
+import com.rainsoft.BigDataConstants;
+import com.rainsoft.utils.JsonUtils;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -12,10 +15,9 @@ import java.io.InputStream;
  */
 public class TestJson {
     public static void main(String[] args) throws IOException {
-        InputStream jsonStream = TestJson.class.getClassLoader().getResourceAsStream("oracleTableField.json");
-        String jsonString = IOUtils.toString(jsonStream);
-        JSONObject jsonObject = JSONObject.fromObject(jsonString);
-        System.out.println(jsonObject.optJSONArray("reg_content_ftp"));
+        JSONArray ftpFields = JsonUtils.getJsonValueByFile("oracleTableField.json", BigDataConstants.ORACLE_TABLE_FTP_NAME);
+
+        System.out.println(ftpFields);
 
     }
 }

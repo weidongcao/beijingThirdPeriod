@@ -3,7 +3,6 @@ package com.rainsoft.j2se;
 import com.rainsoft.domain.RegContentFtp;
 import com.rainsoft.utils.ReflectUtils;
 import com.rainsoft.utils.SolrUtil;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
@@ -16,7 +15,7 @@ import java.lang.reflect.Field;
  */
 public class TestSolr {
     public static void main(String[] args) throws IOException, SolrServerException {
-        CloudSolrClient client = SolrUtil.getSolrClient("yisou");
+        CloudSolrClient client = (CloudSolrClient) SolrUtil.getSolrClient(true);
         SolrInputDocument doc = new SolrInputDocument();
         RegContentFtp ftp = new RegContentFtp();
         ftp.setId("abcdefg");
