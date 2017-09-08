@@ -1,5 +1,5 @@
 {
-  "reg_content_ftp": [
+  "ftp": [
     "service_code",
     "sessionid",
     "certificate_type",
@@ -24,15 +24,15 @@
     "data_source",
     "file_size",
     "file_url",
+    "terminal_longitude",
+    "terminal_latitude",
+    "service_code_in",
     "manufacturer_code",
     "zipname",
     "bcpname",
-    "rownumber",
-    "service_code_out",
-    "terminal_longitude",
-    "terminal_latitude"
+    "rownumber"
   ],
-  "reg_content_im_chat": [
+  "im_chat": [
     "service_code",
     "sessionid",
     "certificate_type",
@@ -58,15 +58,15 @@
     "checkin_id",
     "machine_id",
     "data_source",
+    "terminal_longitude",
+    "terminal_latitude",
+    "service_code_in",
     "manufacturer_code",
     "zipname",
     "bcpname",
-    "rownumber",
-    "service_code_out",
-    "terminal_longitude",
-    "terminal_latitude"
+    "rownumber"
   ],
-  "reg_content_http": [
+  "http": [
     "service_code",
     "sessionid",
     "certificate_type",
@@ -94,12 +94,12 @@
     "checkin_id",
     "machine_id",
     "data_source",
+    "terminal_longitude",
+    "terminal_latitude",
+    "service_code_in",
     "manufacturer_code",
     "zipname",
     "bcpname",
-    "rownumber",
-    "service_code_out",
-    "terminal_longitude",
-    "terminal_latitude"
+    "rownumber"
   ]
 }

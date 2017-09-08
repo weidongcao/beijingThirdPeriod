@@ -33,7 +33,7 @@
 
         <!-- Spark版本 -->
         <spark.version>1.5.0-cdh5.6.1</spark.version>
-       <!-- <spark.version>1.6.2</spark.version>-->
+        <!-- <spark.version>1.6.2</spark.version>-->
         <!-- Hadoop版本 -->
         <hadoop.version>2.6.0-cdh5.6.1</hadoop.version>
         <!-- hive 版本 -->
@@ -163,6 +163,13 @@
             <version>${spring.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.31</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -219,7 +226,7 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <!--<phase>package</phase>-->
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
