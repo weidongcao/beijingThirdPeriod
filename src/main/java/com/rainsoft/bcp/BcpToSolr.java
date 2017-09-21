@@ -25,7 +25,7 @@ import java.util.List;
 public class BcpToSolr {
     private static final Logger logger = LoggerFactory.getLogger(BcpToSolr.class);
     private static final String basePath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "work";
-    private static final CloudSolrClient client = (CloudSolrClient) SolrUtil.getSolrClient(true);
+    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
 
     public static void main(String[] args) throws IOException, SolrServerException {
         logger.info("开始将BCP数据索引到Solr...");

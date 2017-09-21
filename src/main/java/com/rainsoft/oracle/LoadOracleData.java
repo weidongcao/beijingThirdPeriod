@@ -60,6 +60,7 @@ public class LoadOracleData {
                         sb.append(JdbcUtils.getFieldValue(rs, type, i));
                     }
                 }
+
                 sb.append("\r\n");
 
                 fileDataSize++;

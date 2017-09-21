@@ -23,30 +23,6 @@ hdfs_base_path = "/tmp/oracle"
 
 template_oracle_table_name = "reg_content_${task_type}"
 
-# 上传数据到HDFS，先把数据从pool目录移动到work目录下
-template_mv_cmd = """
-mv ${local_base_path}/pool/${table_name}/${table_name}_data_*.tsv ${local_base_path}/work/${table_name}
-"""
-# 上传数据到HDFS的命令
-template_upload_hdfs = """
-hdfs dfs -put ${local_base_path}/work/${table_name} ${hdfs_base_path}/${table_name}
-"""
-# 数据上传完后删除本地数据
-template_delete_local = """
-rm -f ${local_base_path}/work/${table_name}/${table_name}_data_*.tsv
-"""
-
-template_import_shell = """
-spark-submit \
---master yarn-client \
---executor-memory 64g \
---executor-cores 16 \
---num-executors 4 \
---class com.rainsoft.hbase.SparkExportToHBase \
-/opt/modules/BeiJingThirdPeriod/BeiJingThirdPeriod.jar ${task_type} ${hdfs_base_path}/${table_name}
-"""
-
-
 def exec_command_shell(full_command, cwd_path):
     """
     函数功能说明：Python执行Shell命令并返回命令执行结果的状态、输出、错误信息、pid
@@ -107,63 +83,15 @@ def run_shell(cmd, pwd_path):
     :return:
     """
     format_print("当前要执行的命令： " + cmd)
-    # result_dict = exec_command_shell(cmd, pwd_path)
-    result_dict = {"return_code": 0}
+    result_dict = exec_command_shell(cmd, pwd_path)
+    # result_dict = {"return_code": 0}
     if result_dict["return_code"] != 0:
-        print("命令执行失败,程序即将退出")
+        format_print("执行失败的命令: " + cmd)
+        format_print("命令执行失败,程序即将退出")
         os._exit(0)
     # 休眠, 等待内存清理完毕
     format_print("命令执行完毕")
     time.sleep(1)
-
-
-def run_upload_spark(task_type, table_name, local_base_path, hdfs_base_path):
-
-
-    upload_count = 0
-    pwd_path = os.getcwd()
-    table_name = template_oracle_table_name.replace("${task_type}", task_type)
-
-    #数据文件移动到工作目录的命令
-    local_mv_cmd = template_mv_cmd.replace("${local_base_path}", local_base_path) \
-        .replace("${table_name}", table_name)
-
-    # 数据文件上传到HDFS的命令
-    upload_hdfs_cmd = template_upload_hdfs.replace("${table_name}", table_name) \
-        .replace("${local_base_path}", local_base_path) \
-        .replace("${hdfs_base_path}", hdfs_base_path)
-
-    # Spark处理HDFS上的数据文件的命令
-    import_shell = template_import_shell.replace("${task_type}", task_type) \
-        .replace("${hdfs_base_path}", hdfs_base_path) \
-        .replace("${table_name}", table_name)
-
-    # 删除本地数据文件的命令
-    delete_local_cmd = template_delete_local.replace("${local_base_path}", local_base_path) \
-        .replace("${table_name}", table_name)
-
-    while True:
-        # 上传到HDFS的文件达
-        if upload_count < 200:
-            # 将数据文件移动到工作目录
-            run_shell(local_mv_cmd, pwd_path)
-            # 上传的HDFS文件没有达到指定数目, 继续上传
-            run_shell(upload_hdfs_cmd, pwd_path)
-            # 删除本地数据文件
-            run_shell(delete_local_cmd, pwd_path)
-            format_print(table_name + " 数据上传到HDFS完毕...")
-            upload_count += 1
-            time.sleep(10)
-        else:
-            # 达到指定数据，调用Spark对其进行处理
-            run_shell(import_shell, pwd_path)
-            format_print("HDFS数据处理完毕...")
-            # 处理完删除HDFS目录下的数据文件
-            format_print(table_name + " HDFS数据删除完毕...")
-            # 重新统计上传文件个数
-            upload_count = 0
-            time.sleep(1)
-
 
 def run(args):
     table_name = args[0]
@@ -189,10 +117,11 @@ def run(args):
                  str(sys_end_time - sys_start_time).split(".")[0] + " --------------->")
 
 
-def main():
+def main(args):
     # 每次处理多久的数据单位分钟，1440为一天
-    offset = 360
-    task_type = "http"
+    task_type = args[0]
+    data_store_days = args[1]
+    offset = args[2]
     # 从record.txt读取开始迁移的日期,格式为:YYYY-MM-dd HH:MM:SS ,record.txt不能为空,
     record_file = open('createIndexRecord/import_oracle_to_hbase_record.txt')
 
@@ -204,12 +133,9 @@ def main():
         record_file.close()
     table_name = template_oracle_table_name.replace("${task_type}", task_type)
 
-    threading.Thread(target=run_upload_spark, args=(task_type, table_name, local_base_path, hdfs_base_path)).start()
-
     start_time = datetime.datetime.strptime(start_time_param, "%Y-%m-%d %H:%M:%S")
 
-    # 数据库保留1年的数据
-    data_store_days = 365
+
     cur_time = datetime.datetime.now()
     flat = (cur_time - start_time).days < data_store_days
 
@@ -234,8 +160,14 @@ def main():
         start_time = end_time
         days = (cur_time - start_time).days
         flat = days < data_store_days
-        time.sleep(8)
     format_print("一年数据迁移完毕...")
 
 if __name__ == "__main__":
-    main()
+    # 任务类型
+    task_type = "ftp"
+    # 偏移时间(一次处理多长时间的数据)
+    offset = 1440
+    # 迁移多长时间的数据(从现在算起多少天)
+    data_store_days = 150
+
+    main([task_type, data_store_days, offset])

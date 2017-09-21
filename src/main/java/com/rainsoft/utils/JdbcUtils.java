@@ -52,7 +52,7 @@ public class JdbcUtils {
             if (null == value) {
                 value = "";
             } else {
-                value.replace("\t", "").replace("\r\n", "").replace("\n", "").replace("\r", "");
+                value = value.replace("\t", "").replace("\r\n", "").replace("\n", "").replace("\r", "");
             }
         } catch (SQLException e) {
             logger.info("获取JDBC字段值出错所在下标：{}", type);
