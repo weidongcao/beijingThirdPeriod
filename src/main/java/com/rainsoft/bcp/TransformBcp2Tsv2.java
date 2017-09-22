@@ -19,16 +19,16 @@ public class TransformBcp2Tsv2 {
         //任务类型(ftp/http/im_chat)
         String taskType = args[0].toLowerCase();
         //BCP文件所在目录格式
-        String resourcePathTemplate = "${bcp_file_path}/${taskType}";
+        String resourcePathTemplate = "${bcp_file_path}/${task}";
         //TSV文件所在目录格式
-        String targetPathTemplate = "${load_data_workspace}/work/bcp-${taskType}";
+        String targetPathTemplate = "${load_data_workspace}/work/bcp-${task}";
 
         //BCP文件目录
-        String resourcePath = resourcePathTemplate.replace("${taskType}", taskType)
+        String resourcePath = resourcePathTemplate.replace("${task}", taskType)
                 .replace("${bcp_file_path}", ConfigurationManager.getProperty("bcp_file_path"));
 
         //TSV文件目录
-        String targetPath = targetPathTemplate.replace("${taskType}", taskType)
+        String targetPath = targetPathTemplate.replace("${task}", taskType)
                 .replace("${load_data_workspace}", ConfigurationManager.getProperty("load_data_workspace"));
 
         logger.info("开始将BCP文件转转换为TSV文件:{}", taskType);

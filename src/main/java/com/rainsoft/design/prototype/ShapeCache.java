@@ -16,7 +16,7 @@ public class ShapeCache {
         Shape cachedShape = shapeMap.get(shapeId);
         return (Shape) cachedShape.clone();
     }
-    //for each shape run database query and create shape
+    //for each shape runImport database query and create shape
     //shapeMap.put(shapeKey,Shape);
     //for example, we are adding three shapes
     public static void loadCache() {

@@ -17,13 +17,14 @@ import java.util.UUID;
  */
 public class HttpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
     private static final String task = "http";
-    private static final String[] importColumns = new String[]{""};
+    private static final String[] importColumns = new String[]{"ref_domain"};
     @Override
     public void transformBcpToTsv(String resourcePath, String targetPath) {
         //BCP文件所在目录
         File dir = FileUtils.getFile(resourcePath);
         //BCP文件列表
         File[] files = dir.listFiles();
+
         //转成TSV文件后最大行数
         int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
         //Bcp文件字段切分后对应的字段名
@@ -39,6 +40,9 @@ public class HttpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
         for (int i = 0; i < importColumns.length; i++) {
             filterIndex[i] = ArrayUtils.indexOf(columns, importColumns[i].toLowerCase());
         }
+        //获取获取时间字段在所有的字段中的位置
+        int CaptureTimeIndex = ArrayUtils.indexOf(columns, BigDataConstants.CAPTURE_TIME.toLowerCase());
+
 
         //遍历BCP文件将转换后的内容写入TSV
         assert files != null;
@@ -75,7 +79,7 @@ public class HttpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
                 //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
                 long captureTimeMinSecond;
                 try {
-                    captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[22]).getTime();
+                    captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[CaptureTimeIndex]).getTime();
                 } catch (Exception e) {
                     continue;
                 }

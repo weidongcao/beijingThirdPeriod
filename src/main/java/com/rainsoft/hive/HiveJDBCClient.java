@@ -15,7 +15,7 @@ public class HiveJDBCClient {
 	      System.exit(1);
 	    }
 	      
-	    //replace "hive" here with the name of the user the queries should run as
+	    //replace "hive" here with the name of the user the queries should runImport as
 		Connection con = DriverManager.getConnection("jdbc:hive2://nn1.hadoop.com:10000/yuncai", "root", "rainsoft");
 	    Statement stmt = con.createStatement();
 	    String sql = "select * from user limit 3";

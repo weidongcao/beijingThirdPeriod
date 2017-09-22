@@ -6,6 +6,7 @@ import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
@@ -25,7 +26,7 @@ import java.util.List;
 public class BcpToSolr {
     private static final Logger logger = LoggerFactory.getLogger(BcpToSolr.class);
     private static final String basePath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "work";
-    private static final CloudSolrClient client = SolrUtil.getClusterSolrClient();
+    private static final SolrClient client = SolrUtil.getClusterSolrClient();
 
     public static void main(String[] args) throws IOException, SolrServerException {
         logger.info("开始将BCP数据索引到Solr...");

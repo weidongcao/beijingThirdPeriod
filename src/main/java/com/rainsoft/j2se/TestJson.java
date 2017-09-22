@@ -15,9 +15,6 @@ import java.io.InputStream;
  */
 public class TestJson {
     public static void main(String[] args) throws IOException {
-        JSONArray ftpFields = JsonUtils.getJsonValueByFile("oracleTableField.json", BigDataConstants.ORACLE_TABLE_FTP_NAME);
-
-        System.out.println(ftpFields);
 
     }
 }

@@ -18,18 +18,23 @@ import java.util.List;
  */
 public class SolrUtil {
     private static final Logger logger = LoggerFactory.getLogger(SolrUtil.class);
+    private static SolrClient client;
 
     /**
      * 获取Solr的客户端连接
      * @return
      */
-    public static CloudSolrClient getClusterSolrClient() {
-        String zkHost = ConfigurationManager.getProperty("zkHost");
-        CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
-        clusterClient.setZkClientTimeout(30000);
-        clusterClient.setZkConnectTimeout(50000);
-        clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
-        return clusterClient;
+    public static SolrClient getClusterSolrClient() {
+        if (client == null) {
+            String zkHost = ConfigurationManager.getProperty("zkHost");
+            CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
+            clusterClient.setZkClientTimeout(30000);
+            clusterClient.setZkConnectTimeout(50000);
+            clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
+            client = clusterClient;
+        }
+
+        return client;
     }
     /**
      * 提交到Solr

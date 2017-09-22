@@ -54,5 +54,8 @@ public class BigDataConstants {
     //内容类的表的id在Solr里的重命名（Oracle的ID，HBase的RowKey）
     public static final String SOLR_CONTENT_ID = "SID";
 
+    //获取时间字段名
+    public static final String CAPTURE_TIME = "capture_time";
+
 
 }

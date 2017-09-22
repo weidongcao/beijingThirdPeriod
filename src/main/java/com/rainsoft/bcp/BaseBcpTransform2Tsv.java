@@ -52,7 +52,9 @@ public abstract class BaseBcpTransform2Tsv {
      * @param resourcePath  BCP文件所在目录
      * @param targetPath    转换成Tsv文件后存储的目录
      */
-    public abstract void transformBcpToTsv(String resourcePath, String targetPath);
+    public void transformBcpToTsv(String resourcePath, String targetPath) {
+
+    }
 
     /**
      * 将转换后的TSV数据写入文件

@@ -20,13 +20,10 @@ public class TaskBean implements Serializable {
     private String hfileTmpStorePath;
     //数据类型
     private String contentType;
-    //获取Oracle表字段名
-    private String[] fields;
-    //Sorl的docType
-    private String docType;
-    private long curTimeLong = new Date().getTime();
-    //捕获时间在在bcp文件里一行的位置（第一个从0开始）
-    private int CaptureTimeIndexBcpFileLine;
+    //全部字段名数组
+    private String[] columns;
+    //关键字段名数组(为空的话需要过滤)
+    private String[] keyColumns;
 
     public String getBcpPath() {
         return bcpPath;
@@ -68,36 +65,20 @@ public class TaskBean implements Serializable {
         this.contentType = contentType;
     }
 
-    public String[] getFields() {
-        return fields;
+    public String[] getColumns() {
+        return columns;
     }
 
-    public void setFields(String[] fields) {
-        this.fields = fields;
+    public void setColumns(String[] columns) {
+        this.columns = columns;
     }
 
-    public String getDocType() {
-        return docType;
+    public String[] getKeyColumns() {
+        return keyColumns;
     }
 
-    public void setDocType(String docType) {
-        this.docType = docType;
-    }
-
-    public long getCurTimeLong() {
-        return curTimeLong;
-    }
-
-    public void setCurTimeLong(long curTimeLong) {
-        this.curTimeLong = curTimeLong;
-    }
-
-    public int getCaptureTimeIndexBcpFileLine() {
-        return CaptureTimeIndexBcpFileLine;
-    }
-
-    public void setCaptureTimeIndexBcpFileLine(int captureTimeIndexBcpFileLine) {
-        CaptureTimeIndexBcpFileLine = captureTimeIndexBcpFileLine;
+    public void setKeyColumns(String[] keyColumns) {
+        this.keyColumns = keyColumns;
     }
 
     @Override
@@ -108,10 +89,8 @@ public class TaskBean implements Serializable {
                 ", hbaseCF='" + hbaseCF + '\'' +
                 ", hfileTmpStorePath='" + hfileTmpStorePath + '\'' +
                 ", contentType='" + contentType + '\'' +
-                ", fields=" + Arrays.toString(fields) +
-                ", docType='" + docType + '\'' +
-                ", curTimeLong=" + curTimeLong +
-                ", CaptureTimeIndexBcpFileLine=" + CaptureTimeIndexBcpFileLine +
+                ", columns=" + Arrays.toString(columns) +
+                ", keyColumns=" + Arrays.toString(keyColumns) +
                 '}';
     }
 }

@@ -6,7 +6,6 @@ import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +17,8 @@ import java.util.UUID;
  */
 public class FtpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
     private static final String task = "ftp";
-    private static final String[] importColumns = new String[]{""};
+    //或:file_url|file_path
+    private static final String[] importColumns = new String[]{"file_url", };
     @Override
     public void transformBcpToTsv(String resourcePath, String targetPath) {
         //BCP文件所在目录
@@ -35,11 +35,13 @@ public class FtpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
         //写入TSV文件前的缓存
         StringBuffer sb = new StringBuffer();
 
-        //获取要过滤的字段在的字段中的下标
+        //获取要过滤的字段在所有字段中的下标
         int[] filterIndex = new int[importColumns.length];
         for (int i = 0; i < importColumns.length; i++) {
             filterIndex[i] = ArrayUtils.indexOf(columns, importColumns[i].toLowerCase());
         }
+        //获取获取时间字段在所有的字段中的位置
+        int CaptureTimeIndex = ArrayUtils.indexOf(columns, BigDataConstants.CAPTURE_TIME.toLowerCase());
 
         //遍历BCP文件将转换后的内容写入TSV
         assert files != null;
@@ -76,7 +78,7 @@ public class FtpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
                 //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
                 long captureTimeMinSecond;
                 try {
-                    captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[17]).getTime();
+                    captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[CaptureTimeIndex]).getTime();
                 } catch (Exception e) {
                     continue;
                 }

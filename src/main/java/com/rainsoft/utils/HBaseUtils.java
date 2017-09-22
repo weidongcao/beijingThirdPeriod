@@ -1,6 +1,7 @@
 package com.rainsoft.utils;
 
 import com.rainsoft.conf.ConfigurationManager;
+import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -299,5 +300,16 @@ public class HBaseUtils {
         Table table = getTable("user");
 
         table.put(put);
+    }
+
+    public static void addFields(String[] values, TaskBean task, List<Tuple2<RowkeyColumnSecondarySort, String>> list, String rowKey) {
+        for (int i = 0; i < values.length; i++) {
+            String key = task.getColumns()[i].toUpperCase();
+            String value = values[i];
+            //如果字段的值为空则不写入HBase
+            if ((null != value) && (!"".equals(value))) {
+                list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
+            }
+        }
     }
 }
