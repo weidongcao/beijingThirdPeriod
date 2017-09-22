@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +26,7 @@ public class FieldConstants {
 
     static {
         //获取BCP字段信息文件流
-        InputStream in = FieldConstants.class.getClassLoader().getResourceAsStream("oracleTableField.json");
+        InputStream in = FieldConstants.class.getClassLoader().getResourceAsStream("columns.json");
         try {
             //将BCP字段信息封装到Map
             String tableInfo = IOUtils.toString(in, "utf-8");
@@ -105,20 +104,4 @@ public class FieldConstants {
 
     }
 
-    public static void main(String[] args) throws IOException {
-        InputStream in = FieldConstants.class.getClassLoader().getResourceAsStream("oracleTableField.json");
-        String bcpMeta = IOUtils.toString(in, "utf-8");
-        JSONObject jsonObject = JSON.parseObject(bcpMeta);
-        for (String tableName : jsonObject.keySet()) {
-            System.out.println("tableName = " + tableName);
-            JSONArray fieldsJsonArray = jsonObject.getJSONArray(tableName);
-            String[] fields = fieldsJsonArray.toArray(new String[fieldsJsonArray.size()]);
-            System.out.println("fields = " + StringUtils.join(fields, ", "));
-        }
-        JSONArray jsonArray = jsonObject.getJSONArray("reg_content_http");
-        String[] arr = jsonArray.toArray(new String[jsonArray.size()]);
-
-        System.out.println(StringUtils.join(arr, ","));
-
-    }
 }

@@ -201,7 +201,6 @@
                             <!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->
                             <classpathPrefix>lib/</classpathPrefix>
                             <!--应用的main class,这个填不填无所谓,jar包运行的时候可以手动指定, 但是上面两个一定要有-->
-                            <!--<mainClass>com.rainsoft.solr.OracleDataCreateSolrIndex</mainClass>-->
                         </manifest>
                     </archive>
                     <!--过滤掉不希望包含在jar中的文件-->

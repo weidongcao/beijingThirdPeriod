@@ -21,27 +21,13 @@ public class SolrUtil {
 
     /**
      * 获取Solr的客户端连接
-     *
-     * @param isClusterSolrClient 是否是集群版的Solr
-     * @return
-     */
-    public static SolrClient getSolrClient(boolean isClusterSolrClient) {
-        if (isClusterSolrClient) {
-            String zkHost = ConfigurationManager.getProperty("zkHost");
-            CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
-            clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
-            return clusterClient;
-        } else {
-            return new HttpSolrClient.Builder(ConfigurationManager.getProperty("solr_url")).build();
-        }
-    }
-    /**
-     * 获取Solr的客户端连接
      * @return
      */
     public static CloudSolrClient getClusterSolrClient() {
         String zkHost = ConfigurationManager.getProperty("zkHost");
         CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
+        clusterClient.setZkClientTimeout(30000);
+        clusterClient.setZkConnectTimeout(50000);
         clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
         return clusterClient;
     }
@@ -77,38 +63,7 @@ public class SolrUtil {
         }
         return flat;
     }
-    /**
-     * 提交到Solr
-     *
-     * @param list
-     * @param client 是否提交到集群版Solr
-     * @return
-     */
-    public static boolean cloudClientSubmit(List<SolrInputDocument> list, CloudSolrClient client) {
-        /*
-         * 异常捕获
-         * 如果失败尝试3次
-         */
-        int tryCount = 0;
-        boolean flat = false;
-        while (tryCount < 3) {
-            try {
-                if (!list.isEmpty()) {
-                    client.add(list, 1000);
-                }
-                flat = true;
-                //关闭Solr连接
-//                client.close();
-                //如果索引成功,跳出循环
-                break;
-            } catch (Exception e) {
-                e.printStackTrace();
-                tryCount++;
-                flat = false;
-            }
-        }
-        return flat;
-    }
+
     public static boolean delSolrByCondition(String condition, SolrClient client) {
 
         UpdateRequest commit = new UpdateRequest();

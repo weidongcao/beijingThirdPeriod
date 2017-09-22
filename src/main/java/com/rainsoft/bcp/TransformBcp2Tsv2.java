@@ -6,14 +6,14 @@ import com.rainsoft.utils.BcpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 /**
+ * TransformBcp2Tsv功能的升级
  *  将BCP文件转为TSV文件
+ *  并对关键字段进行过滤
  * Created by CaoWeiDong on 2017-08-09.
  */
-public class TransformBcp2Tsv {
-    private static final Logger logger = LoggerFactory.getLogger(TransformBcp2Tsv.class);
+public class TransformBcp2Tsv2 {
+    private static final Logger logger = LoggerFactory.getLogger(TransformBcp2Tsv2.class);
     public static void main(String[] args) {
 
         //任务类型(ftp/http/im_chat)
@@ -34,18 +34,15 @@ public class TransformBcp2Tsv {
         logger.info("开始将BCP文件转转换为TSV文件:{}", taskType);
         
         /*
-         * BcpUtils方法参数说明：
          *  resourcePath:BCP文件所在目录
          *  targetPath:TSV文件存储目录
-         *  taskType:任务类型(ftp/http/im_chat)生成TSV文件命令用
-         *  captureTimeIndex    捕获时间是第几个字段(从0开始)
          */
         if (BigDataConstants.CONTENT_TYPE_FTP.equals(taskType)) {
-            BcpUtils.transformBcpToTsv(resourcePath, targetPath, taskType, 17);
+            new FtpBcpTransform2Tsv().transformBcpToTsv(resourcePath, targetPath);
         } else if (BigDataConstants.CONTENT_TYPE_IM_CHAT.equals(taskType)) {
-            BcpUtils.transformBcpToTsv(resourcePath, targetPath, taskType, 20);
+            new ImchatBcpTransform2Tsv().transformBcpToTsv(resourcePath, targetPath);
         } else if (BigDataConstants.CONTENT_TYPE_HTTP.equals(taskType)) {
-            BcpUtils.transformBcpToTsv(resourcePath, targetPath, taskType, 22);
+            new HttpBcpTransform2Tsv().transformBcpToTsv(resourcePath, targetPath);
         }
         logger.info("转换完成：{}", taskType);
 
