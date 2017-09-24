@@ -40,13 +40,14 @@ public class BcpImportHBaseSolrService implements Serializable {
     private static JavaSparkContext sparkContext = null;
 
     public JavaSparkContext getSparkContext() {
-        if (sparkContext == null) {
+        if (sparkContext == null || sparkContext.env().isStopped()) {
             SparkConf conf = new SparkConf()
                     .setAppName(BcpFileImport.class.getSimpleName())
                     .set("spark.ui.port", "4050")
                     .setMaster("local");
             sparkContext = new JavaSparkContext(conf);
         }
+
         return sparkContext;
 
     }

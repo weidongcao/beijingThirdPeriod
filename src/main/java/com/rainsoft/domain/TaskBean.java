@@ -24,6 +24,11 @@ public class TaskBean implements Serializable {
     private String[] columns;
     //关键字段名数组(为空的话需要过滤)
     private String[] keyColumns;
+    //Sorl的docType
+    private String docType;
+    private long curTimeLong = new Date().getTime();
+    //捕获时间在在bcp文件里一行的位置（第一个从0开始）
+    private int CaptureTimeIndex;
 
     public String getBcpPath() {
         return bcpPath;
@@ -73,6 +78,30 @@ public class TaskBean implements Serializable {
         this.columns = columns;
     }
 
+    public String getDocType() {
+        return docType;
+    }
+
+    public void setDocType(String docType) {
+        this.docType = docType;
+    }
+
+    public long getCurTimeLong() {
+        return curTimeLong;
+    }
+
+    public void setCurTimeLong(long curTimeLong) {
+        this.curTimeLong = curTimeLong;
+    }
+
+    public int getCaptureTimeIndex() {
+        return CaptureTimeIndex;
+    }
+
+    public void setCaptureTimeIndex(int captureTimeIndex) {
+        CaptureTimeIndex = captureTimeIndex;
+    }
+
     public String[] getKeyColumns() {
         return keyColumns;
     }
@@ -91,6 +120,9 @@ public class TaskBean implements Serializable {
                 ", contentType='" + contentType + '\'' +
                 ", columns=" + Arrays.toString(columns) +
                 ", keyColumns=" + Arrays.toString(keyColumns) +
+                ", docType='" + docType + '\'' +
+                ", curTimeLong=" + curTimeLong +
+                ", CaptureTimeIndex=" + CaptureTimeIndex +
                 '}';
     }
 }
