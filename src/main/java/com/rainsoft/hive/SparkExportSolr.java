@@ -1,11 +1,8 @@
 package com.rainsoft.hive;
 
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.solr.BaseOracleDataCreateSolrIndex;
-import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.SparkConf;
@@ -70,6 +67,6 @@ public class SparkExportSolr {
                     }
                 }
         );
-        BaseOracleDataCreateSolrIndex.submitSolr(solrRDD.collect(), client);
+//        BaseOracleDataExport.submitSolr(solrRDD.collect(), client);
     }
 }

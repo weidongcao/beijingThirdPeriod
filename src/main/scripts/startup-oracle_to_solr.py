@@ -9,17 +9,17 @@ import os
 
 # 按天导入的表
 day_cmd_template_dict = {
-    # "bbs_class": "BbsOracleDataCreateSolrIndex",
-    # "email_class": "EmailOracleDataCreateSolrIndex",
-    "ftp_class": "FtpOracleDataCreateSolrIndex",
-    "imchat_class": "ImchatOracleDataCreateSolrIndex",
-    # "search_class": "SearchOracleDataCreateSolrIndex",
-    # "shop_class": "ShopOracleDataCreateSolrIndex",
-    # "weibo_class": "WeiboOracleDataCreateSolrIndex"
+    # "bbs_class": "BbsOracleDataExport",
+    # "email_class": "EmailOracleDataExport",
+    "ftp_class": "FtpOracleDataExport",
+    "imchat_class": "ImchatOracleDataExport",
+    # "search_class": "SearchOracleDataExport",
+    # "shop_class": "ShopOracleDataExport",
+    # "weibo_class": "WeiboOracleDataExport"
 }
 
 # 一天分多次导入的表
-percent_cmd_template_dict = {"http_class": "HttpOracleDataCreateSolrIndex"}
+percent_cmd_template_dict = {"http_class": "HttpOracleDataExport"}
 
 pref_cmd = "java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr."
 suffix_date = " ${cur_date}"

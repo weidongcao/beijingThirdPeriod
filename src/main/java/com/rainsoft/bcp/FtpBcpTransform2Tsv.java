@@ -26,9 +26,9 @@ public class FtpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
         //BCP文件列表
         File[] files = dir.listFiles();
         //转成TSV文件后最大行数
-        int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
+        int maxFileDataSize = ConfigurationManager.getInteger("data.file.max.lines");
         //Bcp文件字段切分后对应的字段名
-        String[] columns = FieldConstants.BCP_FIELD_MAP.get(task);
+        String[] columns = FieldConstants.COLUMN_MAP.get("bcp_" + task);
 
         //统计BCP文件行数
         int lineCount = 0;

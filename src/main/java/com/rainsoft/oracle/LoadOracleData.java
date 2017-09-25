@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.text.ParseException;
 import java.util.Date;
@@ -36,13 +35,13 @@ public class LoadOracleData {
         sql = sql.replace("${startTime}", startTime);
         sql = sql.replace("${endTime}", endTime);
 
-        int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
+        int maxFileDataSize = ConfigurationManager.getInteger("data.file.max.lines");
 
         JDBCHelper helper = JDBCHelper.getInstance();
 
         logger.info("开始执行sql: {}", sql);
-        logger.info("数据文件本地生成目录: {}", ConfigurationManager.getProperty("load_data_workspace") + File.separator + "data" + File.separator + tableName);
-        logger.info("文件生成后移动的目录: {}", ConfigurationManager.getProperty("load_data_workspace") + File.separator + "pool" + File.separator + tableName);
+        logger.info("数据文件本地生成目录: {}", ConfigurationManager.getProperty("load.data.workspace") + File.separator + "data" + File.separator + tableName);
+        logger.info("文件生成后移动的目录: {}", ConfigurationManager.getProperty("load.data.workspace") + File.separator + "pool" + File.separator + tableName);
         helper.executeQueryBySql(sql, rs -> {
             logger.info("查询完成,开始处理数据...");
             ResultSetMetaData rsm = rs.getMetaData();
@@ -88,7 +87,7 @@ public class LoadOracleData {
      * @param sb
      */
     private static String writeStringToFile(StringBuffer sb, String tableName) {
-        String constantPath = ConfigurationManager.getProperty("load_data_workspace");
+        String constantPath = ConfigurationManager.getProperty("load.data.workspace");
         //${basePath}/${workType}/${tableName}/${tableDataFileName}
         String filePathTemplate = constantPath + File.separator     //${basePath}
                 + "${dir}" + File.separator         //${workType}

@@ -8,7 +8,6 @@ import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ import java.util.List;
  */
 public class BcpToSolr {
     private static final Logger logger = LoggerFactory.getLogger(BcpToSolr.class);
-    private static final String basePath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "work";
+    private static final String basePath = ConfigurationManager.getProperty("load.data.workspace") + File.separator + "work";
     private static final SolrClient client = SolrUtil.getClusterSolrClient();
 
     public static void main(String[] args) throws IOException, SolrServerException {
@@ -34,12 +33,12 @@ public class BcpToSolr {
 
         String taskDataDir = "bcp-" + taskType;
         //获取字段名数组
-        String[] fieldNames = FieldConstants.BCP_FIELD_MAP.get(taskType);
+        String[] fieldNames = FieldConstants.COLUMN_MAP.get("bcp_" + taskType);
         //数据文件所在目录
         File dataDir = FileUtils.getFile(basePath + File.separator + taskDataDir);
         logger.info("转存的TSV文件所在目录:{}", dataDir.getAbsolutePath());
         //一次最多向Solr提交5万条数据
-        int maxFileDataSize = ConfigurationManager.getInteger("import_to_solr_data_count");
+        int maxFileDataSize = ConfigurationManager.getInteger("commit.solr.count");
 
         //当前时间
         Date curDate = new Date();

@@ -1,6 +1,7 @@
 package com.rainsoft.bcp;
 
 import com.rainsoft.utils.SolrUtil;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -14,7 +15,7 @@ import java.io.IOException;
  * Created by CaoWeiDong on 2017-09-15.
  */
 public class TestSolrConnection {
-    public static CloudSolrClient client = SolrUtil.getClusterSolrClient();
+    public static SolrClient client = SolrUtil.getClusterSolrClient();
     public static void main(String[] args) {
         String q = args[0];
         querySolr(q);

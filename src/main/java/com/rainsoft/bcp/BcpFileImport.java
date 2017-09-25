@@ -4,31 +4,10 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.domain.TaskBean;
-import com.rainsoft.hbase.RowkeyColumnSecondarySort;
-import com.rainsoft.utils.DateUtils;
-import com.rainsoft.utils.HBaseUtils;
-import com.rainsoft.utils.SolrUtil;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple2;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Spark处理BCP文件
@@ -72,7 +51,7 @@ public class BcpFileImport implements Serializable {
         String contentType = BigDataConstants.CONTENT_TYPE_FTP;
         TaskBean ftp = new TaskBean();
         //BCP文件路径
-        ftp.setBcpPath(ConfigurationManager.getProperty("bcp_file_path") + "/" + contentType);
+        ftp.setBcpPath(ConfigurationManager.getProperty("bcp.file.path") + "/" + contentType);
         //HBase表名
         ftp.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
         //HBase列簇
@@ -82,7 +61,7 @@ public class BcpFileImport implements Serializable {
         //数据类型
         ftp.setContentType(contentType);
         //全部字段名数组
-        ftp.setColumns(FieldConstants.BCP_FIELD_MAP.get(contentType));
+        ftp.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + contentType));
         //需要过滤的关键字段
         ftp.setKeyColumns(new String[]{"file_name"});
 
@@ -100,7 +79,7 @@ public class BcpFileImport implements Serializable {
         TaskBean imChat = new TaskBean();
 
         //BCP文件路径
-        imChat.setBcpPath(ConfigurationManager.getProperty("bcp_file_path") + "/" + contentType);
+        imChat.setBcpPath(ConfigurationManager.getProperty("bcp.file.path") + "/" + contentType);
         //HBase表名
         imChat.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
         //HBase列簇
@@ -110,7 +89,7 @@ public class BcpFileImport implements Serializable {
         //数据类型
         imChat.setContentType(contentType);
         //全部字段名数组
-        imChat.setColumns(FieldConstants.BCP_FIELD_MAP.get(contentType));
+        imChat.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + contentType));
         //需要过滤的关键字段
         imChat.setKeyColumns(new String[]{});
 
@@ -129,7 +108,7 @@ public class BcpFileImport implements Serializable {
         TaskBean http = new TaskBean();
 
         //BCP文件路径
-        http.setBcpPath(ConfigurationManager.getProperty("bcp_file_path") + "/" + contentType);
+        http.setBcpPath(ConfigurationManager.getProperty("bcp.file.path") + "/" + contentType);
         //HBase表名
         http.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
         //HBase列簇
@@ -139,7 +118,7 @@ public class BcpFileImport implements Serializable {
         //数据类型
         http.setContentType(contentType);
         //全部字段名数组
-        http.setColumns(FieldConstants.BCP_FIELD_MAP.get(contentType));
+        http.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + contentType));
         //需要过滤的关键字段
         http.setKeyColumns(new String[]{"ref_domain"});
 

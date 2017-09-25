@@ -1,8 +1,8 @@
 package com.rainsoft.dao.impl;
 
-import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.dao.FtpDao;
 import com.rainsoft.domain.RegContentFtp;
+import com.rainsoft.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -12,9 +12,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,6 +35,37 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentFtp.class));
     }
 
+    @Override
+    public List<String[]> getFtpByHours(String startTime, String endTime) {
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        jdbcTemplate.setFetchSize(1000);
+        String templeSql = "select * from REG_CONTENT_FTP where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+
+        String sql = templeSql.replace("${startTime}", startTime)
+                .replace("${endTime}", endTime);
+        logger.info("FTP数据获取Oracle数据sql: {}", sql);
+
+        /**
+         * 返回结果为数组类型的List
+         */
+        List<String[]> list = jdbcTemplate.query(sql, new ResultSetExtractor<List<String[]>>() {
+            @Override
+            public List<String[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                List<String[]> list = new ArrayList<>();
+                ResultSetMetaData rsm = rs.getMetaData();
+                int colSize = rsm.getColumnCount();
+                while (rs.next()) {
+                    String[] line = new String[colSize];
+                    for (int i = 1; i <= colSize; i++) {
+                        int type = rsm.getColumnType(i);
+                        line[i - 1] = JdbcUtils.getFieldValue(rs, type, i);
+                    }
+                }
+                return list;
+            }
+        });
+        return list;
+    }
 
     @Override
     public List<String> getFtpFieldValueByTime(String date) {

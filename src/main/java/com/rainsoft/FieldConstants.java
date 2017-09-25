@@ -15,8 +15,8 @@ import java.util.Map;
  * Created by CaoWeiDong on 2017-08-01.
  */
 public class FieldConstants {
-    //BCP文件数据对应的字段
-    public static final Map<String, String[]> BCP_FIELD_MAP = new HashMap<>();
+    //字段
+    public static final Map<String, String[]> COLUMN_MAP = new HashMap<>();
 
     //Oracle字段对应的类型
     public static final Map<String, Integer> ORACLE_Field_TO_JAVA_TYPE = new HashMap<>();
@@ -34,7 +34,7 @@ public class FieldConstants {
             for (String tableName : jsonObject.keySet()) {
                 JSONArray jsonArray = jsonObject.getJSONArray(tableName);
                 String[] fields = jsonArray.toArray(new String[jsonArray.size()]);
-                BCP_FIELD_MAP.put(tableName, fields);
+                COLUMN_MAP.put(tableName, fields);
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,14 +2,9 @@ package com.rainsoft.jdbc;
 
 
 import com.rainsoft.conf.ConfigurationManager;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,10 +18,10 @@ import java.util.List;
  */
 public class JDBCHelper {
     private static final Logger logger = LoggerFactory.getLogger(JDBCHelper.class);
-    private static final String driver = ConfigurationManager.getProperty("oracle_driver");
-    private static final String url = ConfigurationManager.getProperty("oracle_url");
-    private static final String username = ConfigurationManager.getProperty("oracle_username");
-    private static final String password = ConfigurationManager.getProperty("oracle_password");
+    private static final String driver = ConfigurationManager.getProperty("oracle.driver");
+    private static final String url = ConfigurationManager.getProperty("oracle.url");
+    private static final String username = ConfigurationManager.getProperty("oracle.username");
+    private static final String password = ConfigurationManager.getProperty("oracle.password");
 
     //加载驱动
     static {

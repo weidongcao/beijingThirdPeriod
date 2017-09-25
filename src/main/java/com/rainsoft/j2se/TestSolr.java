@@ -1,6 +1,5 @@
 package com.rainsoft.j2se;
 
-import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -38,7 +37,7 @@ public class TestSolr {
         //指定要连接的Solr的collection
         client.setDefaultCollection(
                 ConfigurationManager
-                        .getProperty("solr_collection")
+                        .getProperty("solr.collection")
         );
     }
 

@@ -20,7 +20,7 @@ public class LoadOraclemeta {
     public static void main(String[] args) throws ParseException, IOException {
         String tableName = args[0];
 
-        String metaDirPath = ConfigurationManager.getProperty("load_data_workspace") + File.separator + "meta";
+        String metaDirPath = ConfigurationManager.getProperty("load.data.workspace") + File.separator + "meta";
         File metaDir = new File(metaDirPath);
         if (!metaDir.isDirectory() || !metaDir.exists()) {
             metaDir.mkdirs();

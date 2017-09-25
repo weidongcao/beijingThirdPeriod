@@ -13,13 +13,13 @@ import com.rainsoft.conf.ConfigurationManager;
  */
 public class ExampleOracleJDBC {
     //数据库连接驱动
-    private static String driver = ConfigurationManager.getProperty("oracle_driver");
+    private static String driver = ConfigurationManager.getProperty("oracle.driver");
     //数据库连接地址
-    private static String url = ConfigurationManager.getProperty("oracle_url");
+    private static String url = ConfigurationManager.getProperty("oracle.url");
     //数据库连接用户名
-    private static String username = ConfigurationManager.getProperty("oracle_username");
+    private static String username = ConfigurationManager.getProperty("oracle.username");
     //数据库连接密码
-    private static String password = ConfigurationManager.getProperty("oracle_password");
+    private static String password = ConfigurationManager.getProperty("oracle.password");
 
     public static void main(String[] args) {
 

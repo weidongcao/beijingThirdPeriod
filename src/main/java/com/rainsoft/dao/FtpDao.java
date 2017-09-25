@@ -8,9 +8,10 @@ import java.util.List;
  * Created by Administrator on 2017-06-12.
  */
 public interface FtpDao {
-    public List<RegContentFtp> getFtpBydate(String date);
+    List<RegContentFtp> getFtpBydate(String date);
+    List<String[]> getFtpByHours(String startTime, String endTime);
 
-    public List<String> getFtpFieldValueByTime(String date);
+    List<String> getFtpFieldValueByTime(String date);
 
-    public RegContentFtp getFtpById(int id);
+    RegContentFtp getFtpById(int id);
 }

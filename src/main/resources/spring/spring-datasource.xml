@@ -6,15 +6,13 @@
                 http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-2.5.xsd">
-	<!-- 读取Properties配置文件 -->
-	<context:property-placeholder location="classpath:application.properties"/>
 
     <!-- Spring连接数据库（Oracle、Mysql、SQL Server）数据源-->
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="${oracle_driver}" />
-		<property name="url" value="${oracle_url}" />
-		<property name="username" value="${oracle_username}" />
-		<property name="password" value="${oracle_password}" />
+		<property name="driverClassName" value="${oracle.driver}" />
+		<property name="url" value="${oracle.url}" />
+		<property name="username" value="${oracle.username}" />
+		<property name="password" value="${oracle.password}" />
 	</bean>
 
 	<!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">

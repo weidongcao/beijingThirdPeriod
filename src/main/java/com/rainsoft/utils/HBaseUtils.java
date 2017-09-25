@@ -18,6 +18,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
@@ -67,6 +69,7 @@ public class HBaseUtils {
         conf.setInt("hbase.mapreduce.bulkload.max.hfiles.perRegion.perFamily", 10000);
         conf.set("hbase.zookeeper.property.clientPort", "2181");
         conf.set("hbase.zookeeper.quorum", zkHost);
+        conf.set("zookeeper.session.timeout", 2 * 60 * 60 * 1000 + "");
 
         //创建HBase连接
         conn = ConnectionFactory.createConnection(conf);
@@ -303,8 +306,11 @@ public class HBaseUtils {
     }
 
     public static void addFields(String[] values, TaskBean task, List<Tuple2<RowkeyColumnSecondarySort, String>> list, String rowKey) {
-        for (int i = 0; i < values.length; i++) {
-            String key = task.getColumns()[i].toUpperCase();
+        for (int i = 1; i < values.length; i++) {
+            if (task.getColumns().length <= i-1) {
+                break;
+            }
+            String key = task.getColumns()[i-1].toUpperCase();
             String value = values[i];
             //如果字段的值为空则不写入HBase
             if ((null != value) && (!"".equals(value))) {
@@ -312,4 +318,38 @@ public class HBaseUtils {
             }
         }
     }
+
+    /**
+     * 将数据转为经过二次排序的JavaPairRDD
+     * @param javaRDD 源数据
+     * @param columns 数据字段名
+     * @return
+     */
+    public static JavaPairRDD<RowkeyColumnSecondarySort, String> getHFileRDD(JavaRDD<String[]> javaRDD, String[] columns) {
+        JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
+                new PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>() {
+                    @Override
+                    public Iterable<Tuple2<RowkeyColumnSecondarySort, String>> call(String[] strings) throws Exception {
+                        List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
+                        //获取HBase的RowKey
+                        String rowKey = strings[0];
+                        //将一条数据转为HBase能够识别的形式
+                        for (int i = 1; i < strings.length; i++) {
+                            if (i >= columns.length) {
+                                break;
+                            }
+                            String key = columns[i].toUpperCase();
+                            String value = strings[i];
+                            //如果字段的值为空则不写入HBase
+                            if ((null != value) && (!"".equals(value))) {
+                                list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
+                            }
+                        }
+                        return list;
+                    }
+                }
+        ).sortByKey();
+        return hfileRDD;
+    }
+
 }

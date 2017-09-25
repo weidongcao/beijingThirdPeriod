@@ -17,7 +17,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final String tmpHFilePath = BigDataConstants.TMP_HFILE_HDFS;
-    private static final String tsvDataPathTemplate = "file://" + ConfigurationManager.getProperty("load_data_workspace") + "/work/bcp-${task}";
+    private static final String tsvDataPathTemplate = "file://" + ConfigurationManager.getProperty("load.data.workspace") + "/work/bcp-${task}";
 //    private static final String tsvDataPathTemplate = "file:///" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
     private static final String hbaseTablePrefix = BigDataConstants.HBASE_TABLE_PREFIX;
     public static void main(String[] args) {
@@ -45,7 +45,7 @@ public class Main {
         ftp.setCaptureTimeIndex(17);
         ftp.setContentType(contentType);
         ftp.setDocType(BigDataConstants.SOLR_DOC_TYPE_FTP_VALUE);
-        ftp.setColumns(FieldConstants.BCP_FIELD_MAP.get(BigDataConstants.CONTENT_TYPE_FTP));
+        ftp.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_FTP));
         ftp.setHbaseCF(BigDataConstants.HBASE_TABLE_FTP_CF);
         ftp.setHfileTmpStorePath(tmpHFilePath + contentType);
         ftp.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
@@ -65,12 +65,12 @@ public class Main {
         imChat.setCaptureTimeIndex(20);
         imChat.setContentType(contentType);
         imChat.setDocType(BigDataConstants.SOLR_DOC_TYPE_IMCHAT_VALUE);
-        imChat.setColumns(FieldConstants.BCP_FIELD_MAP.get(BigDataConstants.CONTENT_TYPE_IM_CHAT));
+        imChat.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_IM_CHAT));
         imChat.setHfileTmpStorePath(tmpHFilePath + contentType);
         imChat.setHbaseCF(BigDataConstants.HBASE_TABLE_IM_CHAT_CF);
         imChat.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
 
-        String path = ConfigurationManager.getProperty("bcp_file_path") + File.separator + contentType;
+        String path = ConfigurationManager.getProperty("bcp.file.path") + File.separator + contentType;
         logger.info("替换 {} 的BCP数据的目录： {}", imChat.getContentType(), path);
 //        imChat.replaceFileRN(path);
         return imChat;
@@ -88,7 +88,7 @@ public class Main {
         http.setCaptureTimeIndex(22);
         http.setContentType(contentType);
         http.setDocType(BigDataConstants.SOLR_DOC_TYPE_HTTP_VALUE);
-        http.setColumns(FieldConstants.BCP_FIELD_MAP.get(BigDataConstants.CONTENT_TYPE_HTTP));
+        http.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_HTTP));
         http.setHfileTmpStorePath(tmpHFilePath + contentType);
         http.setHbaseCF(BigDataConstants.HBASE_TABLE_HTTP_CF);
         http.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());

@@ -59,7 +59,7 @@ public class BcpUtils {
         //当前时间
         Date curDate = new Date();
         //转成TSV文件后最大行数
-        int maxFileDataSize = ConfigurationManager.getInteger("data_file_max_lines");
+        int maxFileDataSize = ConfigurationManager.getInteger("data.file.max.lines");
         //统计BCP文件行数
         int lineCount = 0;
         //写入TSV文件前的缓存

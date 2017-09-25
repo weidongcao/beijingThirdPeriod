@@ -6,8 +6,6 @@ import com.rainsoft.utils.BcpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 /**
  *  将BCP文件转为TSV文件
  * Created by CaoWeiDong on 2017-08-09.
@@ -25,11 +23,11 @@ public class TransformBcp2Tsv {
 
         //BCP文件目录
         String resourcePath = resourcePathTemplate.replace("${task}", taskType)
-                .replace("${bcp_file_path}", ConfigurationManager.getProperty("bcp_file_path"));
+                .replace("${bcp_file_path}", ConfigurationManager.getProperty("bcp.file.path"));
 
         //TSV文件目录
         String targetPath = targetPathTemplate.replace("${task}", taskType)
-                .replace("${load_data_workspace}", ConfigurationManager.getProperty("load_data_workspace"));
+                .replace("${load_data_workspace}", ConfigurationManager.getProperty("load.data.workspace"));
 
         logger.info("开始将BCP文件转转换为TSV文件:{}", taskType);
         

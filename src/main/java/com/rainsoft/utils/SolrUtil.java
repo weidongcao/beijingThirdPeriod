@@ -4,7 +4,6 @@ import com.rainsoft.conf.ConfigurationManager;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ public class SolrUtil {
             CloudSolrClient clusterClient = new CloudSolrClient.Builder().withZkHost(zkHost).build();
             clusterClient.setZkClientTimeout(30000);
             clusterClient.setZkConnectTimeout(50000);
-            clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr_collection"));
+            clusterClient.setDefaultCollection(ConfigurationManager.getProperty("solr.collection"));
             client = clusterClient;
         }
 

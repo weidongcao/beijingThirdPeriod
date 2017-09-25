@@ -6,6 +6,8 @@
                 http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+	<!-- 读取Properties配置文件 -->
+	<context:property-placeholder location="classpath:application.properties"/>
 
 	<import resource="spring/spring-domain.xml" />
 	<import resource="spring/spring-service.xml" />
