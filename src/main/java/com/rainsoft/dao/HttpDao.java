@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface HttpDao {
     List<RegContentHttp> getHttpBydate(String date, float startPercent, float endPercent);
+
+    List<String[]> getHttpByHours(String startTime, String endTime);
 }

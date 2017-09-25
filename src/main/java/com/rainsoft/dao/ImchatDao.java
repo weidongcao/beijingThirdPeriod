@@ -11,4 +11,6 @@ import java.util.List;
 public interface ImchatDao {
     List<RegContentImChat> getImchatBydate(String date);
 
+    List<String[]> getImChatByHours(String startTime, String endTime);
+
 }

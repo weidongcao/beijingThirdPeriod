@@ -5,8 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by CaoWeiDong on 2017-08-06.
@@ -37,7 +41,7 @@ public class JdbcUtils {
                     value = rs.getFloat(index) + "";
                     break;
                 case Types.TIMESTAMP:
-                    value = DateUtils.TIME_FORMAT.format(rs.getDate(index));
+                    value = DateUtils.TIME_FORMAT.format(rs.getTimestamp(index));
                     break;
                 case Types.DATE:
                     value = DateUtils.TIME_FORMAT.format(rs.getDate(index));
@@ -59,5 +63,27 @@ public class JdbcUtils {
             e.printStackTrace();
         }
         return value;
+    }
+
+    /**
+     * 将从Oracle查询出来的结果转为List<String[]>>的格式
+     * @param rs
+     * @return
+     * @throws SQLException
+     */
+    public static List<String[]> resultSetToList(ResultSet rs) throws SQLException {
+        List<String[]> list = new ArrayList<>();
+        ResultSetMetaData rsm = rs.getMetaData();
+        int colSize = rsm.getColumnCount();
+        while (rs.next()) {
+            String[] line = new String[colSize];
+            for (int i = 1; i <= colSize; i++) {
+                int type = rsm.getColumnType(i);
+                line[i - 1] = JdbcUtils.getFieldValue(rs, type, i);
+            }
+            list.add(line);
+        }
+        return list;
+
     }
 }

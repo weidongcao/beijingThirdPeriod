@@ -51,17 +51,7 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
         List<String[]> list = jdbcTemplate.query(sql, new ResultSetExtractor<List<String[]>>() {
             @Override
             public List<String[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                List<String[]> list = new ArrayList<>();
-                ResultSetMetaData rsm = rs.getMetaData();
-                int colSize = rsm.getColumnCount();
-                while (rs.next()) {
-                    String[] line = new String[colSize];
-                    for (int i = 1; i <= colSize; i++) {
-                        int type = rsm.getColumnType(i);
-                        line[i - 1] = JdbcUtils.getFieldValue(rs, type, i);
-                    }
-                }
-                return list;
+                return JdbcUtils.resultSetToList(rs);
             }
         });
         return list;

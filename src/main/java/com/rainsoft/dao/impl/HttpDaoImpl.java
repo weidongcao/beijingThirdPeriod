@@ -3,12 +3,19 @@ package com.rainsoft.dao.impl;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.dao.HttpDao;
 import com.rainsoft.domain.RegContentHttp;
+import com.rainsoft.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,4 +40,27 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentHttp.class));
     }
+    @Override
+    public List<String[]> getHttpByHours(String startTime, String endTime) {
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        jdbcTemplate.setFetchSize(100);
+        String templeSql = "select * from REG_CONTENT_HTTP where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+
+        String sql = templeSql.replace("${startTime}", startTime)
+                .replace("${endTime}", endTime);
+        logger.info("Http 数据获取Oracle数据sql: {}", sql);
+
+        /**
+         * 返回结果为数组类型的List
+         */
+        List<String[]> list = jdbcTemplate.query(sql, new ResultSetExtractor<List<String[]>>() {
+            @Override
+            public List<String[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                return JdbcUtils.resultSetToList(rs);
+            }
+        });
+        return list;
+    }
+
+
 }

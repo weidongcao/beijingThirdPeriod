@@ -2,13 +2,19 @@ package com.rainsoft.solr;
 
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
+import com.rainsoft.bcp.BcpFileImport;
 import com.rainsoft.conf.ConfigurationManager;
+import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -42,6 +48,7 @@ public class BaseOracleDataExport {
     protected static SolrClient client = SolrUtil.getClusterSolrClient();
 
     public static DateFormat hourDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH");
+    public static DateFormat dateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     //一次处理多少小时的数据
     public static final int hourOffset = ConfigurationManager.getInteger("oracle.capture.time.batch");
@@ -54,6 +61,20 @@ public class BaseOracleDataExport {
 
     public static final String SUCCESS_STATUS = "success";
     public static final String FAIL_STATUS = "fail";
+    private static JavaSparkContext sc = null;
+
+    public static JavaSparkContext getSparkContext() {
+        if (sc == null || sc.env().isStopped()) {
+            SparkConf conf = new SparkConf()
+                    .setAppName(BaseOracleDataExport.class.getSimpleName())
+                    .set("spark.ui.port", "4050")
+                    .setMaster("local");
+            sc = new JavaSparkContext(conf);
+        }
+
+        return sc;
+
+    }
 
     static {
         //导入记录
@@ -79,7 +100,7 @@ public class BaseOracleDataExport {
         //导入记录
         List<String> recordsList = null;
         try {
-            recordsList = FileUtils.readLines(recordFile);
+            recordsList = FileUtils.readLines(recordFile, "utf-8");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,123 +113,91 @@ public class BaseOracleDataExport {
 
         logger.info("程序初始化完成...");
     }
-    public static boolean oracleContentTableDataExportSolr(List<String[]> list, String contentType) {
-        logger.info("当前要索引的数据量 = {}", numberFormat.format(list.size()));
 
+    public static void oracleContentTableDataExportSolr(JavaRDD<String[]> javaRDD, String contentType) {
         //字段名数组
-        String[] columns = FieldConstants.COLUMN_MAP.get(contentType);
+        String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_" + contentType);
         //获取时间的位置
         int captureTimeIndex = ArrayUtils.indexOf(columns, BigDataConstants.CAPTURE_TIME);
 
-        //缓冲数据
-        List<SolrInputDocument> cacheList = new ArrayList<>();
+        javaRDD.foreachPartition(
+                (VoidFunction<Iterator<String[]>>) iterator -> {
+                    List<SolrInputDocument> docList = new ArrayList<>();
+                    while (iterator.hasNext()) {
+                        //数据列数组
+                        String[] str = iterator.next();
+                        SolrInputDocument doc = new SolrInputDocument();
+                        String id = UUID.randomUUID().toString().replace("-", "");
 
-        //数据索引结果状态
-        boolean flat = true;
+                        //ID
+                        doc.addField("ID", id);
+                        //docType
+                        doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(contentType));
 
-        //向Solr提交数据的次数
-        int submitCount = 0;
-        //进行Solr索引
-        while (list.size() > 0) {
-            /*
-             * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
-             */
-            List<String[]> sublist;
-            int startIndex = submitCount * writeSize;
-            int endIndex = (submitCount + 1) * writeSize;
-            if (endIndex > list.size()) {
-                endIndex = list.size();
-            }
-            sublist = list.subList(startIndex, endIndex);
+                        for (int i = 0; i < str.length; i++) {
+                            String colValue = str[i];
+                            //如果字段值为空跳过
+                            if (StringUtils.isBlank(colValue))
+                                continue;
 
-            /*
-             * 将Oracle查询出来的数据封装为Solr的导入实体
-             */
-            for (String[] line : sublist) {
-                //创建SolrInputDocument实体
-                SolrInputDocument doc = new SolrInputDocument();
+                            //如果字段下标越界,跳出循环
+                            if (i >= columns.length)
+                                break;
 
-                //生成Solr的唯一ID
-                String uuid = UUID.randomUUID().toString().replace("-", "");
-                doc.addField("ID", uuid);
+                            //sid
+                            if ("id".equalsIgnoreCase(columns[i]))
+                                doc.addField("SID", colValue);
+                            else
+                                doc.addField(columns[i].toUpperCase(), colValue);
+                        }
 
-                //添加FTP数据类型为文件
-                doc.addField("docType", FieldConstants.DOC_TYPE_MAP.get(contentType));
+                        String aaa = str[captureTimeIndex];
+                        //capture_time
+                        doc.addField(
+                                BigDataConstants.CAPTURE_TIME.toLowerCase(),
+                                TIME_FORMAT.parse(aaa).getTime());
 
-                for (int i = 0; i < line.length; i++) {
-                    String colValue = line[i];
-                    //如果字段值为空跳过
-                    if (StringUtils.isBlank(colValue)) {
-                        continue;
+                        docList.add(doc);
+                        if (docList.size() >= writeSize) {
+                            client.add(docList, 10000);
+                            logger.info("提交一次到Solr完成...");
+                            docList.clear();
+                        }
+
                     }
-                    //如果字段下标越界,跳出循环
-                    if (i >= columns.length) {
-                        break;
-                    }
+                    if (docList.size() > 0) {
+                        //写入Solr
+                        client.add(docList, 1000);
 
-                    if ("id".equalsIgnoreCase(columns[i])) {
-                        doc.addField("SID", colValue);
+                        logger.info("---->写入Solr成功");
                     } else {
-                        doc.addField(columns[i].toUpperCase(), colValue);
+                        logger.info("{} 此Spark Partition 数据为空", contentType);
                     }
-
                 }
+        );
 
-                //捕获时间转为毫秒赋值给Solr导入实体
-                try {
-                    doc.addField(
-                            BigDataConstants.CAPTURE_TIME.toLowerCase(),
-                            TIME_FORMAT.parse(line[captureTimeIndex].split("\\.")[0]).getTime());
-                } catch (Exception e) {
-                    logger.info("{}采集时间转换失败,采集时间为： {}", contentType, line[captureTimeIndex]);
-                    e.printStackTrace();
-                }
+        logger.info("####### {}的BCP数据索引Solr完成 #######", contentType);
 
-                //索引实体添加缓冲区
-                cacheList.add(doc);
-            }
-
-            //提交到Solr
-            try {
-                client.add(cacheList, 1000);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Solr 索引失败");
-            }
-
-            //清空历史索引数据
-            cacheList.clear();
-
-            //提交次数增加
-            submitCount++;
-
-            int tempSubListSize = sublist.size();
-            logger.info(
-                    "第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条",
-                    submitCount,
-                    numberFormat.format(tempSubListSize),
-                    numberFormat.format(list.size() - startIndex));
-        }
-
-        return flat;
     }
+
     /**
      * 数据导入结果处理
      * 将导入结果记录到文件
-     * @param type 任务类型
+     *
+     * @param type        任务类型
      * @param captureTime 捕获日期
-     * @param flat 导入结果
+     * @param flat        导入结果
      * @throws IOException 文件写入失败
      */
-    static void recordImportResult(String type,String captureTime, boolean flat) {
+    static void recordImportResult(String type, String captureTime, boolean flat) {
         //数据索引结果成功或者失败写入记录文件,
         String newRecords;
         if (flat) {
             recordMap.put(captureTime + "_" + type, SUCCESS_STATUS);
-            newRecords = captureTime + "_" + type + "\t" + SUCCESS_STATUS;
+            newRecords = captureTime + "_" + type + "\t" + SUCCESS_STATUS + "\r\n";
         } else {
             recordMap.put(captureTime + "_" + type, FAIL_STATUS);
-            newRecords = captureTime + "_" + type + "\t" + FAIL_STATUS;
+            newRecords = captureTime + "_" + type + "\t" + FAIL_STATUS + "\r\n";
             logger.error("当天数据导入失败");
         }
 

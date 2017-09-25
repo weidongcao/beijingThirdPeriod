@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ *
  * Created by Administrator on 2017-04-06.
  */
 public class SolrUtil {
