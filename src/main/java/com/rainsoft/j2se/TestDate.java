@@ -11,8 +11,8 @@ import java.util.Date;
  */
 public class TestDate {
     public static void main(String[] args) throws ParseException {
-        String aa = "2017-08-15 00:00:00";
-        String AA = "2017-08-16 00:00:00";
+        String aa = "2017-10-10 00:00:00";
+        String AA = "2017-10-11 00:00:00";
         String bb = "2017-07-29";
         String BB = "2017-07-28";
         Date aaDate = DateUtils.TIME_FORMAT.parse(aa);

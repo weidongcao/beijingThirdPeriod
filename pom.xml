@@ -11,11 +11,11 @@
     <properties>
 
         <!-- 项目执行脚本目录 -->
-        <project.build.scriptSourceDirectory>src/main/scripts</project.build.scriptSourceDirectory>
+        <project.script.execute.directory>src/main/scripts/execute</project.script.execute.directory>
         <!-- 项目说明文档目录 -->
-        <project.document.Directory>document</project.document.Directory>
+        <project.document.directory>document</project.document.directory>
         <!-- 项目配置文件目录 -->
-        <project.config.Directory>src/main/resources</project.config.Directory>
+        <project.config.directory>src/main/resources</project.config.directory>
         <!-- 项目编码 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -225,7 +225,7 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <!--<phase>package</phase>-->
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>

@@ -7,9 +7,14 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IOUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class HBaseApp {
     public static void main(String[] args) throws Exception {
         HBaseApp app = new HBaseApp();
+
         app.scanData("emp");
 
     }
@@ -32,6 +37,18 @@ public class HBaseApp {
         table.close();
     }
 
+    public void putData() {
+        String tableName = "H_REG_CONTENT_FTP";
+        List<Put> puts = new ArrayList<>();
+
+        Put put1 = new Put(Bytes.toBytes(UUID.randomUUID().toString().replace("-", "")));
+        try {
+            Table table = HBaseUtils.getTable(tableName);
+            table.put(puts);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void scanData(String tableName) throws Exception {
         // Get table instance
         Table table = null;

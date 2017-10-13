@@ -11,11 +11,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class TestSpringOracle {
     public static void main(String[] args) {
+        testSpringConnectionOracle();
+    }
+
+    private static void testSpringConnectionOracle() {
         AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
 
         FtpDao ftpDao = (FtpDao) context.getBean("ftpDao");
         //获取数据库一天的数据
-        RegContentFtp ftp = ftpDao.getFtpById(1);
+        RegContentFtp ftp = ftpDao.getFtpById(1905067);
         JSONObject jsonObject = JSONObject.fromObject(ftp);
         System.out.println(jsonObject.toString());
 

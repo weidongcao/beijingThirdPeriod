@@ -2,6 +2,7 @@ package com.rainsoft.dao.impl;
 
 import com.rainsoft.dao.EmailDao;
 import com.rainsoft.domain.RegContentEmail;
+import com.rainsoft.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 public class EmailDaoImpl extends JdbcDaoSupport implements EmailDao{
     private static final Logger logger = LoggerFactory.getLogger(EmailDaoImpl.class);
+    private static final String tableName = "reg_content_email ";
 
     @Override
     public List<RegContentEmail> getEmailByPeriod(String date) {
@@ -26,5 +28,11 @@ public class EmailDaoImpl extends JdbcDaoSupport implements EmailDao{
         logger.info("Email数据获取一天数据的sql: {}", sql);
 
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentEmail.class));
+    }
+
+    @Override
+    public List<String[]> getEmailByHours(String startTime, String endTime) {
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        return JdbcUtils.getDatabaseByPeriod(jdbcTemplate, tableName, startTime, endTime);
     }
 }

@@ -8,5 +8,7 @@ import java.util.List;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public interface EmailDao {
-    public List<RegContentEmail> getEmailByPeriod(String date);
+    List<RegContentEmail> getEmailByPeriod(String date);
+
+    List<String[]> getEmailByHours(String startTime, String endTime);
 }

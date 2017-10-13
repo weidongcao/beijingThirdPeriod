@@ -132,7 +132,10 @@
     "zipname",
     "bcpname",
     "rownumber",
-    "import_time"
+    "import_time",
+    "service_code_in",
+    "terminal_longitude",
+    "terminal_latitude"
   ],
   "oracle_reg_content_im_chat": [
     "id",
@@ -165,13 +168,15 @@
     "zipname",
     "bcpname",
     "rownumber",
-    "import_time"
+    "import_time",
+    "service_code_in",
+    "terminal_longitude",
+    "terminal_latitude"
   ],
   "oracle_reg_content_http": [
     "id",
     "sessionid",
     "service_code",
-    "room_id",
     "certificate_type",
     "certificate_code",
     "user_name",
@@ -192,10 +197,18 @@
     "src_port",
     "src_mac",
     "capture_time",
+    "room_id",
     "checkin_id",
-    "data_source",
     "machine_id",
-    "import_time"
+    "data_source",
+    "manufacturer_code",
+    "zipname",
+    "bcpname",
+    "rownumber",
+    "import_time",
+    "service_code_in",
+    "terminal_longitude",
+    "terminal_latitude"
   ],
   "oracle_reg_content_bbs": [
     "id",

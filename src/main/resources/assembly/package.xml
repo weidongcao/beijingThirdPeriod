@@ -49,34 +49,47 @@
             </includes>
         </fileSet>
 
-        <!-- 把项目相关的说明文件，打包进zip文件根目录下的document目录 -->
+        <!-- 把项目readme说明文档，打包进zip文件根目录下 -->
         <fileSet>
-            <directory>${project.document.Directory}</directory>
+            <directory>${project.document.directory}</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>readme.*</include>
+            </includes>
+        </fileSet>
+
+        <!-- 把项目相关的说明文档(除了readme文档)，打包进zip文件根目录下的document目录 -->
+        <fileSet>
+            <directory>${project.document.directory}</directory>
             <outputDirectory>document</outputDirectory>
+            <excludes>
+                <exclude>readme.*</exclude>
+            </excludes>
         </fileSet>
 
         <!-- 把项目的配置文件，打包进zip文件根目录的config目录 -->
         <fileSet>
-            <directory>${project.config.Directory}</directory>
+            <directory>${project.config.directory}</directory>
             <outputDirectory>config</outputDirectory>
             <includes>
-                <include>*.xml</include>
+                <include>core-site.xml</include>
                 <include>*.properties</include>
+                <include>*.json</include>
             </includes>
         </fileSet>
 
         <!-- 把项目的脚本文件目录(src/main/scripts )中的启动脚本文件，打包进zip文件的根目录 -->
         <fileSet>
-            <directory>${project.build.scriptSourceDirectory}</directory>
+            <directory>${project.script.execute.directory}</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>startup.*</include>
+                <include>*</include>
             </includes>
         </fileSet>
 
         <!-- 把项目的脚本文件(除了启动脚本文件)，打包进zip文件的script目录 -->
         <fileSet>
-            <directory>${project.build.scriptSourceDirectory}</directory>
+            <directory>${project.script.execute.directory}</directory>
             <outputDirectory></outputDirectory>
             <excludes>
                 <exclude>startup.*</exclude>

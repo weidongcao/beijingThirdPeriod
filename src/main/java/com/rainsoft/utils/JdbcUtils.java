@@ -3,6 +3,7 @@ package com.rainsoft.utils;
 import com.rainsoft.FieldConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -85,5 +86,31 @@ public class JdbcUtils {
         }
         return list;
 
+    }
+
+    /**
+     * 根据开始时间和结束时间获取Oracle指定表指定时间段内的数据并返回数组类型的列表
+     *
+     * @param jdbcTemplate Jdbc连接
+     * @param tableName 表名
+     * @param startTime 开始时间, 格式：yyyy-MM-dd HH:mm:ss
+     * @param endTime 结束时间, 格式：yyyy-MM-dd HH:mm:ss
+     * @return
+     */
+    public static List<String[]> getDatabaseByPeriod(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
+        String templeSql = "select * from ${tableName} where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+
+        String sql = templeSql.replace("${startTime}", startTime)
+                .replace("${endTime}", endTime)
+                .replace("${tableName}", tableName);
+        logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
+
+        /**
+         * 返回结果为数组类型的List
+         */
+        List<String[]> list = jdbcTemplate.query(sql, rs -> {
+            return resultSetToList(rs);
+        });
+        return list;
     }
 }
