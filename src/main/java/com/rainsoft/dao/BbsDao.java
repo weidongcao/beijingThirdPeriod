@@ -8,5 +8,7 @@ import java.util.List;
  * Created by CaoWeiDong on 2017-06-28.
  */
 public interface BbsDao {
-    public List<RegContentBbs> getBbsByPeriod(String date);
+    List<RegContentBbs> getBbsByPeriod(String date);
+
+    List<String[]> getBbsByHours(String startTime, String endTime);
 }

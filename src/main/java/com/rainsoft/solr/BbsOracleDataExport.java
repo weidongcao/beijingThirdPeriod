@@ -1,21 +1,19 @@
 package com.rainsoft.solr;
 
+import com.rainsoft.BigDataConstants;
+import com.rainsoft.FieldConstants;
 import com.rainsoft.dao.BbsDao;
-import com.rainsoft.domain.RegContentBbs;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrInputDocument;
+import com.rainsoft.hbase.RowkeyColumnSecondarySort;
+import com.rainsoft.utils.HBaseUtils;
+import org.apache.log4j.filter.TimeFilter;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Oracle数据库BBS数据导入Solr
@@ -24,126 +22,74 @@ import java.util.UUID;
 public class BbsOracleDataExport extends BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(BbsOracleDataExport.class);
 
+    //任务类型(bbs)
+    private static final String TASK_TYPE = BigDataConstants.CONTENT_TYPE_BBS;
+    //HBase表名
+    private static final String HBASE_TABLE_NAME = "H_REG_CONTENT_BBS";
+
+    //HBase列簇
+    private static final String HBASE_TABLE_CF = "CONTENT_BBS";
+
+    //生成的HFile文件在HDFS的临时存储目录
+    private static final String HFILE_TEMP_STORE_PATH = BigDataConstants.TMP_HFILE_HDFS + "reg_content_bbs";
+
+    //字段名
+    private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_bbs");
+
     private static BbsDao bbsDao = (BbsDao) context.getBean("bbsDao");
 
-    private static final String BBS = "bbs";
-    private static final String BBS_TYPE = "论坛";
+    public static void exportOracleByHours(Date startTime, Date endTime) {
+        //Oracle查询参数：开始时间
+        String startTimeParam = TIME_FORMAT.format(startTime);
+        //Oracle查询参数：结束时间
+        String endTimeParam = TIME_FORMAT.format(endTime);
 
-    public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, ParseException, IOException, NoSuchMethodException, SolrServerException {
+        //记录导入开始时间
         long startIndexTime = new Date().getTime();
 
-        String date = args[0];
-        String ftpRecord = date + "_" + BBS;
-        if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
-            bbsCreateSolrIndexByDay(args[0]);
-            //对当天的数据重新添加索引
-        } else {
-            logger.info("{} : {} has already imported", date, BBS);
+        logger.info("{} : 开始索引 {} 到 {} 的数据", TASK_TYPE, startTimeParam, endTimeParam);
+        //获取数据库指定捕获时间段的数据
+        List<String[]> dataList = bbsDao.getBbsByHours(startTimeParam, endTimeParam);
+        logger.info("从数据库查询数据结束,数据量: {}", dataList.size());
+
+        try {
+            JavaRDD<String[]> javaRDD = getSparkContext().parallelize(dataList);
+            javaRDD.cache();
+            //导入Solr
+            oracleContentTableDataExportSolr(javaRDD, TASK_TYPE);
+            //导入HBase
+            exportHBase(javaRDD);
+
+            long endIndexTime = new Date().getTime();
+            //计算任务执行的时间（秒）
+            long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+            logger.info("{} 导出完成执行时间: {}分钟{}秒", TASK_TYPE, indexRunTime / 60, indexRunTime % 60);
+            logger.info(
+                    "Solr 查询此数据的条件: docType:{} capture_time:[{} TO {}]",
+                    FieldConstants.DOC_TYPE_MAP.get(TASK_TYPE),
+                    startTime.getTime(),
+                    endTime.getTime()
+            );
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        long endIndexTime = new Date().getTime();
-        //计算索引数据执行的时间（秒）
-        long indexRunTime = (endIndexTime - startIndexTime) / 1000;
-        logger.info("bbs索引数据执行时间: {}分钟{}秒", indexRunTime / 60, indexRunTime % 60);
-
-        client.close();
     }
 
-    private static boolean bbsCreateSolrIndexByDay(String captureTime) throws IOException, SolrServerException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParseException {
-        logger.info("执行的Shell命令： java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.BbsOracleDataExport {}", captureTime);
-
-        logger.info("bbs : 开始索引 {} 的数据", captureTime);
-
-        //获取数据库一天的数据
-        List<RegContentBbs> dataList = bbsDao.getBbsByPeriod(captureTime);
-
-        logger.info("从数据库查询数据结束");
-        boolean flat = bbsCreateIndex(dataList, client);
-
-        //导入完成后对不同的结果的处理
-        recordImportResult(BBS, captureTime, flat);
-
-        return flat;
+    /**
+     * Oracle的reg_content_ftp的数据导入HBase
+     */
+    private static void exportHBase(JavaRDD<String[]> javaRDD) {
+        /**
+         * 将数据列表转为
+         */
+        JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = HBaseUtils.getHFileRDD(javaRDD, columns);
+        //写入HBase
+        HBaseUtils.writeData2HBase(hfileRDD, HBASE_TABLE_NAME, HBASE_TABLE_CF, HFILE_TEMP_STORE_PATH);
+        logger.info("Oracle {} 数据写入HBase完成", TASK_TYPE);
     }
 
-    private static boolean bbsCreateIndex(List<RegContentBbs> dataList, SolrClient client) throws IOException, SolrServerException {
-        logger.info("当前要索引的数据量 = {}", numberFormat.format(dataList.size()));
-
-        //缓冲数据
-        List<SolrInputDocument> cacheList = new ArrayList<>();
-
-        //数据索引结果状态
-        boolean flat = true;
-
-        int submitCount = 0;
-        //进行Solr索引
-        while (dataList.size() > 0) {
-            /*
-             * 从Oracle查询出来的数据量很大,每次从查询出来的List中取一定量的数据进行索引
-             */
-            List<RegContentBbs> sublist;
-            if (writeSize < dataList.size()) {
-                sublist = dataList.subList(0, writeSize);
-            } else {
-                sublist = dataList;
-            }
-
-            /*
-             * 将Oracle查询出来的数据封装为Solr的导入实体
-             */
-            for (RegContentBbs bbs : sublist) {
-                //创建SolrInputDocument实体
-                SolrInputDocument doc = new SolrInputDocument();
-
-                //生成Solr的唯一ID
-                String uuid = UUID.randomUUID().toString().replace("-", "");
-
-                //添加FTP数据类型为文件
-                doc.addField("docType", BBS_TYPE);
-                doc.addField("ID", uuid);
-
-                //数据实体属性集合
-                Field[] fields = RegContentBbs.class.getFields();
-
-                //遍历实体属性,将之赋值给Solr导入实体
-//                addFieldToSolr(doc, fields, bbs);
-
-                //捕获时间转为毫秒赋值给Solr导入实体
-                try {
-                    doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(bbs.getCapture_time().split("\\.")[0]).getTime());
-                } catch (Exception e) {
-                    logger.info("bbs采集时间转换失败,采集时间为： {}", bbs.getCapture_time());
-                    e.printStackTrace();
-                }
-
-                //索引实体添加缓冲区
-                cacheList.add(doc);
-            }
-
-            //索引到Solr
-//            flat = submitSolr(cacheList, client);
-
-            //有一次索引失败就认为失败
-            if (!flat) {
-                return flat;
-            }
-
-            //清空历史索引数据
-            cacheList.clear();
-
-            //提交次数增加
-            submitCount++;
-
-            int tempSubListSize = sublist.size();
-            //移除已经索引过的数据
-            if (writeSize < dataList.size()) {
-                dataList = dataList.subList(writeSize, dataList.size());
-            } else {
-                dataList.clear();
-            }
-            logger.info("第 {} 次索引 {} 条数据成功;剩余未索引的数据: {}条", submitCount, numberFormat.format(tempSubListSize), numberFormat.format(dataList.size()));
-        }
-        return flat;
+    public static void main(String[] args) throws ParseException {
+        exportOracleByHours(TIME_FORMAT.parse("2017-09-26 00:00:00"), TIME_FORMAT.parse("2017-09-29 00:00:00"));
     }
-
 }

@@ -1,6 +1,9 @@
 package com.rainsoft.utils;
 
 import com.rainsoft.conf.ConfigurationManager;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -10,6 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -19,6 +25,8 @@ import java.util.List;
 public class SolrUtil {
     private static final Logger logger = LoggerFactory.getLogger(SolrUtil.class);
     private static SolrClient client;
+
+    private static final DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 获取Solr的客户端连接
@@ -101,6 +109,23 @@ public class SolrUtil {
                 client.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public static void createSolrinputDocumentFromHBase(SolrInputDocument doc, Result result, String[] columns, String CF) {
+
+        for (int i = 1; i < columns.length; i++) {
+            String value = Bytes.toString(result.getValue(CF.getBytes(), columns[i].toUpperCase().getBytes()));
+            if (StringUtils.isNotBlank(value)) {
+                doc.addField(columns[i].toUpperCase(), value);
+            }
+            if (columns[i].equalsIgnoreCase("capture_time")) {
+                try {
+                    doc.addField("capture_time", timeFormat.parse(value).getTime());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
