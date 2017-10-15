@@ -5,7 +5,6 @@ import com.rainsoft.FieldConstants;
 import com.rainsoft.dao.BbsDao;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.HBaseUtils;
-import org.apache.log4j.filter.TimeFilter;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import java.util.List;
 
 /**
  * Oracle数据库BBS数据导入Solr
- * Created by CaoWeiDong on 2017-06-28.
+ * Created by CaoWeiDong on 2017-10-15.
  */
 public class BbsOracleDataExport extends BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(BbsOracleDataExport.class);
@@ -38,7 +37,7 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
 
     private static BbsDao bbsDao = (BbsDao) context.getBean("bbsDao");
 
-    public static void exportOracleByHours(Date startTime, Date endTime) {
+    public static void exportOracleByHours(Date startTime, Date endTime, boolean isImportHBase) {
         //Oracle查询参数：开始时间
         String startTimeParam = TIME_FORMAT.format(startTime);
         //Oracle查询参数：结束时间
@@ -52,28 +51,37 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
         List<String[]> dataList = bbsDao.getBbsByHours(startTimeParam, endTimeParam);
         logger.info("从数据库查询数据结束,数据量: {}", dataList.size());
 
-        try {
-            JavaRDD<String[]> javaRDD = getSparkContext().parallelize(dataList);
-            javaRDD.cache();
-            //导入Solr
-            oracleContentTableDataExportSolr(javaRDD, TASK_TYPE);
-            //导入HBase
-            exportHBase(javaRDD);
+        if (dataList.size() > 0) {
+            try {
+                JavaRDD<String[]> javaRDD = getSparkContext().parallelize(dataList);
+                //数据持久化
+                javaRDD.cache();
+                //导入Solr
+                oracleContentTableDataExportSolr(javaRDD, TASK_TYPE);
 
-            long endIndexTime = new Date().getTime();
-            //计算任务执行的时间（秒）
-            long indexRunTime = (endIndexTime - startIndexTime) / 1000;
-            logger.info("{} 导出完成执行时间: {}分钟{}秒", TASK_TYPE, indexRunTime / 60, indexRunTime % 60);
-            logger.info(
-                    "Solr 查询此数据的条件: docType:{} capture_time:[{} TO {}]",
-                    FieldConstants.DOC_TYPE_MAP.get(TASK_TYPE),
-                    startTime.getTime(),
-                    endTime.getTime()
-            );
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+                //导入HBase
+                if (isImportHBase) {
+                    exportHBase(javaRDD);
+                }
+
+                long endIndexTime = new Date().getTime();
+                //计算任务执行的时间（秒）
+                long indexRunTime = (endIndexTime - startIndexTime) / 1000;
+                logger.info("{} 导出完成执行时间: {}分钟{}秒", TASK_TYPE, indexRunTime / 60, indexRunTime % 60);
+                logger.info(
+                        "Solr 查询此数据的条件: docType:{} capture_time:[{} TO {}]",
+                        FieldConstants.DOC_TYPE_MAP.get(TASK_TYPE),
+                        startTime.getTime(),
+                        endTime.getTime()
+                );
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+            logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", "reg_content_bbs", startTimeParam, endTimeParam);
         }
+
     }
 
     /**
@@ -90,6 +98,6 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
     }
 
     public static void main(String[] args) throws ParseException {
-        exportOracleByHours(TIME_FORMAT.parse("2017-09-26 00:00:00"), TIME_FORMAT.parse("2017-09-29 00:00:00"));
+        exportOracleByHours(TIME_FORMAT.parse("2017-09-26 00:00:00"), TIME_FORMAT.parse("2017-09-29 00:00:00"), false);
     }
 }
