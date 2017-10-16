@@ -3,6 +3,7 @@ package com.rainsoft.hbase.solr;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
+import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -28,14 +29,14 @@ public class HttpImportSolrBase {
 
     private static SolrClient client = SolrUtil.getClusterSolrClient();
     private static int batchCount = ConfigurationManager.getInteger("commit.solr.count");
-    private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_http");
-    private static String TABLE_NAME = "H_REG_CONTENT_HTTP_TMP";
-    private static final String CF = "CONTENT_HTTP";
-    private static final String taskType = "http";
+    private static final String task = "http";
+    private static String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
+    private static String TABLE_NAME = NamingRuleUtils.getTmpHBaseTableName(task);
+    private static final String CF = NamingRuleUtils.getHBaseContentTableCF(task);
 
     public static void main(String[] args) throws Exception {
         //获取HBase表
-        Table table = HBaseUtils.getTable(TABLE_NAME);;
+        Table table = HBaseUtils.getTable(TABLE_NAME);
         //获取HBase的scan
         Scan scan = new Scan();
         ResultScanner resultScanner = table.getScanner(scan);
@@ -57,12 +58,12 @@ public class HttpImportSolrBase {
             docList.add(doc);
             if (!docList.isEmpty() && (docList.size() >= batchCount)) {
                 client.add(docList, 10000);
-                logger.info("{} 写入Solr {} 数据成功...", taskType, docList.size());
+                logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
                 docList.clear();
             }
         }
         if (!docList.isEmpty()) {
-            logger.info("{} 写入Solr {} 数据成功...", taskType, docList.size());
+            logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
             client.add(docList, 10000);
         }
         IOUtils.closeStream(resultScanner);

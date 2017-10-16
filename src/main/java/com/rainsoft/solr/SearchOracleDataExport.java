@@ -2,6 +2,7 @@ package com.rainsoft.solr;
 
 import com.rainsoft.dao.SearchDao;
 import com.rainsoft.domain.RegContentSearch;
+import com.rainsoft.utils.DateFormatUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -110,7 +111,7 @@ public class SearchOracleDataExport extends BaseOracleDataExport {
 
                 //捕获时间转为毫秒赋值给Solr导入实体
                 try {
-                    doc.addField("capture_time", com.rainsoft.utils.DateUtils.TIME_FORMAT.parse(search.getCapture_time().split("\\.")[0]).getTime());
+                    doc.addField("capture_time", DateFormatUtils.DATE_TIME_FORMAT.parse(search.getCapture_time().split("\\.")[0]).getTime());
                 } catch (Exception e) {
                     logger.info("search采集时间转换失败,采集时间为： {}", search.getCapture_time());
                     e.printStackTrace();

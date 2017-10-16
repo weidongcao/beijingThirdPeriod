@@ -102,7 +102,7 @@
     "bcpname",
     "rownumber"
   ],
-  "oracle_reg_content_ftp": [
+  "reg_content_ftp": [
     "id",
     "sessionid",
     "service_code",
@@ -137,7 +137,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_im_chat": [
+  "reg_content_im_chat": [
     "id",
     "sessionid",
     "service_code",
@@ -173,7 +173,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_http": [
+  "reg_content_http": [
     "id",
     "sessionid",
     "service_code",
@@ -210,7 +210,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_bbs": [
+  "reg_content_bbs": [
     "id",
     "sessionid",
     "service_code",
@@ -250,7 +250,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_email": [
+  "reg_content_email": [
     "id",
     "sessionid",
     "service_code",
@@ -290,7 +290,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_weibo": [
+  "reg_content_weibo": [
     "id",
     "sessionid",
     "service_code",
@@ -330,7 +330,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_shop": [
+  "reg_content_shop": [
     "id",
     "sessionid",
     "service_code",
@@ -367,7 +367,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_content_search": [
+  "reg_content_search": [
     "id",
     "sessionid",
     "service_code",

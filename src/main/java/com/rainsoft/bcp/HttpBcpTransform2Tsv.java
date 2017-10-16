@@ -3,7 +3,7 @@ package com.rainsoft.bcp;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.DateFormatUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -79,7 +79,7 @@ public class HttpBcpTransform2Tsv extends BaseBcpTransform2Tsv {
                 //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
                 long captureTimeMinSecond;
                 try {
-                    captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[CaptureTimeIndex]).getTime();
+                    captureTimeMinSecond = DateFormatUtils.DATE_TIME_FORMAT.parse(fieldValues[CaptureTimeIndex]).getTime();
                 } catch (Exception e) {
                     continue;
                 }

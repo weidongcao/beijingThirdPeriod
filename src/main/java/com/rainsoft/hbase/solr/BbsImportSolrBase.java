@@ -3,6 +3,7 @@ package com.rainsoft.hbase.solr;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
+import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Result;
@@ -30,9 +31,10 @@ public class BbsImportSolrBase {
 
     private static SolrClient client = SolrUtil.getClusterSolrClient();
     private static int batchCount = ConfigurationManager.getInteger("commit.solr.count");
-    private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_bbs");
-    private static String TABLE_NAME = "H_REG_CONTENT_BBS_TMP";
-    private static final String CF = "CONTENT_BBS";
+    private static final String task = "bbs";
+    private static String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
+    private static String TABLE_NAME = NamingRuleUtils.getTmpHBaseTableName(task);
+    private static final String CF = NamingRuleUtils.getHBaseContentTableCF(task);
     private static final DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) throws Exception {

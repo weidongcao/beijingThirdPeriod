@@ -2,7 +2,7 @@ package com.rainsoft.oracle;
 
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.jdbc.JDBCHelper;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.JdbcUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -92,7 +92,7 @@ public class LoadOracleData {
         String filePathTemplate = constantPath + File.separator     //${basePath}
                 + "${dir}" + File.separator         //${workType}
                 + tableName + File.separator        //${workType}
-                + tableName + "_data_" + DateUtils.STEMP_FORMAT.format(new Date()) + "${random}.tsv"; //${tableDataFileName}
+                + tableName + "_data_" + DateFormatUtils.STEMP_FORMAT.format(new Date()) + "${random}.tsv"; //${tableDataFileName}
 
         String createFilePath = filePathTemplate.replace("${dir}", "data");
         String random = RandomStringUtils.randomAlphabetic(8);

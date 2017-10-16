@@ -1,6 +1,5 @@
 package com.rainsoft.utils;
 
-import com.rainsoft.FieldConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,10 +40,10 @@ public class JdbcUtils {
                     value = rs.getFloat(index) + "";
                     break;
                 case Types.TIMESTAMP:
-                    value = DateUtils.TIME_FORMAT.format(rs.getTimestamp(index));
+                    value = DateFormatUtils.DATE_TIME_FORMAT.format(rs.getTimestamp(index));
                     break;
                 case Types.DATE:
-                    value = DateUtils.TIME_FORMAT.format(rs.getDate(index));
+                    value = DateFormatUtils.DATE_TIME_FORMAT.format(rs.getDate(index));
                     break;
                 case Types.CHAR:
                     value = rs.getString(index);

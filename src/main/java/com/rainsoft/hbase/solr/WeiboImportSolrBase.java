@@ -3,6 +3,7 @@ package com.rainsoft.hbase.solr;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
+import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Result;
@@ -30,11 +31,11 @@ public class WeiboImportSolrBase {
 
     private static SolrClient client = SolrUtil.getClusterSolrClient();
     private static int batchCount = ConfigurationManager.getInteger("commit.solr.count");
-    private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_weibo");
-    private static String TABLE_NAME = "H_REG_CONTENT_WEIBO_TMP";
-    private static final String CF = "CONTENT_WEIBO";
+    private static final String task = "weibo";
+    private static String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
+    private static String TABLE_NAME = NamingRuleUtils.getTmpHBaseTableName(task);
+    private static final String CF = NamingRuleUtils.getHBaseContentTableCF(task);
     private static final DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final String taskType = "weibo";
 
     public static void main(String[] args) throws Exception {
         Table table = HBaseUtils.getTable(TABLE_NAME);
@@ -64,12 +65,12 @@ public class WeiboImportSolrBase {
             docList.add(doc);
             if (!docList.isEmpty() && (docList.size() >= batchCount)) {
                 client.add(docList, 10000);
-                logger.info("{} 写入Solr {} 数据成功...", taskType, docList.size());
+                logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
                 docList.clear();
             }
         }
         if (!docList.isEmpty()) {
-            logger.info("{} 写入Solr {} 数据成功...", taskType, docList.size());
+            logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
             client.add(docList, 10000);
         }
         IOUtils.closeStream(resultScanner);

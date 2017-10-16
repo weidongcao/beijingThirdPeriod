@@ -29,7 +29,7 @@ public class FtpOracleDataExport extends BaseOracleDataExport {
     private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_ftp");
 
     public static void ftpExportOracleByHours(Date startTime) {
-        String hourDate = BaseOracleDataExport.hourDateFormat.format(startTime);
+        String hourDate = hourDateFormat.format(startTime);
         String contentType = BigDataConstants.CONTENT_TYPE_FTP;
         String ftpRecord = hourDate + "_" + contentType;
         //从Oracle抽数据的结束时间
@@ -40,7 +40,7 @@ public class FtpOracleDataExport extends BaseOracleDataExport {
         //Oracle查询参数：结束时间
         String endTimeParam = TIME_FORMAT.format(endTime);
         //检查导入记录是是否有导入成功的记录，如果有跳过，如果没有的话再导入
-        if (!BaseOracleDataExport.SUCCESS_STATUS.equals(BaseOracleDataExport.recordMap.get(ftpRecord))) {
+        if (!SUCCESS_STATUS.equals(recordMap.get(ftpRecord))) {
             //记录导入开始时间
             long startIndexTime = new Date().getTime();
 
@@ -66,7 +66,11 @@ public class FtpOracleDataExport extends BaseOracleDataExport {
             //计算索引一天的数据执行的时间（秒）
             long indexRunTime = (endIndexTime - startIndexTime) / 1000;
             logger.info("{} 导出完成执行时间: {}分钟{}秒", contentType, indexRunTime / 60, indexRunTime % 60);
-            logger.info("Solr 查询此数据的条件: docType:文件 capture_time:[{} TO {}]", startTime.getTime(), endTime.getTime());
+            logger.info(
+                    "Solr 查询此数据的条件: docType:文件 capture_time:[{} TO {}]",
+                    startTime.getTime(),
+                    endTime.getTime()
+            );
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

@@ -5,7 +5,7 @@ import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.SolrUtil;
 import com.rainsoft.utils.io.FileUtils;
@@ -125,7 +125,7 @@ public class BcpImportHBaseSolrService implements Serializable {
                             long captureTimeMinSecond;
                             try {
                                 int CaptureTimeIndex = ArrayUtils.indexOf(task.getColumns(), BigDataConstants.CAPTURE_TIME);
-                                captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fields[CaptureTimeIndex]).getTime();
+                                captureTimeMinSecond = DateFormatUtils.DATE_TIME_FORMAT.parse(fields[CaptureTimeIndex]).getTime();
                             } catch (Exception e) {
                                 continue;
                             }
@@ -194,7 +194,7 @@ public class BcpImportHBaseSolrService implements Serializable {
 
                         //import_time
                         Date curDate = new Date();
-                        doc.addField("import_time".toUpperCase(), DateUtils.TIME_FORMAT.format(curDate));
+                        doc.addField("import_time".toUpperCase(), DateFormatUtils.DATE_TIME_FORMAT.format(curDate));
                         doc.addField("import_time".toLowerCase(), curDate.getTime());
 
 //                        String[] values = ArrayUtils.subarray(str, 1, str.length);

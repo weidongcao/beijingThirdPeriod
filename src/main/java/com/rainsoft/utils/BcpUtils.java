@@ -94,7 +94,7 @@ public class BcpUtils {
                 //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
                 long captureTimeMinSecond;
                 try {
-                    captureTimeMinSecond = DateUtils.TIME_FORMAT.parse(fieldValues[captureTimeIndex]).getTime();
+                    captureTimeMinSecond = DateFormatUtils.DATE_TIME_FORMAT.parse(fieldValues[captureTimeIndex]).getTime();
                 } catch (Exception e) {
                     continue;
                 }

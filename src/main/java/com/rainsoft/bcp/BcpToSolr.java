@@ -3,7 +3,7 @@ package com.rainsoft.bcp;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -73,7 +73,7 @@ public class BcpToSolr {
                         doc.addField("ID".toUpperCase(), id);
                         doc.addField("SID".toUpperCase(), rowKey);
                         doc.addField("docType", FieldConstants.DOC_TYPE_MAP.get(taskType));
-                        doc.addField("IMPORT_TIME".toUpperCase(), DateUtils.TIME_FORMAT.format(curDate));
+                        doc.addField("IMPORT_TIME".toUpperCase(), DateFormatUtils.DATE_TIME_FORMAT.format(curDate));
                         doc.addField("import_time", curDate.getTime());
                         doc.addField("capture_time".toLowerCase(), Long.valueOf(captureTimeMinSecond) );
 

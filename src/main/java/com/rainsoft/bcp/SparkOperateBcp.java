@@ -4,7 +4,7 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.ArrayUtils;
@@ -116,7 +116,7 @@ public class SparkOperateBcp implements Serializable {
                             //capture_time
                             doc.addField("capture_time", rowkey.split("_")[0]);
                             //import_time
-                            doc.addField("import_time".toUpperCase(), DateUtils.TIME_FORMAT.format(new Date()));
+                            doc.addField("import_time".toUpperCase(), DateFormatUtils.DATE_TIME_FORMAT.format(new Date()));
                             String[] values = ArrayUtils.subarray(str, 1, str.length);
                             for (int i = 0; i < values.length; i++) {
                                 String value = values[i];

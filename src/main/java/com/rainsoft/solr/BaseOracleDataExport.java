@@ -2,9 +2,8 @@ package com.rainsoft.solr;
 
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
-import com.rainsoft.bcp.BcpFileImport;
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -116,7 +115,7 @@ public class BaseOracleDataExport {
 
     public static void oracleContentTableDataExportSolr(JavaRDD<String[]> javaRDD, String contentType) {
         //字段名数组
-        String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_" + contentType);
+        String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(contentType));
         //获取时间的位置
         int captureTimeIndex = ArrayUtils.indexOf(columns, BigDataConstants.CAPTURE_TIME);
 
@@ -202,14 +201,24 @@ public class BaseOracleDataExport {
         }
 
         //写入导入记录文件
+        writeRecordIntoFile(newRecords);
+
+        logger.info("{} : {} 的数据,索引完成", type, captureTime);
+    }
+
+    /**
+     * 导入记录写入文件
+     * @param record
+     */
+    static void writeRecordIntoFile(String record) {
+        //写入导入记录文件
         try {
-            FileUtils.writeStringToFile(recordFile, newRecords, "utf-8", true);
+            FileUtils.writeStringToFile(recordFile, record, "utf-8", true);
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("写入导入失败:{}", newRecords);
+            logger.error("写入失败:{}", record);
             System.exit(-1);
         }
 
-        logger.info("{} : {} 的数据,索引完成", type, captureTime);
     }
 }

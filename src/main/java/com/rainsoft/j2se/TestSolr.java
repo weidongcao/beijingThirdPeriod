@@ -1,7 +1,7 @@
 package com.rainsoft.j2se;
 
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.utils.DateUtils;
+import com.rainsoft.utils.DateFormatUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -83,7 +83,7 @@ public class TestSolr {
             doc.addField("docType", "网页");
             doc.addField(
                     "IMPORT_TIME".toUpperCase()
-                    , DateUtils.TIME_FORMAT.format(curDate)
+                    , DateFormatUtils.DATE_TIME_FORMAT.format(curDate)
             );
             doc.addField("import_time", curDate.getTime());
             doc.addField(
