@@ -179,17 +179,115 @@ public class HBaseUtils {
 
     /**
      * Spark生成HFile文件并写HBase
+     * 分成四步：
+     * 第一步：经过二次排序的RDD转为HFile格式的RDD
+     * 第二步：删除HDFS文件系统上的输出目录
+     * 第三步：生成HFile文件
+     * 第四步：HFile文件加载到HBase
      *
-     * @param infoRDD      SparkRDD， 其所包含的一条数据为HBase的一条数据的一个Cell
+     * @param dataRDD      SparkRDD， 其所包含的一条数据为HBase的一条数据的一个Cell
      * @param tablename    HBase表名
      * @param cf           HBase列簇
      * @param tempHDFSPath HFile文件临时保存目录，如果已经存在先删除再创建，导入HBase后再删除
      * @throws Exception
      */
-    public static void writeData2HBase(JavaPairRDD<RowkeyColumnSecondarySort, String> infoRDD, String tablename, String cf, String tempHDFSPath) {
+    public static void writeData2HBase(
+            JavaPairRDD<RowkeyColumnSecondarySort, String> dataRDD,
+            String tablename,
+            String cf,
+            String tempHDFSPath
+    ) {
         logger.info("开始Spark生成HFile文件并写HBase...");
         //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
-        JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = infoRDD.mapToPair(
+        JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = transformSecondarySortToHfileFormat(dataRDD, cf);
+
+        //判断HDFS上是否存在此路径，如果存在删除此路径
+        deleteHdfsPath(tempHDFSPath);
+
+        //生成HFile文件并保存到临时目录
+        //此处运行完成之后,在临时目录会有我们生成的Hfile文件
+        hfileRDD.saveAsNewAPIHadoopFile(
+                tempHDFSPath,
+                ImmutableBytesWritable.class,
+                KeyValue.class,
+                HFileOutputFormat2.class,
+                HBaseUtils.getConf()
+        );
+        logger.info("Spark 生成HBase的{}表的HFile成功,HFile", tablename);
+
+        //加载HFile文件到HBase
+        loadHFile(tablename, tempHDFSPath);
+
+
+    }
+
+    public static void writeData2HBase(JavaPairRDD<RowkeyColumnSecondarySort, String> dataRDD, String task) {
+
+        logger.info("开始Spark生成HFile文件并写HBase...");
+
+        //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
+        JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = transformSecondarySortToHfileFormat(
+                dataRDD,
+                NamingRuleUtils.getHBaseContentTableCF(task)
+        );
+
+        //HFile在HDFS上的临时目录
+        String hfileDir = NamingRuleUtils.getHFileTaskDir(task) + UUID.randomUUID().toString().replace("-", "");
+        //HBase表名
+        String tableName = NamingRuleUtils.getHBaseTableName(task);
+
+        //判断HDFS上是否存在此路径，如果存在删除此路径
+        deleteHdfsPath(hfileDir);
+
+        //生成HFile文件并保存到临时目录
+        //此处运行完成之后,在临时目录会有我们生成的Hfile文件
+        hfileRDD.saveAsNewAPIHadoopFile(
+                hfileDir,
+                ImmutableBytesWritable.class,
+                KeyValue.class,
+                HFileOutputFormat2.class,
+                HBaseUtils.getConf()
+        );
+        logger.info("Spark 生成HBase的{}表的HFile成功,HFile", tableName);
+
+        //加载HFile文件到HBase
+        loadHFile(tableName, hfileDir);
+
+    }
+    /**
+     * 递归删除HDFS上的目录
+     * @param dir
+     */
+    public static void deleteHdfsPath(String dir) {
+        Path path = new Path(dir);
+        FileSystem fileSystem;
+        try {
+            fileSystem = path.getFileSystem(HBaseUtils.getConf());
+            //判断HDFS上是否存在此路径，如果存在删除此路径
+            if (fileSystem.exists(path)) {
+                logger.info("删除HDFS上的目录: {}", path);
+                //递归删除HDFS上的目录
+                //第一个参数:目录路径
+                //第二个参数:是否递归删除
+                fileSystem.delete(path, true);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * 将经过二次排序的RDD转换为HFile文件格式的RDD
+     * @param pairRDD
+     * @return
+     */
+    public static JavaPairRDD<ImmutableBytesWritable, KeyValue> transformSecondarySortToHfileFormat(
+            JavaPairRDD<RowkeyColumnSecondarySort, String> pairRDD,
+            String cf
+    ) {
+        //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
+        JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = pairRDD.mapToPair(
                 (PairFunction<Tuple2<RowkeyColumnSecondarySort, String>, ImmutableBytesWritable, KeyValue>) tuple2 -> {
                     //rowkey
                     String rowkey = tuple2._1().getRowkey();
@@ -199,47 +297,27 @@ public class HBaseUtils {
                     String value = tuple2._2();
 
                     ImmutableBytesWritable im = new ImmutableBytesWritable(Bytes.toBytes(rowkey));
-                    KeyValue kv = new KeyValue(Bytes.toBytes(rowkey), Bytes.toBytes(cf), Bytes.toBytes(column), Bytes.toBytes(value));
+                    KeyValue kv = new KeyValue(
+                            Bytes.toBytes(rowkey),
+                            Bytes.toBytes(cf),
+                            Bytes.toBytes(column),
+                            Bytes.toBytes(value)
+                    );
                     return new Tuple2<>(im, kv);
                 }
         );
 
-        //HDFS路径
-        Path path = new Path(tempHDFSPath);
-
-        //判断HDFS上是否存在此路径，如果存在删除此路径
-        FileSystem fileSystem = null;
-        try {
-            fileSystem = path.getFileSystem(HBaseUtils.getConf());
-            if (fileSystem.exists(path)) {
-                logger.info("删除HDFS上的目录：{}", path);
-                fileSystem.delete(path, true);
-            }
-            //生成HFile文件并保存到临时目录
-            //此处运行完成之后,在临时目录会有我们生成的Hfile文件
-            hfileRDD.saveAsNewAPIHadoopFile(tempHDFSPath, ImmutableBytesWritable.class, KeyValue.class, HFileOutputFormat2.class, HBaseUtils.getConf());
-            logger.info("Spark 生成HBase的{}表的HFile成功,HFile", tablename);
-
-            //加载HFile文件到HBase
-            loadHFile(tablename, path);
-
-            //删除在HDFS上创建的临时目录
-            if (fileSystem.exists(path)) {
-                logger.info("清空生成HFile文件所在的目录");
-//            fileSystem.delete(path, true);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        return hfileRDD;
     }
 
     /**
      * 加载HFile文件到HBase
+     *
      * @param tablename HBase表名
-     * @param path HFile文件所在路径
+     * @param dir HFile文件所在路径
      */
-    public static void loadHFile(String tablename, Path path) {
+    public static void loadHFile(String tablename, String dir) {
+        Path path = new Path(dir);
         try {
             //开始导入HBase表
             RegionLocator regionLocator = HBaseUtils.getConn().getRegionLocator(TableName.valueOf(tablename));
@@ -267,8 +345,10 @@ public class HBaseUtils {
             bulkLoader.doBulkLoad(path, table);
             logger.info("HFile文件导入{}表成功", tablename);
 
+            deleteHdfsPath(dir);
             //关闭连接
             IOUtils.closeQuietly(table);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -283,7 +363,11 @@ public class HBaseUtils {
      * @param rowkey  HBase的RowKey
      * @return
      */
-    public static List<Tuple2<RowkeyColumnSecondarySort, String>> getHFileCellListByRow(Row row, String[] columns, String rowkey) {
+    public static List<Tuple2<RowkeyColumnSecondarySort, String>> getHFileCellListByRow(
+            Row row,
+            String[] columns,
+            String rowkey
+    ) {
         //返回结果集
         List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
         for (int j = 0; j < columns.length; j++) {
@@ -319,7 +403,12 @@ public class HBaseUtils {
         table.put(put);
     }
 
-    public static void addFields(String[] values, TaskBean task, List<Tuple2<RowkeyColumnSecondarySort, String>> list, String rowKey) {
+    public static void addFields(
+            String[] values,
+            TaskBean task,
+            List<Tuple2<RowkeyColumnSecondarySort, String>> list,
+            String rowKey
+    ) {
         for (int i = 1; i < values.length; i++) {
             if (task.getColumns().length <= i - 1) {
                 break;
@@ -340,7 +429,10 @@ public class HBaseUtils {
      * @param columns 数据字段名
      * @return
      */
-    public static JavaPairRDD<RowkeyColumnSecondarySort, String> getHFileRDD(JavaRDD<String[]> javaRDD, String[] columns) {
+    public static JavaPairRDD<RowkeyColumnSecondarySort, String> getHFileRDD(
+            JavaRDD<String[]> javaRDD,
+            String[] columns
+    ) {
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
                 new PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>() {
                     @Override
