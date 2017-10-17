@@ -4,6 +4,7 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.domain.TaskBean;
+import com.rainsoft.utils.NamingRuleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +17,9 @@ import java.io.File;
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static final String tmpHFilePath = BigDataConstants.TMP_HFILE_HDFS;
     private static final String tsvDataPathTemplate = "file://" + ConfigurationManager.getProperty("load.data.workspace") + "/work/bcp-${task}";
 //    private static final String tsvDataPathTemplate = "file:///" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
-    private static final String hbaseTablePrefix = BigDataConstants.HBASE_TABLE_PREFIX;
+    private static final String hbaseTablePrefix = "H_";
     public static void main(String[] args) {
         String type = args[0];
 
@@ -38,17 +38,16 @@ public class Main {
      * @return
      */
     private static TaskBean getFtpTask() {
-        String oracleTableName = BigDataConstants.ORACLE_TABLE_FTP_NAME;
-        String contentType = BigDataConstants.CONTENT_TYPE_FTP;
+        String task = BigDataConstants.CONTENT_TYPE_FTP;
         TaskBean ftp = new TaskBean();
-        ftp.setBcpPath(tsvDataPathTemplate.replace("${task}",contentType));
+        ftp.setBcpPath(tsvDataPathTemplate.replace("${task}",task));
         ftp.setCaptureTimeIndex(17);
-        ftp.setContentType(contentType);
+        ftp.setContentType(task);
         ftp.setDocType(BigDataConstants.SOLR_DOC_TYPE_FTP_VALUE);
         ftp.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_FTP));
-        ftp.setHbaseCF(BigDataConstants.HBASE_TABLE_FTP_CF);
-        ftp.setHfileTmpStorePath(tmpHFilePath + contentType);
-        ftp.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
+        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        ftp.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
+        ftp.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
 
         return ftp;
     }
@@ -58,19 +57,18 @@ public class Main {
      * @return
      */
     private static TaskBean getImchatTask() {
-        String contentType = BigDataConstants.CONTENT_TYPE_IM_CHAT;
-        String oracleTableName = BigDataConstants.ORACLE_TABLE_IM_CHAT_NAME;
+        String task = BigDataConstants.CONTENT_TYPE_IM_CHAT;
         TaskBean imChat = new TaskBean();
-        imChat.setBcpPath(tsvDataPathTemplate.replace("${task}",contentType));
+        imChat.setBcpPath(tsvDataPathTemplate.replace("${task}",task));
         imChat.setCaptureTimeIndex(20);
-        imChat.setContentType(contentType);
+        imChat.setContentType(task);
         imChat.setDocType(BigDataConstants.SOLR_DOC_TYPE_IMCHAT_VALUE);
         imChat.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_IM_CHAT));
-        imChat.setHfileTmpStorePath(tmpHFilePath + contentType);
-        imChat.setHbaseCF(BigDataConstants.HBASE_TABLE_IM_CHAT_CF);
-        imChat.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
+        imChat.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
+        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        imChat.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
 
-        String path = ConfigurationManager.getProperty("bcp.file.path") + File.separator + contentType;
+        String path = ConfigurationManager.getProperty("bcp.file.path") + File.separator + task;
         logger.info("替换 {} 的BCP数据的目录： {}", imChat.getContentType(), path);
 //        imChat.replaceFileRN(path);
         return imChat;
@@ -81,17 +79,17 @@ public class Main {
      * @return
      */
     private static TaskBean getHttpTask() {
-        String contentType = BigDataConstants.CONTENT_TYPE_HTTP;
-        String oracleTableName = BigDataConstants.ORACLE_TABLE_HTTP_NAME;
+        String task = BigDataConstants.CONTENT_TYPE_HTTP;
         TaskBean http = new TaskBean();
-        http.setBcpPath(tsvDataPathTemplate.replace("${task}",contentType));
+        http.setBcpPath(tsvDataPathTemplate.replace("${task}",task));
         http.setCaptureTimeIndex(22);
-        http.setContentType(contentType);
+        http.setContentType(task);
         http.setDocType(BigDataConstants.SOLR_DOC_TYPE_HTTP_VALUE);
         http.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_HTTP));
-        http.setHfileTmpStorePath(tmpHFilePath + contentType);
-        http.setHbaseCF(BigDataConstants.HBASE_TABLE_HTTP_CF);
-        http.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
+        http.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
+        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        http.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+
 
         return http;
     }

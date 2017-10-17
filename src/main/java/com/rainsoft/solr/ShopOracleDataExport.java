@@ -61,7 +61,7 @@ public class ShopOracleDataExport extends BaseOracleDataExport {
         boolean flat = shopCreateIndex(dataList, client);
 
         //导入完成后对不同的结果的处理
-        recordImportResult(SHOP, captureTime, flat);
+        updateRecordFile(SHOP, captureTime, flat);
 
         return flat;
     }

@@ -6,6 +6,7 @@ import com.rainsoft.dao.BbsDao;
 import com.rainsoft.dao.EmailDao;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.HBaseUtils;
+import com.rainsoft.utils.NamingRuleUtils;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class EmailOracleDataExport extends BaseOracleDataExport {
     private static final String HBASE_TABLE_CF = "CONTENT_EMAIL";
 
     //生成的HFile文件在HDFS的临时存储目录
-    private static final String HFILE_TEMP_STORE_PATH = BigDataConstants.TMP_HFILE_HDFS + "reg_content_email";
+    private static final String HFILE_TEMP_STORE_PATH = NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getOracleContentTableName("email"));
 
     //字段名
     private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_content_email");

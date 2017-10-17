@@ -3,6 +3,7 @@ package com.rainsoft.hbase;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.HDFSUtils;
+import com.rainsoft.utils.NamingRuleUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
@@ -41,11 +42,11 @@ public class SparkExportToHBase {
         JavaSparkContext sc = new JavaSparkContext(conf);
 
         //oracle表名
-        String tableName = BigDataConstants.TEMPLATE_ORACLE_CONTENT_TABLE.replace("${type}", taskType).toUpperCase();
+        String tableName = NamingRuleUtils.getOracleContentTableName(taskType);
         //列簇名
-        String cf = BigDataConstants.TEMPLATE_HBASE_CF.replace("${type}", taskType.toUpperCase());
+        String cf = NamingRuleUtils.getHBaseContentTableCF(taskType);
         //HFile的HDFS临时存储目录
-        String tempHDFSPath = BigDataConstants.TEMPLATE_HFILE_TEMP_STORE_HDFS.replace("${type}", taskType);
+        String tempHDFSPath = NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getOracleContentTableName(taskType));
 
         InputStream in = SparkExportToHBase.class.getClassLoader().getResourceAsStream("metadata/" + tableName.toLowerCase());
 
@@ -92,7 +93,7 @@ public class SparkExportToHBase {
         /*
          * Spark将HFile文件写HDFS并转存入HBase
          */
-        HBaseUtils.writeData2HBase(hbasePairRDD, BigDataConstants.HBASE_TABLE_PREFIX + tableName, cf, tempHDFSPath);
+        HBaseUtils.writeData2HBase(hbasePairRDD, "H_" + tableName, cf, tempHDFSPath);
         logger.info("写入HBase完成");
         sc.close();
     }

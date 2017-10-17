@@ -2,6 +2,7 @@ package com.rainsoft.spark;
 
 import com.rainsoft.bcp.SparkOperateBcp;
 import com.rainsoft.BigDataConstants;
+import com.rainsoft.utils.NamingRuleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +16,6 @@ import org.slf4j.LoggerFactory;
 public class ImchatSparkOperateBcp extends SparkOperateBcp {
     private static final Logger logger = LoggerFactory.getLogger(ImchatSparkOperateBcp.class);
 
-    //Oracle表名
-    protected String oracleTableName = BigDataConstants.ORACLE_TABLE_IM_CHAT_NAME;
     //数据类型
     protected String contentType = BigDataConstants.CONTENT_TYPE_HTTP;
     //Sorl的docType

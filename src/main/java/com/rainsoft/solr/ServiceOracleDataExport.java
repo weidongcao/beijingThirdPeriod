@@ -61,7 +61,7 @@ public class ServiceOracleDataExport extends BaseOracleDataExport {
         boolean flat = serviceCreateIndex(dataList, client);
 
         //导入完成后对不同的结果的处理
-        recordImportResult(SERVICE, captureTime, flat);
+        updateRecordFile(SERVICE, captureTime, flat);
 
         return flat;
     }

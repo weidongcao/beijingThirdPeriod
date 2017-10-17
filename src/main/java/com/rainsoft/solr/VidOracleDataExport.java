@@ -61,7 +61,7 @@ public class VidOracleDataExport extends BaseOracleDataExport {
         boolean flat = vidCreateIndex(dataList, client);
 
         //导入完成后对不同的结果的处理
-        recordImportResult(VID, captureTime, flat);
+        updateRecordFile(VID, captureTime, flat);
 
         return flat;
     }

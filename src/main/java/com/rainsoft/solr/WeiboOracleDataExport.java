@@ -62,7 +62,7 @@ public class WeiboOracleDataExport extends BaseOracleDataExport {
         boolean flat = weiboCreateIndex(dataList, client);
 
         //导入完成后对不同的结果的处理
-        recordImportResult(WEIBO, captureTime, flat);
+        updateRecordFile(WEIBO, captureTime, flat);
 
         return flat;
     }

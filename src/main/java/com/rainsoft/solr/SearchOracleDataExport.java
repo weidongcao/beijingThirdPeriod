@@ -62,7 +62,7 @@ public class SearchOracleDataExport extends BaseOracleDataExport {
         boolean flat = searchCreateIndex(dataList, client);
 
         //导入完成后对不同的结果的处理
-        recordImportResult(SEARCH, captureTime, flat);
+        updateRecordFile(SEARCH, captureTime, flat);
 
         return flat;
     }

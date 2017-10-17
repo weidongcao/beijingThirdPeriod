@@ -49,11 +49,12 @@ public class NamingRuleUtils {
     }
 
     /**
-     * 字段名Json文件Bcp文件字段名数组对应的Key
+     * Bcp类型的数据task的Key
+     * 就像Oracle对应的reg_content_ftp一样
      * @param task
      * @return
      */
-    public static String getBcpColumnJsonKey(String task) {
+    public static String getBcpTaskKey(String task) {
         return "bcp-" + task.toLowerCase();
     }
 

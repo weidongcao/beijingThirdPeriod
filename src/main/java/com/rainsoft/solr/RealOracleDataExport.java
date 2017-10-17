@@ -62,7 +62,7 @@ public class RealOracleDataExport extends BaseOracleDataExport {
         boolean flat = realCreateIndex(dataList, client);
 
         //导入完成后对不同的结果的处理
-        recordImportResult(REAL, captureTime, flat);
+        updateRecordFile(REAL, captureTime, flat);
 
         return flat;
     }

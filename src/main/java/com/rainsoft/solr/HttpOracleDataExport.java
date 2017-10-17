@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +58,9 @@ public class HttpOracleDataExport extends BaseOracleDataExport {
                 //导入HBase
                 httpExportHBase(javaRDD);
                 //记录导入结果
-                recordImportResult(contentType, hourDateFormat.format(startTime), true);
+                updateRecordFile(contentType, hourDateFormat.format(startTime), true);
             } catch (Exception e) {
-                recordImportResult(contentType, hourDateFormat.format(startTime), false);
+                updateRecordFile(contentType, hourDateFormat.format(startTime), false);
             }
 
             long endIndexTime = new Date().getTime();
@@ -88,7 +87,7 @@ public class HttpOracleDataExport extends BaseOracleDataExport {
          */
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = HBaseUtils.getHFileRDD(javaRDD, columns);
         //写入HBase
-        HBaseUtils.writeData2HBase(hfileRDD, "H_REG_CONTENT_HTTP", "CONTENT_HTTP", BigDataConstants.TMP_HFILE_HDFS + "reg_content_http");
+        HBaseUtils.writeData2HBase(hfileRDD, "H_REG_CONTENT_HTTP", "CONTENT_HTTP", "/tmp/hbase/hfile/reg_content_http");
         logger.info("Oracle {} 数据写入HBase完成", "reg_content_http");
     }
 
