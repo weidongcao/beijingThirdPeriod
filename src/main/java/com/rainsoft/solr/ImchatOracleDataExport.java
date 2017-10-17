@@ -52,7 +52,7 @@ public class ImchatOracleDataExport extends BaseOracleDataExport {
                 JavaRDD<String[]> javaRDD = getSparkContext().parallelize(dataList);
                 javaRDD.cache();
                 //导入Solr
-                oracleContentTableDataExportSolr(javaRDD, contentType);
+                export2Solr(javaRDD, contentType);
                 //导入HBase
                 imChatExportHBase(javaRDD);
                 //记录导入结果

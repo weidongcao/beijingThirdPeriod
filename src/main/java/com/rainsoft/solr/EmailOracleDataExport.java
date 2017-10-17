@@ -2,7 +2,6 @@ package com.rainsoft.solr;
 
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
-import com.rainsoft.dao.BbsDao;
 import com.rainsoft.dao.EmailDao;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.HBaseUtils;
@@ -56,7 +55,7 @@ public class EmailOracleDataExport extends BaseOracleDataExport {
             JavaRDD<String[]> javaRDD = getSparkContext().parallelize(dataList);
             javaRDD.cache();
             //导入Solr
-            oracleContentTableDataExportSolr(javaRDD, TASK_TYPE);
+            export2Solr(javaRDD, TASK_TYPE);
             //导入HBase
             EmailOracleDataExport.exportHBase(javaRDD);
 
