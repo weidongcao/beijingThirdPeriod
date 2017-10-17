@@ -57,5 +57,14 @@ public class NamingRuleUtils {
         return "bcp-" + task.toLowerCase();
     }
 
+    /**
+     * 获取HDFS文件系统上HFile文件的临时存储目录
+     * @param task
+     * @return
+     */
+    public static String getHFileTaskDir(String task) {
+        return "/tmp/hbase/hfile/" + task + "/";
+    }
+
 
 }

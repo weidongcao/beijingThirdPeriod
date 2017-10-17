@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Oracle数据导入Solr基础信息类
@@ -115,6 +116,7 @@ public class BaseOracleDataExport {
 
     /**
      * Oracle内容表数据导入到Solr
+     *
      * @param javaRDD
      * @param task
      */
@@ -185,15 +187,14 @@ public class BaseOracleDataExport {
     }
 
     /**
-     * 数据导入结果处理
-     * 将导入结果记录到文件
+     * 更新导入记录文件
      *
      * @param type        任务类型
      * @param captureTime 捕获日期
      * @param flat        导入结果
      * @throws IOException 文件写入失败
      */
-    static void recordImportResult(String type, String captureTime, boolean flat) {
+    static void updateRecordFile(String type, String captureTime, boolean flat) {
         //数据索引结果成功或者失败写入记录文件,
         String newRecords;
         if (flat) {
@@ -206,22 +207,38 @@ public class BaseOracleDataExport {
         }
 
         //写入导入记录文件
-        writeRecordIntoFile(newRecords);
+        appendRecordIntoFile(newRecords, true);
 
         logger.info("{} : {} 的数据,索引完成", type, captureTime);
     }
 
+    public static void overwriteRecordFile() {
+        //导入记录Map转List
+        List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
+
+        //对转换后的导入记录List进行排序
+        Collections.sort(newRecordList);
+
+        //导入记录List转String
+        String newRecords = StringUtils.join(newRecordList, "\r\n");
+
+        //写入导入记录文件
+        appendRecordIntoFile(newRecords, false);
+    }
+
     /**
-     * 导入记录写入文件
-     * @param record
+     * 导入记录写入到文件
+     *
+     * @param records 导入记录
+     * @param append  是否是追加
      */
-    static void writeRecordIntoFile(String record) {
+    static void appendRecordIntoFile(String records, boolean append) {
         //写入导入记录文件
         try {
-            FileUtils.writeStringToFile(recordFile, record, "utf-8", true);
+            FileUtils.writeStringToFile(recordFile, records, "utf-8", append);
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("写入失败:{}", record);
+            logger.error("写入失败:{}", records);
             System.exit(-1);
         }
 
