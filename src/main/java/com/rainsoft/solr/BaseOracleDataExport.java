@@ -113,10 +113,15 @@ public class BaseOracleDataExport {
         logger.info("程序初始化完成...");
     }
 
-    public static void oracleContentTableDataExportSolr(JavaRDD<String[]> javaRDD, String contentType) {
+    /**
+     * Oracle内容表数据导入到Solr
+     * @param javaRDD
+     * @param task
+     */
+    public static void oracleContentTableDataExportSolr(JavaRDD<String[]> javaRDD, String task) {
         //字段名数组
-        String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(contentType));
-        //获取时间的位置
+        String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
+        //捕获时间的位置
         int captureTimeIndex = ArrayUtils.indexOf(columns, BigDataConstants.CAPTURE_TIME);
 
         javaRDD.foreachPartition(
@@ -131,7 +136,7 @@ public class BaseOracleDataExport {
                         //ID
                         doc.addField("ID", id);
                         //docType
-                        doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(contentType));
+                        doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(task));
 
                         for (int i = 0; i < str.length; i++) {
                             String colValue = str[i];
@@ -170,12 +175,12 @@ public class BaseOracleDataExport {
 
                         logger.info("---->写入Solr成功");
                     } else {
-                        logger.info("{} 此Spark Partition 数据为空", contentType);
+                        logger.info("{} 此Spark Partition 数据为空", task);
                     }
                 }
         );
 
-        logger.info("####### {}的BCP数据索引Solr完成 #######", contentType);
+        logger.info("####### {}的BCP数据索引Solr完成 #######", task);
 
     }
 

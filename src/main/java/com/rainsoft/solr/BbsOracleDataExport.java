@@ -4,6 +4,7 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.dao.BbsDao;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
+import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -20,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Oracle数据库BBS数据导入Solr
+ * Oracle数据库BBS数据导入Solr和HBase
  * Created by CaoWeiDong on 2017-10-15.
  */
 public class BbsOracleDataExport extends BaseOracleDataExport {
@@ -43,7 +44,7 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
     //字段名
     private static String[] columns = FieldConstants.COLUMN_MAP.get(oracleTableName);
 
-    private static BbsDao bbsDao = (BbsDao) context.getBean("bbsDao");
+    private static BbsDao dao = (BbsDao) context.getBean("bbsDao");
 
     private static final String recordKey = NamingRuleUtils.getRealTimeOracleRecordKey(task);
 
@@ -56,7 +57,7 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
         startTime = DateUtils.truncate(startTime, Calendar.MINUTE);
 
         //Oracle查询参数：开始时间
-        String startTimeParam = TIME_FORMAT.format(startTime);
+        String startTimeParam = DateFormatUtils.DATE_TIME_FORMAT.format(startTime);
 
         //从导入记录中获取最后导入的日期
         String lastExportRecord = recordMap.get(recordKey);
@@ -79,7 +80,7 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
 
         logger.info("{} : 开始索引 {} 到 {} 的数据", task, startTimeParam, lastExportRecord);
         //获取数据库指定捕获时间段的数据
-        List<String[]> dataList = bbsDao.getBbsByHours(startTimeParam, lastExportRecord);
+        List<String[]> dataList = dao.getBbsByHours(startTimeParam, lastExportRecord);
         logger.info("从数据库查询数据结束,数据量: {}", dataList.size());
 
         if (dataList.size() > 0) {
@@ -100,7 +101,11 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
 
                 watch.stop();
                 //记录任务执行时间
-                logger.info("{} 导出完成。执行时间: {}", task, DurationFormatUtils.formatDuration(watch.getTime(), "yyyy-MM-dd HH:mm:ss"));
+                logger.info(
+                        "{} 导出完成。执行时间: {}",
+                        task,
+                        DurationFormatUtils.formatDuration(watch.getTime(), "yyyy-MM-dd HH:mm:ss")
+                );
 
                 //提供查询所导入数据的条件
                 logger.info(

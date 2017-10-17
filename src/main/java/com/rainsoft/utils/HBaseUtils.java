@@ -190,20 +190,17 @@ public class HBaseUtils {
         logger.info("开始Spark生成HFile文件并写HBase...");
         //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
         JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = infoRDD.mapToPair(
-                new PairFunction<Tuple2<RowkeyColumnSecondarySort, String>, ImmutableBytesWritable, KeyValue>() {
-                    @Override
-                    public Tuple2<ImmutableBytesWritable, KeyValue> call(Tuple2<RowkeyColumnSecondarySort, String> tuple2) throws Exception {
-                        //rowkey
-                        String rowkey = tuple2._1().getRowkey();
-                        //字段名
-                        String column = tuple2._1().getColumn();
-                        //字段值
-                        String value = tuple2._2();
+                (PairFunction<Tuple2<RowkeyColumnSecondarySort, String>, ImmutableBytesWritable, KeyValue>) tuple2 -> {
+                    //rowkey
+                    String rowkey = tuple2._1().getRowkey();
+                    //字段名
+                    String column = tuple2._1().getColumn();
+                    //字段值
+                    String value = tuple2._2();
 
-                        ImmutableBytesWritable im = new ImmutableBytesWritable(Bytes.toBytes(rowkey));
-                        KeyValue kv = new KeyValue(Bytes.toBytes(rowkey), Bytes.toBytes(cf), Bytes.toBytes(column), Bytes.toBytes(value));
-                        return new Tuple2<>(im, kv);
-                    }
+                    ImmutableBytesWritable im = new ImmutableBytesWritable(Bytes.toBytes(rowkey));
+                    KeyValue kv = new KeyValue(Bytes.toBytes(rowkey), Bytes.toBytes(cf), Bytes.toBytes(column), Bytes.toBytes(value));
+                    return new Tuple2<>(im, kv);
                 }
         );
 
@@ -222,6 +219,28 @@ public class HBaseUtils {
             //此处运行完成之后,在临时目录会有我们生成的Hfile文件
             hfileRDD.saveAsNewAPIHadoopFile(tempHDFSPath, ImmutableBytesWritable.class, KeyValue.class, HFileOutputFormat2.class, HBaseUtils.getConf());
             logger.info("Spark 生成HBase的{}表的HFile成功,HFile", tablename);
+
+            //加载HFile文件到HBase
+            loadHFile(tablename, path);
+
+            //删除在HDFS上创建的临时目录
+            if (fileSystem.exists(path)) {
+                logger.info("清空生成HFile文件所在的目录");
+//            fileSystem.delete(path, true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * 加载HFile文件到HBase
+     * @param tablename HBase表名
+     * @param path HFile文件所在路径
+     */
+    public static void loadHFile(String tablename, Path path) {
+        try {
             //开始导入HBase表
             RegionLocator regionLocator = HBaseUtils.getConn().getRegionLocator(TableName.valueOf(tablename));
 
@@ -248,17 +267,12 @@ public class HBaseUtils {
             bulkLoader.doBulkLoad(path, table);
             logger.info("HFile文件导入{}表成功", tablename);
 
-            //删除在HDFS上创建的临时目录
-            if (fileSystem.exists(path)) {
-                logger.info("清空生成HFile文件所在的目录");
-//            fileSystem.delete(path, true);
-            }
             //关闭连接
             IOUtils.closeQuietly(table);
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(-1);
         }
+
     }
 
     /**
@@ -307,10 +321,10 @@ public class HBaseUtils {
 
     public static void addFields(String[] values, TaskBean task, List<Tuple2<RowkeyColumnSecondarySort, String>> list, String rowKey) {
         for (int i = 1; i < values.length; i++) {
-            if (task.getColumns().length <= i-1) {
+            if (task.getColumns().length <= i - 1) {
                 break;
             }
-            String key = task.getColumns()[i-1].toUpperCase();
+            String key = task.getColumns()[i - 1].toUpperCase();
             String value = values[i];
             //如果字段的值为空则不写入HBase
             if ((null != value) && (!"".equals(value))) {
@@ -321,6 +335,7 @@ public class HBaseUtils {
 
     /**
      * 将数据转为经过二次排序的JavaPairRDD
+     *
      * @param javaRDD 源数据
      * @param columns 数据字段名
      * @return
