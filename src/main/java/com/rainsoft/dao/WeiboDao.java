@@ -5,8 +5,11 @@ import com.rainsoft.domain.RegContentWeibo;
 import java.util.List;
 
 /**
+ * 微博数据Dao层
  * Created by CaoWeiDong on 2017-06-28.
  */
 public interface WeiboDao {
-    public List<RegContentWeibo> getWeiboByPeriod(String date);
+    List<RegContentWeibo> getWeiboByPeriod(String date);
+
+    List<String[]> getWeiboByHours(String startTime, String endTime);
 }

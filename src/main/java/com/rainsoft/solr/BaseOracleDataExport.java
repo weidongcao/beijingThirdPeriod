@@ -4,7 +4,6 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
-import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SolrUtil;
@@ -44,11 +43,11 @@ public class BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(BaseOracleDataExport.class);
 
     //一次写入文件的数据量
-    protected static final int writeSize = 100000;
+    static final int writeSize = 100000;
     //系统分隔符
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     //数字输出格式
-    protected static NumberFormat numberFormat = NumberFormat.getNumberInstance();
+    static NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
@@ -56,26 +55,26 @@ public class BaseOracleDataExport {
     //创建Solr客户端
     protected static SolrClient client = SolrUtil.getClusterSolrClient();
 
-    public static DateFormat hourDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH");
-    public static DateFormat dateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    public static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static DateFormat hourDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH");
+    static DateFormat dateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     //一次处理多少小时的数据
-    public static final int hourOffset = ConfigurationManager.getInteger("oracle.capture.time.batch");
+    static final int hourOffset = ConfigurationManager.getInteger("oracle.capture.time.batch");
 
     //秒表计时
-    public static StopWatch watch = new StopWatch();
+    static StopWatch watch = new StopWatch();
 
     //导入记录文件
     static File recordFile;
 
     //导入记录
-    public static Map<String, String> recordMap = new HashMap<>();
+    static Map<String, String> recordMap = new HashMap<>();
 
-    public static final String SUCCESS_STATUS = "success";
-    public static final String FAIL_STATUS = "fail";
+    static final String SUCCESS_STATUS = "success";
+    private static final String FAIL_STATUS;
     private static JavaSparkContext sc = null;
 
-    public static JavaSparkContext getSparkContext() {
+    static JavaSparkContext getSparkContext() {
         if (sc == null || sc.env().isStopped()) {
             SparkConf conf = new SparkConf()
                     .setAppName(BaseOracleDataExport.class.getSimpleName())
@@ -124,12 +123,13 @@ public class BaseOracleDataExport {
         }
 
         logger.info("程序初始化完成...");
+        FAIL_STATUS = "fail";
     }
 
-    public static void exportData(List<String[]> dataList, String task, boolean isExport2HBase) {
+    static void exportData(List<String[]> list, String task, boolean isExport2HBase) {
         //根据数据量决定启动多少个线程
-        int threadNum = dataList.size() / 200000 + 1;
-        JavaRDD<String[]> javaRDD = getSparkContext().parallelize(dataList, threadNum);
+        int threadNum = list.size() / 200000 + 1;
+        JavaRDD<String[]> javaRDD = getSparkContext().parallelize(list, threadNum);
         //数据持久化
         javaRDD.cache();
 
@@ -143,12 +143,44 @@ public class BaseOracleDataExport {
     }
 
     /**
+     * 内容表从Oracle实时导出到Solr、HBase
+     * @param list 数据列表
+     * @param task 任务名
+     * @param period 时间段
+     * @param isExport2HBase 是否导出到HBase
+     */
+    static void exportRealTimeData(List<String[]> list, String task, Tuple2<String, String> period, boolean isExport2HBase) {
+        if (list.size() > 0) {
+            //数据导出到Solr、HBase
+            exportData(list, task, isExport2HBase);
+
+            //导入记录写入Map
+            recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
+            //导入记录写入文件
+            overwriteRecordFile();
+
+            //停止计时
+            watch.stop();
+
+            //程序执行完成记录日志
+            taskDonelogger(task, period);
+        } else {
+            //停止计时
+            watch.stop();
+
+            logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", NamingRuleUtils.getOracleContentTableName(task), period._1, period._2);
+        }
+        //重置计时器
+        watch.reset();
+    }
+
+    /**
      * Oracle内容表数据导入到Solr
      *
-     * @param javaRDD
-     * @param task
+     * @param javaRDD JavaRDD<String[]>
+     * @param task 任务名
      */
-    public static void export2Solr(JavaRDD<String[]> javaRDD, String task) {
+    static void export2Solr(JavaRDD<String[]> javaRDD, String task) {
         //字段名数组
         String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
         //捕获时间的位置
@@ -217,8 +249,8 @@ public class BaseOracleDataExport {
     /**
      * 数据导出到HBase
      *
-     * @param javaRDD
-     * @param task
+     * @param javaRDD JavaRDD<String[]> javaRDD
+     * @param task 任务名
      */
     static void export2HBase(JavaRDD<String[]> javaRDD, String task) {
         //将数据转为可以进行二次排序的形式
@@ -241,7 +273,6 @@ public class BaseOracleDataExport {
      * @param type        任务类型
      * @param captureTime 捕获日期
      * @param flat        导入结果
-     * @throws IOException 文件写入失败
      */
     static void updateRecordFile(String type, String captureTime, boolean flat) {
         //数据索引结果成功或者失败写入记录文件,
@@ -261,7 +292,7 @@ public class BaseOracleDataExport {
         logger.info("{} : {} 的数据,索引完成", type, captureTime);
     }
 
-    public static void overwriteRecordFile() {
+    static void overwriteRecordFile() {
         //导入记录Map转List
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
 
@@ -298,10 +329,11 @@ public class BaseOracleDataExport {
      * 开始时间从导入记录中获取
      * 结束时间如果此时间段不长的话以方法传的当前时间为准
      * 如果长的话从结束时间开始向后偏移指定的小时数
-     * @param curTime   开始时间
-     * @param task      任务类型
-     * @param hours     偏移的小时数
-     * @return
+     *
+     * @param curTime 开始时间
+     * @param task    任务类型
+     * @param hours   偏移的小时数
+     * @return 返回时间段的开始时间和结束时间
      */
     static Tuple2<String, String> getPeriod(Date curTime, String task, int hours) {
         //去掉开始时间的秒数
@@ -315,6 +347,7 @@ public class BaseOracleDataExport {
             startTime_Date = DateUtils.parseDate(startTime_String, "yyyy-MM-dd HH:mm:ss");
         } catch (ParseException e) {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         /*
@@ -331,5 +364,35 @@ public class BaseOracleDataExport {
         String endTime_String = TIME_FORMAT.format(endTime_Date);
 
         return new Tuple2<>(startTime_String, endTime_String);
+    }
+
+    /**
+     * 任务执行完成要做的事情
+     *
+     * @param task 任务名
+     * @param period 时间段
+     */
+    static void taskDonelogger(String task, Tuple2<String, String> period) {
+        //记录任务执行时间
+        logger.info(
+                "{} 导出完成。执行时间: {}",
+                task,
+                DurationFormatUtils.formatDuration(watch.getTime(), "yyyy-MM-dd HH:mm:ss")
+        );
+
+        //提供查询所导入数据的条件
+        try {
+            logger.info(
+                    "Solr 查询此数据的条件: docType:{} capture_time:[{} TO {}]",
+                    FieldConstants.DOC_TYPE_MAP.get(task),
+                    TIME_FORMAT.parse(period._1()).getTime(),
+                    TIME_FORMAT.parse(period._2()).getTime()
+            );
+
+            //一次任务结束程序休息一分钟
+            Thread.sleep(1000);
+        } catch (ParseException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
