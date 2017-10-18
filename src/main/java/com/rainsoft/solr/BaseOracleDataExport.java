@@ -70,8 +70,13 @@ public class BaseOracleDataExport {
     //导入记录
     static Map<String, String> recordMap = new HashMap<>();
 
+    //状态：导入成功
     static final String SUCCESS_STATUS = "success";
-    private static final String FAIL_STATUS;
+    //状态：导入失败
+    private static final String FAIL_STATUS = "fail";
+    //是否导入到HBase
+    private static boolean isExport2HBase = ConfigurationManager.getBoolean("is.export.to.hbase");
+    //SparkContext
     private static JavaSparkContext sc = null;
 
     static JavaSparkContext getSparkContext() {
@@ -123,10 +128,9 @@ public class BaseOracleDataExport {
         }
 
         logger.info("程序初始化完成...");
-        FAIL_STATUS = "fail";
     }
 
-    static void exportData(List<String[]> list, String task, boolean isExport2HBase) {
+    static void exportData(List<String[]> list, String task) {
         //根据数据量决定启动多少个线程
         int threadNum = list.size() / 200000 + 1;
         JavaRDD<String[]> javaRDD = getSparkContext().parallelize(list, threadNum);
@@ -144,15 +148,15 @@ public class BaseOracleDataExport {
 
     /**
      * 内容表从Oracle实时导出到Solr、HBase
-     * @param list 数据列表
-     * @param task 任务名
+     *
+     * @param list   数据列表
+     * @param task   任务名
      * @param period 时间段
-     * @param isExport2HBase 是否导出到HBase
      */
-    static void exportRealTimeData(List<String[]> list, String task, Tuple2<String, String> period, boolean isExport2HBase) {
+    static void exportRealTimeData(List<String[]> list, String task, Tuple2<String, String> period) {
         if (list.size() > 0) {
             //数据导出到Solr、HBase
-            exportData(list, task, isExport2HBase);
+            exportData(list, task);
 
             //导入记录写入Map
             recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
@@ -178,7 +182,7 @@ public class BaseOracleDataExport {
      * Oracle内容表数据导入到Solr
      *
      * @param javaRDD JavaRDD<String[]>
-     * @param task 任务名
+     * @param task    任务名
      */
     static void export2Solr(JavaRDD<String[]> javaRDD, String task) {
         //字段名数组
@@ -217,13 +221,17 @@ public class BaseOracleDataExport {
                                 doc.addField(columns[i].toUpperCase(), colValue);
                         }
 
-                        String aaa = str[captureTimeIndex];
-                        //capture_time
-                        doc.addField(
-                                BigDataConstants.CAPTURE_TIME.toLowerCase(),
-                                TIME_FORMAT.parse(aaa).getTime());
+                        //如果有capture_time(小写)字段添加此字段到solr
+                        if (captureTimeIndex > 0) {
+                            String captureTimeValue = str[captureTimeIndex];
+                            //capture_time
+                            doc.addField(
+                                    BigDataConstants.CAPTURE_TIME.toLowerCase(),
+                                    TIME_FORMAT.parse(captureTimeValue).getTime());
+                        }
 
                         docList.add(doc);
+
                         if (docList.size() >= writeSize) {
                             client.add(docList, 10000);
                             logger.info("提交一次到Solr完成...");
@@ -242,7 +250,7 @@ public class BaseOracleDataExport {
                 }
         );
 
-        logger.info("####### {}的BCP数据索引Solr完成 #######", task);
+        logger.info("####### {}的数据索引Solr完成 #######", NamingRuleUtils.getOracleContentTableName(task));
 
     }
 
@@ -250,15 +258,23 @@ public class BaseOracleDataExport {
      * 数据导出到HBase
      *
      * @param javaRDD JavaRDD<String[]> javaRDD
-     * @param task 任务名
+     * @param task    任务名
      */
     static void export2HBase(JavaRDD<String[]> javaRDD, String task) {
+         //将要作为rowkey的字段，service_info表是service_code，其他表都是id
+        String rowkeyColumn;
+        if (task.equalsIgnoreCase("service")) {
+            rowkeyColumn = "service_code";
+        } else {
+            rowkeyColumn = "id";
+        }
         //将数据转为可以进行二次排序的形式
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = HBaseUtils.getHFileRDD(
                 javaRDD,
                 FieldConstants.COLUMN_MAP.get(
                         NamingRuleUtils.getOracleContentTableName(task)
-                )
+                ),
+                rowkeyColumn
         );
 
         //写入HBase
@@ -330,31 +346,42 @@ public class BaseOracleDataExport {
      * 结束时间如果此时间段不长的话以方法传的当前时间为准
      * 如果长的话从结束时间开始向后偏移指定的小时数
      *
-     * @param curTime 开始时间
-     * @param task    任务类型
-     * @param hours   偏移的小时数
+     * @param task  任务类型
+     * @param hours 偏移的小时数
      * @return 返回时间段的开始时间和结束时间
      */
-    static Tuple2<String, String> getPeriod(Date curTime, String task, int hours) {
+    static Tuple2<String, String> getPeriod(String task, int hours) {
         //去掉开始时间的秒数
-        curTime = DateUtils.truncate(curTime, Calendar.MINUTE);
+        Date curTime = DateUtils.truncate(new Date(), Calendar.MINUTE);
 
         //从导入记录中获取最后导入的日期
         String startTime_String = recordMap.get(NamingRuleUtils.getRealTimeOracleRecordKey(task));
 
         Date startTime_Date = null;
-        try {
-            startTime_Date = DateUtils.parseDate(startTime_String, "yyyy-MM-dd HH:mm:ss");
-        } catch (ParseException e) {
-            e.printStackTrace();
-            System.exit(-1);
+        //第一次导入没有记录最后导入时间,从半年前开始导入
+        if (StringUtils.isBlank(startTime_String)) {
+            //将半年前的日期赋给开始时间
+            startTime_Date = DateUtils.addDays(
+                    //从0点开始导
+                    DateUtils.truncate(curTime, Calendar.DATE),
+                    //日期向前推半年
+                    -180
+            );
+            startTime_String = TIME_FORMAT.format(startTime_Date);
+        } else {
+            try {
+                startTime_Date = DateUtils.parseDate(startTime_String, "yyyy-MM-dd HH:mm:ss");
+            } catch (ParseException e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
 
         /*
          * 防止长时间没有导入,数据大量堆积的情况
          * 如果开始时间和记录的最后导入时间相距超过10天,取从最后导入时间之后10天的数据
          */
-        Date tmpDate = DateUtils.addDays(startTime_Date, hours);
+        Date tmpDate = DateUtils.addHours(startTime_Date, hours);
         Date endTime_Date;
         if (tmpDate.before(curTime)) {
             endTime_Date = tmpDate;
@@ -369,7 +396,7 @@ public class BaseOracleDataExport {
     /**
      * 任务执行完成要做的事情
      *
-     * @param task 任务名
+     * @param task   任务名
      * @param period 时间段
      */
     static void taskDonelogger(String task, Tuple2<String, String> period) {

@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,17 +17,16 @@ public class SearchOracleDataExport extends BaseOracleDataExport {
     private static SearchDao dao = (SearchDao) context.getBean("searchDao");
 
     private static final String task = "search";
+
     /**
      * 按时间将Oracle的数据导出到Solr、HBase
-     * @param curTime   当前时间
-     * @param isExport2HBase 是否导出到HBase
      */
-    public static void exportOracleByTime(Date curTime, boolean isExport2HBase) {
+    public static void exportOracleByTime() {
         //监控执行情况
         watch.start();
 
         //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(curTime, task, 240);
+        Tuple2<String, String> period = getPeriod(task, 240);
         logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
 
         //获取数据库指定捕获时间段的数据
@@ -36,7 +34,13 @@ public class SearchOracleDataExport extends BaseOracleDataExport {
         logger.info("从数据库查询数据结束,数据量: {}", dataList.size());
 
         //实时数据导出
-        exportRealTimeData(dataList, task, period, isExport2HBase);
+        exportRealTimeData(dataList, task, period);
+    }
+
+    public static void main(String[] args) {
+        while (true) {
+            exportOracleByTime();
+        }
     }
 
 }

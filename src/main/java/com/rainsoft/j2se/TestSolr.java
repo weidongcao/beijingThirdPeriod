@@ -2,6 +2,7 @@ package com.rainsoft.j2se;
 
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateFormatUtils;
+import com.rainsoft.utils.SolrUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -20,46 +21,25 @@ import java.util.UUID;
  * Created by Administrator on 2017-06-21.
  */
 public class TestSolr {
-    public static CloudSolrClient client;
-
-    static {
-        //Zookeeper节点主机名
-        String zkHost = "dn1.hadoop.com," +
-                "dn2.hadoop.com," +
-                "dn3.hadoop.com," +
-                "dn4.hadoop.com," +
-                "nn2.hadoop.com";
-        //通过Zookeeper获取Solr连接
-        client = new CloudSolrClient
-                .Builder()
-                .withZkHost(zkHost)
-                .build();
-        //指定要连接的Solr的collection
-        client.setDefaultCollection(
-                ConfigurationManager
-                        .getProperty("solr.collection")
-        );
-    }
+    public static CloudSolrClient client = (CloudSolrClient) SolrUtil.getClusterSolrClient();
 
     public static void main(String[] args)
             throws IOException, SolrServerException {
         //从Solr查询数据
         querySolr(
-                "docType:\"网页\" " +
-                "USER_NAME:\"郭晓静\" " +
-                "REF_DOMAIN:\"speed.qq.com\" " +
-                "DEST_IP:\"3722762918\""
+                "docType:\"聊天\" " +
+                "MSG:\"子行在了不\" "
         );
         //向Solr插入或者更新索引的例子
-        insertOrupdateSolr();
+//        insertOrupdateSolr();
 
         //删除Solr的索引
-        deleteByQuery(
-                "docType:\"网页\" " +
-                "USER_NAME:\"郭晓静\" " +
-                "REF_DOMAIN:\"speed.qq.com\" " +
-                "DEST_IP:\"3722762918\""
-        );
+//        deleteByQuery(
+//                "docType:\"网页\" " +
+//                "USER_NAME:\"郭晓静\" " +
+//                "REF_DOMAIN:\"speed.qq.com\" " +
+//                "DEST_IP:\"3722762918\""
+//        );
         // 关闭连接
         client.close();
     }
@@ -120,15 +100,7 @@ public class TestSolr {
         System.out.println("文档数量：" + docs.getNumFound());
         System.out.println("------query data:------");
         for (SolrDocument doc : docs) {
-            // 多值查询
-            @SuppressWarnings("unchecked")
-            String ID = (String) doc.getFieldValue("ID");
-            String SID = (String) doc.getFieldValue("SID");
-            String subject = (String)
-                    doc.getFieldValue("SUBJECT");
-            System.out.println("ID:" + ID
-                    + "\t SID:"
-                    + SID + "\t SUBJECT" + subject);
+            System.out.println(doc.toString());
         }
         System.out.println("-----------------------");
     }
