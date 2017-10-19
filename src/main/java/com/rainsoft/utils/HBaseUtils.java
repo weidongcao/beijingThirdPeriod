@@ -4,6 +4,7 @@ import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -15,7 +16,6 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
 import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -35,7 +35,6 @@ import java.util.UUID;
  * HBase工具类
  *
  * @author Cao Wei Dong
- * @time 2017-04-06
  */
 public class HBaseUtils {
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtils.class);
@@ -60,8 +59,6 @@ public class HBaseUtils {
 
     /**
      * 初始化HBase连接
-     *
-     * @throws IOException
      */
     private static void init() throws IOException {
         // 获取HBase配置信息
@@ -81,7 +78,6 @@ public class HBaseUtils {
      *
      * @param tableName HBase表名
      * @return HBase表
-     * @throws Exception
      */
     public static HTable getTable(String tableName) throws Exception {
 
@@ -91,20 +87,9 @@ public class HBaseUtils {
     }
 
     /**
-     * 获取一条HBase的作业配置
-     *
-     * @return
-     */
-    public static JobConf getHbaseJobConf() {
-        //        jobConf.setOutputFormat(TableOutputFormat.class);
-
-        return new JobConf(conf);
-    }
-
-    /**
      * 获取HBase的配置类
      *
-     * @return
+     * @return 返回HBase的配置类
      */
     public static Configuration getConf() {
         return conf;
@@ -113,9 +98,9 @@ public class HBaseUtils {
     /**
      * 获取HBase的连接
      *
-     * @return
+     * @return 返回HBase连接
      */
-    public static Connection getConn() {
+    private static Connection getConn() {
         if (null == conn) {
             try {
                 init();
@@ -129,25 +114,6 @@ public class HBaseUtils {
 
 
     /**
-     * 生成一个插入HBase的Put实体
-     *
-     * @param row     HBase数据
-     * @param columns HBase列名
-     * @param cf      HBase列簇
-     * @return
-     */
-    public static Put createHBasePut(Row row, String[] columns, String cf) {
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        Put put = new Put(Bytes.toBytes(uuid));
-        for (int i = 0; i < columns.length; i++) {
-            if ((null != row.getString(i)) && (!"".equals(row.getString(i)))) {
-                HBaseUtils.addHBasePutColumn(put, cf, columns[i], row.getString(i));
-            }
-        }
-        return put;
-    }
-
-    /**
      * 向HBase的插入数据的实体Put添加Cell
      * Cell的RowKey、列名、值全部为byte[]
      *
@@ -155,7 +121,7 @@ public class HBaseUtils {
      * @param cf    HBase的列簇
      * @param col   HBase一个Cell对应的字段名
      * @param value HBase一个Cell的值
-     * @return
+     * @return 返回向HBase插入的Put实体
      */
     public static Put addHBasePutColumn(Put put, byte[] cf, byte[] col, byte[] value) {
         put.addColumn(cf, col, value);
@@ -169,7 +135,7 @@ public class HBaseUtils {
      * @param cf    HBase的列簇
      * @param col   HBase一个Cell对应的字段名
      * @param value HBase一个Cell的值
-     * @return
+     * @return 返回HBase插入的Put实体
      */
 
     public static Put addHBasePutColumn(Put put, String cf, String col, String value) {
@@ -189,7 +155,6 @@ public class HBaseUtils {
      * @param tablename    HBase表名
      * @param cf           HBase列簇
      * @param tempHDFSPath HFile文件临时保存目录，如果已经存在先删除再创建，导入HBase后再删除
-     * @throws Exception
      */
     public static void writeData2HBase(
             JavaPairRDD<RowkeyColumnSecondarySort, String> dataRDD,
@@ -256,7 +221,7 @@ public class HBaseUtils {
     }
     /**
      * 递归删除HDFS上的目录
-     * @param dir
+     * @param dir HDFS路径
      */
     public static void deleteHdfsPath(String dir) {
         Path path = new Path(dir);
@@ -279,8 +244,8 @@ public class HBaseUtils {
 
     /**
      * 将经过二次排序的RDD转换为HFile文件格式的RDD
-     * @param pairRDD
-     * @return
+     * @param pairRDD 经过干净排序的JavaPairRDD
+     * @return hfileRDD
      */
     public static JavaPairRDD<ImmutableBytesWritable, KeyValue> transformSecondarySortToHfileFormat(
             JavaPairRDD<RowkeyColumnSecondarySort, String> pairRDD,
@@ -316,7 +281,7 @@ public class HBaseUtils {
      * @param tablename HBase表名
      * @param dir HFile文件所在路径
      */
-    public static void loadHFile(String tablename, String dir) {
+    private static void loadHFile(String tablename, String dir) {
         Path path = new Path(dir);
         try {
             //开始导入HBase表
@@ -361,7 +326,7 @@ public class HBaseUtils {
      * @param row     一条数据的多个字段
      * @param columns 字段名数组
      * @param rowkey  HBase的RowKey
-     * @return
+     * @return 经过二次排序的RDD
      */
     public static List<Tuple2<RowkeyColumnSecondarySort, String>> getHFileCellListByRow(
             Row row,
@@ -378,20 +343,6 @@ public class HBaseUtils {
             }
         }
         return list;
-    }
-
-    /**
-     * 根据一条数据及字段名生成HBase的一条数据的多个Cell
-     * HBase的RowKey为UUID
-     *
-     * @param row
-     * @param columns
-     * @return
-     */
-    public static List<Tuple2<RowkeyColumnSecondarySort, String>> getHFileCellListByRow(Row row, String[] columns) {
-        //HBase数据的rowkey以UUID的格式生成
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        return getHFileCellListByRow(row, columns, uuid);
     }
 
     public static void main(String[] args) throws Exception {
@@ -427,36 +378,73 @@ public class HBaseUtils {
      *
      * @param javaRDD 源数据
      * @param columns 数据字段名
-     * @return
+     * @return 经过二次排序的RDD
      */
     public static JavaPairRDD<RowkeyColumnSecondarySort, String> getHFileRDD(
             JavaRDD<String[]> javaRDD,
             String[] columns
     ) {
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
-                new PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>() {
-                    @Override
-                    public Iterable<Tuple2<RowkeyColumnSecondarySort, String>> call(String[] strings) throws Exception {
-                        List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
-                        //获取HBase的RowKey
-                        String rowKey = strings[0];
-                        //将一条数据转为HBase能够识别的形式
-                        for (int i = 1; i < strings.length; i++) {
-                            if (i >= columns.length) {
-                                break;
-                            }
-                            String key = columns[i].toUpperCase();
-                            String value = strings[i];
-                            //如果字段的值为空则不写入HBase
-                            if ((null != value) && (!"".equals(value))) {
-                                list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
-                            }
+                (PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>) strings -> {
+                    List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
+                    //获取HBase的RowKey
+                    String rowKey = strings[0];
+                    //将一条数据转为HBase能够识别的形式
+                    for (int i = 1; i < strings.length; i++) {
+                        if (i >= columns.length) {
+                            break;
                         }
-                        return list;
+                        String key = columns[i].toUpperCase();
+                        String value = strings[i];
+                        //如果字段的值为空则不写入HBase
+                        if ((null != value) && (!"".equals(value))) {
+                            list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
+                        }
                     }
+                    return list;
                 }
         ).sortByKey();
         return hfileRDD;
     }
 
+    /**
+     * 将数据转为经过干净排序的JavaPairRDD
+     * @param javaRDD 源数据
+     * @param columns 数据字段名
+     * @param rowKeyColumn 要被作为rowkey的列
+     * @return HFileRDD
+     */
+    public static JavaPairRDD<RowkeyColumnSecondarySort, String> getHFileRDD(
+            JavaRDD<String[]> javaRDD,
+            String[] columns,
+            String rowKeyColumn
+    ) {
+        int rowKeyIndex = ArrayUtils.indexOf(columns, rowKeyColumn);
+        JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
+                (PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>) values -> {
+                    List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
+                    //获取HBase的RowKey
+                    String rowKey = values[rowKeyIndex];
+                    //将一条数据转为HBase能够识别的形式
+                    for (int i = 0; i < values.length; i++) {
+                        //如果数据值的个数超过数据名的个数,超出的舍弃
+                        if (i >= columns.length) {
+                            break;
+                        }
+                        //如果是被当作rowkey的列跳过
+                        if (i == rowKeyIndex) {
+                            continue;
+                        }
+                        String key = columns[i].toUpperCase();
+                        String value = values[i];
+                        //如果字段的值为空则不写入HBase
+                        if ((null != value) && (!"".equals(value))) {
+                            list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
+                        }
+                    }
+                    return list;
+                }
+        ).sortByKey();
+        return hfileRDD;
+    }
 }

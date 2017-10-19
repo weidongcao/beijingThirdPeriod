@@ -4,14 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
+import java.util.Date;
 
 /**
+ * JDBC工具类
  * Created by CaoWeiDong on 2017-08-06.
  */
 public class JdbcUtils {
@@ -40,10 +38,12 @@ public class JdbcUtils {
                     value = rs.getFloat(index) + "";
                     break;
                 case Types.TIMESTAMP:
-                    value = DateFormatUtils.DATE_TIME_FORMAT.format(rs.getTimestamp(index));
+                    Timestamp ts = rs.getTimestamp(index);
+                    value = (ts == null ? null : DateFormatUtils.DATE_TIME_FORMAT.format(ts));
                     break;
                 case Types.DATE:
-                    value = DateFormatUtils.DATE_TIME_FORMAT.format(rs.getDate(index));
+                    Date date = rs.getDate(index);
+                    value = (date == null ? null : DateFormatUtils.DATE_TIME_FORMAT.format(date));
                     break;
                 case Types.CHAR:
                     value = rs.getString(index);
@@ -66,9 +66,7 @@ public class JdbcUtils {
 
     /**
      * 将从Oracle查询出来的结果转为List<String[]>>的格式
-     * @param rs
-     * @return
-     * @throws SQLException
+     * @param rs 数据库查询返回结果
      */
     public static List<String[]> resultSetToList(ResultSet rs) throws SQLException {
         List<String[]> list = new ArrayList<>();
@@ -93,7 +91,7 @@ public class JdbcUtils {
      * @param tableName 表名
      * @param startTime 开始时间, 格式：yyyy-MM-dd HH:mm:ss
      * @param endTime 结束时间, 格式：yyyy-MM-dd HH:mm:ss
-     * @return
+     * @return Oracle数据 数组列表
      */
     public static List<String[]> getDatabaseByPeriod(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
         String templeSql = "select * from ${tableName} where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
@@ -103,12 +101,10 @@ public class JdbcUtils {
                 .replace("${tableName}", tableName);
         logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
 
-        /**
+        /*
          * 返回结果为数组类型的List
          */
-        List<String[]> list = jdbcTemplate.query(sql, rs -> {
-            return resultSetToList(rs);
-        });
+        List<String[]> list = jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
         return list;
     }
 }
