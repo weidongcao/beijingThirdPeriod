@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Oracle数据库ftp数据Dao实现层
  * Created by CaoWeidong on 2017-06-12.
  */
 public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
     private static final Logger logger = LoggerFactory.getLogger(FtpDaoImpl.class);
 
+    private static final String tableName = "REG_CONTENT_FTP";
     @Override
     public List<RegContentFtp> getFtpBydate(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
@@ -38,23 +40,8 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
     @Override
     public List<String[]> getFtpByHours(String startTime, String endTime) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from REG_CONTENT_FTP where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
-
-        String sql = templeSql.replace("${startTime}", startTime)
-                .replace("${endTime}", endTime);
-        logger.info("FTP数据获取Oracle数据sql: {}", sql);
-
-        /**
-         * 返回结果为数组类型的List
-         */
-        List<String[]> list = jdbcTemplate.query(sql, new ResultSetExtractor<List<String[]>>() {
-            @Override
-            public List<String[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                return JdbcUtils.resultSetToList(rs);
-            }
-        });
-        return list;
+        jdbcTemplate.setFetchSize(100);
+        return JdbcUtils.getDatabaseByPeriod(jdbcTemplate, tableName, startTime, endTime);
     }
 
     @Override
@@ -65,24 +52,21 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
         jdbcTemplate.setFetchSize(100);
         String sql = "select * from REG_CONTENT_FTP where capture_time >= to_date(? ,'yyyy-mm-dd') and capture_time < (to_date(? ,'yyyy-mm-dd') + 1) and rownum < 2";
 
-        List<String> temp = jdbcTemplate.query(sql, new ResultSetExtractor<List<String>>() {
-            @Override
-            public List<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                List<String> datas = new ArrayList<>();
-                StringBuilder sb = new StringBuilder();
-                while (rs.next()) {
-                    for (int i = 0; i < 23; i++) {
-                        sb.append(rs.getString(i));
-                        if (i < 23) {
-                            sb.append("\t");
-                        }
+        List<String> temp = jdbcTemplate.query(sql, rs -> {
+            List<String> datas = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            while (rs.next()) {
+                for (int i = 0; i < 23; i++) {
+                    sb.append(rs.getString(i));
+                    if (i < 23) {
+                        sb.append("\t");
                     }
-                    datas.add(sb.toString());
-                    sb.delete(0, sb.length());
                 }
-
-                return datas;
+                datas.add(sb.toString());
+                sb.delete(0, sb.length());
             }
+
+            return datas;
         });
         return temp;
     }
@@ -95,7 +79,7 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
         String sql = "select * from REG_CONTENT_FTP where id = ?";
 
 
-        List<RegContentFtp> list = jdbcTemplate.query(sql, new Object[]{id}, new BeanPropertyRowMapper<RegContentFtp>(RegContentFtp.class));
+        List<RegContentFtp> list = jdbcTemplate.query(sql, new Object[]{id}, new BeanPropertyRowMapper<>(RegContentFtp.class));
 
         return list.get(0);
     }
