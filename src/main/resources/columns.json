@@ -400,7 +400,7 @@
     "terminal_longitude",
     "terminal_latitude"
   ],
-  "oracle_reg_realid_info": [
+  "reg_realid_info": [
     "id",
     "certificate_type",
     "certificate_code",
@@ -423,7 +423,7 @@
     "user_phone",
     "id_expiretime"
   ],
-  "oracle_reg_vid_info": [
+  "reg_vid_info": [
     "id",
     "protocol_type",
     "account",
@@ -438,7 +438,7 @@
     "last_room_id",
     "realid_nums"
   ],
-  "oracle_service_info": [
+  "service_info": [
     "group_id",
     "service_type",
     "service_code",
