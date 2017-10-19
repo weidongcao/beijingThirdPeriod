@@ -17,7 +17,7 @@ import java.util.List;
 public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
     private static final Logger logger = LoggerFactory.getLogger(VidDaoImpl.class);
 
-    private static final String tableName = "reg_realid_info";
+    private static final String tableName = "reg_vid_info";
 
     @Override
     public List<RegVidInfo> getVidByPeriod(String date) {

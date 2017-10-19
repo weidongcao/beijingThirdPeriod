@@ -7,6 +7,7 @@ import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SolrUtil;
+import com.rainsoft.utils.ThreadUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -157,25 +158,25 @@ public class BaseOracleDataExport {
         if (list.size() > 0) {
             //数据导出到Solr、HBase
             exportData(list, task);
-
-            //导入记录写入Map
-            recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
-            //导入记录写入文件
-            overwriteRecordFile();
-
-            //停止计时
-            watch.stop();
-
-            //程序执行完成记录日志
-            taskDonelogger(task, period);
         } else {
-            //停止计时
-            watch.stop();
-
             logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", NamingRuleUtils.getOracleContentTableName(task), period._1, period._2);
         }
+        //导入记录写入Map
+        recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
+        //导入记录写入文件
+        overwriteRecordFile();
+
+        //停止计时
+        watch.stop();
+
+        //程序执行完成记录日志
+        taskDonelogger(task, period);
+
         //重置计时器
         watch.reset();
+
+        //程序休眠
+//        ThreadUtils.programSleep(3);
     }
 
     /**

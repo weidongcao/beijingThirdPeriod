@@ -16,7 +16,7 @@ public class EmailOracleDataExport extends BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(EmailOracleDataExport.class);
 
     //任务类型(bbs)
-    private static final String task = BigDataConstants.CONTENT_TYPE_BBS;
+    private static final String task = "email";
 
     private static EmailDao dao = (EmailDao) context.getBean("emailDao");
 
