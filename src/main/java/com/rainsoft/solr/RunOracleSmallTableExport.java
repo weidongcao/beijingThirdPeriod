@@ -1,13 +1,7 @@
 package com.rainsoft.solr;
 
-import com.rainsoft.conf.ConfigurationManager;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by CaoWeiDong on 2017-09-24.

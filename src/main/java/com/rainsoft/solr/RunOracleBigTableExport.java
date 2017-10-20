@@ -7,7 +7,6 @@ import com.rainsoft.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -42,11 +41,11 @@ public class RunOracleBigTableExport {
                     break;
                 }
                 //获取时间的小数数
-                int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+//                int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
                 //白天休息不迁移历史数据
-                if (hour >= 6 && hour < 22) {
-                    break;
-                }
+//                if (hour >= 6 && hour < 22) {
+//                    break;
+//                }
             }
             //迁移Ftp表的历史数据
             FtpOracleDataExport.exportOracleByTime();

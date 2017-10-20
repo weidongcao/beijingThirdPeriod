@@ -14,4 +14,16 @@
         <property name="zkConnectTimeout" value="50000"/>
         <property name="defaultCollection" value="${solr.collection}"/>
     </bean>
+    <!-- 单机版配置 -->
+    <bean id="solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
+        <constructor-arg index="0" value="${solr.url}"/>
+        <!-- 响应解析器 -->
+        <property name="parser">
+            <bean class="org.apache.solr.client.solrj.impl.XMLResponseParser"/>
+        </property>
+        <!-- 设置重试次数，推荐设置为1 -->
+        <property name="maxTotalConnections" value="1"/>
+        <!-- 建立连接的最长时间 -->
+        <property name="connectionTimeout" value="1000"/>
+    </bean>
 </beans>

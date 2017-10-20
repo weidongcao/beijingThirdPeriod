@@ -6,7 +6,6 @@ import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
-import com.rainsoft.utils.SolrUtil;
 import com.rainsoft.utils.ThreadUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -30,7 +29,6 @@ import scala.Tuple2;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -47,20 +45,14 @@ public class BaseOracleDataExport {
     static final int writeSize = 100000;
     //系统分隔符
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
-    //数字输出格式
-    static NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
 
     //创建Solr客户端
-    protected static SolrClient client = SolrUtil.getClusterSolrClient();
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
 
-    static DateFormat hourDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH");
-    static DateFormat dateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    //一次处理多少小时的数据
-    static final int hourOffset = ConfigurationManager.getInteger("oracle.capture.time.batch");
 
     //秒表计时
     static StopWatch watch = new StopWatch();
@@ -160,6 +152,8 @@ public class BaseOracleDataExport {
             exportData(list, task);
         } else {
             logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", NamingRuleUtils.getOracleContentTableName(task), period._1, period._2);
+            //如果没有数据的话休息5分钟
+            ThreadUtils.programSleep(5 * 60);
         }
         //导入记录写入Map
         recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());

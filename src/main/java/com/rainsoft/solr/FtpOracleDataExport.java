@@ -26,7 +26,7 @@ public class FtpOracleDataExport extends BaseOracleDataExport {
         watch.start();
 
         //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(task, 12);
+        Tuple2<String, String> period = getPeriod(task, 24);
         logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
 
         //获取数据库指定捕获时间段的数据

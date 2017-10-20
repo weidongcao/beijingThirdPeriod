@@ -13,6 +13,8 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.hive.HiveContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
@@ -21,7 +23,9 @@ import java.util.UUID;
  * Created by CaoWeiDong on 2017-07-25.
  */
 public class SparkExportSolr {
-    private static final String SOLR_URL = ConfigurationManager.getProperty("solr_url");
+    private static final Logger logger = LoggerFactory.getLogger(SparkExportSolr.class);
+
+    private static final String SOLR_URL = ConfigurationManager.getProperty("solr.url");
 
     //创建Solr客户端
     protected static SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();

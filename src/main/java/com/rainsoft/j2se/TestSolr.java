@@ -1,15 +1,17 @@
 package com.rainsoft.j2se;
 
-import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateFormatUtils;
-import com.rainsoft.utils.SolrUtil;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,14 +23,17 @@ import java.util.UUID;
  * Created by Administrator on 2017-06-21.
  */
 public class TestSolr {
-    public static CloudSolrClient client = (CloudSolrClient) SolrUtil.getClusterSolrClient();
+    private static final Logger logger = LoggerFactory.getLogger(TestSolr.class);
+
+    private static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+
+    public static SolrClient client = (SolrClient) context.getBean("solrClient");
 
     public static void main(String[] args)
             throws IOException, SolrServerException {
         //从Solr查询数据
         querySolr(
-                "docType:\"聊天\" " +
-                "MSG:\"子行在了不\" "
+                "*:*"
         );
         //向Solr插入或者更新索引的例子
 //        insertOrupdateSolr();

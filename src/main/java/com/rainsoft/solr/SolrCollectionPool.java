@@ -1,6 +1,5 @@
 package com.rainsoft.solr;
 
-import com.rainsoft.conf.ConfigurationManager;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

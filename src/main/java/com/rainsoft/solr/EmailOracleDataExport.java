@@ -1,6 +1,5 @@
 package com.rainsoft.solr;
 
-import com.rainsoft.BigDataConstants;
 import com.rainsoft.dao.EmailDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,7 +15,7 @@ public class HttpOracleDataExport extends BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(HttpOracleDataExport.class);
 
     //任务类型
-    private static final String task = "ftp";
+    private static final String task = "http";
     //dao
     private static HttpDao dao = (HttpDao) context.getBean("httpDao");
 
@@ -27,7 +27,7 @@ public class HttpOracleDataExport extends BaseOracleDataExport {
         watch.start();
 
         //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(task, 12);
+        Tuple2<String, String> period = getPeriod(task, 24);
         logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
 
         //获取数据库指定捕获时间段的数据

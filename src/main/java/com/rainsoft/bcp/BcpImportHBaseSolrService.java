@@ -57,7 +57,7 @@ public class BcpImportHBaseSolrService implements Serializable {
         //将Bcp文件从文件池中移到工作目录命令模板
         String shellMvTemplate = "find ${bcp_pool_dir} -name \"*-${task}*.bcp\"  | tail -n ${operator_bcp_number} |xargs -i mv {} ${bcp_file_path}/${task}";
         //Bcp文件池目录
-        String bcpPoolDir = ConfigurationManager.getProperty("bcp.pool.dir");
+        String bcpPoolDir = ConfigurationManager.getProperty("bcp.receive.dir");
         //Bcp文件移动的个数
         String operatorBcpNumber = ConfigurationManager.getProperty("operator.bcp.number");
         //要移动到的目录

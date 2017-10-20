@@ -1,5 +1,7 @@
 package com.rainsoft.utils;
 
+import com.rainsoft.conf.ConfigurationManager;
+
 /**
  * 命名规则工具类
  * Created by Administrator on 2017-10-16.
@@ -83,5 +85,17 @@ public class NamingRuleUtils {
         return "/tmp/hbase/hfile/" + task + "/";
     }
 
+    /**
+     * 获取Bcp文件的工作目录
+     * @param task 任务类型
+     * @return Bcp本地工作目录
+     */
+    public static String getBcpWorkDir(String task) {
+        return ConfigurationManager.getProperty("bcp.file.path") + "/" + task;
+    }
+
+    public static String getBcpFilterKey(String task) {
+        return "filter_bcp_" + task;
+    }
 
 }

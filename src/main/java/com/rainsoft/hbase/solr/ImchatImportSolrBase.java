@@ -36,7 +36,7 @@ public class ImchatImportSolrBase {
 
     public static void main(String[] args) throws Exception {
         //获取HBase表
-        Table table = HBaseUtils.getTable(TABLE_NAME);;
+        Table table = HBaseUtils.getTable(TABLE_NAME);
         //获取HBase的scan
         Scan scan = new Scan();
         ResultScanner resultScanner = table.getScanner(scan);
