@@ -1,36 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:context="http://www.springframework.org/schema/context"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
                 http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
     <!-- Spring连接数据库（Oracle、Mysql、SQL Server）数据源-->
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="${oracle.driver}" />
-		<property name="url" value="${oracle.url}" />
-		<property name="username" value="${oracle.username}" />
-		<property name="password" value="${oracle.password}" />
-	</bean>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${oracle.driver}"/>
+        <property name="url" value="${oracle.url}"/>
+        <property name="username" value="${oracle.username}"/>
+        <property name="password" value="${oracle.password}"/>
+        <property name="maxActive" value="10000"/>
+        <property name="maxIdle" value="10"/>
+        <property name="minIdle" value="2"/>
+        <property name="maxWait" value="600000"/>
+        <property name="validationQuery" value="select 1 from dual"/>
+    </bean>
 
-	<!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-		<property name="url" value="jdbc:oracle:thin:@15.8.12.9:1521/curdb" />
-		<property name="username" value="yunan" />
-		<property name="password" value="yunan" />
-	</bean>-->
-	<!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-		<property name="url" value="jdbc:oracle:thin:@192.168.30.205:1521/rsdb" />
-		<property name="username" value="gz_inner" />
-		<property name="password" value="gz_inner" />
-	</bean> -->
-	<!--<bean id="dataSource96" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-		<property name="url" value="jdbc:oracle:thin:@192.168.60.96:1521/rsdb" />
-		<property name="username" value="gz_inner" />
-		<property name="password" value="rain_soft2013" />
-	</bean>-->
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@192.168.60.96:1521/rsdb" />
+        <property name="username" value="gz_inner" />
+        <property name="password" value="rain_soft2013" />
+    </bean>-->
+    <!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@192.168.30.205:1521/rsdb" />
+        <property name="username" value="gz_inner" />
+        <property name="password" value="gz_inner" />
+    </bean> -->
+    <!--<bean id="dataSource96" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@192.168.60.96:1521/rsdb" />
+        <property name="username" value="gz_inner" />
+        <property name="password" value="rain_soft2013" />
+    </bean>-->
 </beans>
