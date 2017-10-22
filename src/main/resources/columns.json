@@ -401,7 +401,6 @@
     "terminal_latitude"
   ],
   "reg_realid_info": [
-    "id",
     "certificate_type",
     "certificate_code",
     "user_name",
@@ -421,10 +420,10 @@
     "qq_nums",
     "user_address",
     "user_phone",
-    "id_expiretime"
+    "id_expiretime",
+    "id"
   ],
   "reg_vid_info": [
-    "id",
     "protocol_type",
     "account",
     "nick_name",
@@ -436,7 +435,8 @@
     "first_service_code",
     "first_room_id",
     "last_room_id",
-    "realid_nums"
+    "realid_nums",
+    "id"
   ],
   "service_info": [
     "group_id",
@@ -495,5 +495,14 @@
     "is_virtual",
     "if_check",
     "service_code_in"
+  ],
+  "filter_bcp_ftp": [
+
+  ],
+  "filter_bcp_im_chat": [
+
+  ],
+  "filter_bcp_http": [
+
   ]
 }

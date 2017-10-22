@@ -204,9 +204,10 @@
                         </manifest>
                     </archive>
                     <!--过滤掉不希望包含在jar中的文件-->
-                    <!--<excludes>
-                        <exclude>${project.basedir}/xml/*</exclude>
-                    </excludes>-->
+                    <excludes>
+                        <!-- 排除不需要的文件夹(路径是jar包内部的路径) -->
+                        <exclude>**/assembly/</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
@@ -225,7 +226,8 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <phase>package</phase>
+                        <!-- 将组装绑定到maven生命周期的哪一阶段 -->
+                        <!--<phase>package</phase>-->
                         <goals>
                             <goal>single</goal>
                         </goals>
