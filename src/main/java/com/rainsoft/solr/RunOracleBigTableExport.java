@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 /**
+ * 导出Oracle内容表大表的数据包括：
+ * 导出FTP的数据
+ * 导出IM_chat的数据
+ * 导出HTTP的数据
  * Created by CaoWeiDong on 2017-09-24.
  */
 public class RunOracleBigTableExport {

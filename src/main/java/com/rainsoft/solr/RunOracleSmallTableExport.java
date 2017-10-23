@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 导出Oracle内容表小表的数据
  * Created by CaoWeiDong on 2017-09-24.
  */
 public class RunOracleSmallTableExport {
@@ -26,6 +27,12 @@ public class RunOracleSmallTableExport {
 
             //Shop任务
 //            ShopOracleDataExport.exportOracleByTime();
+
+            //真实表任务
+            RealOracleDataExport.exportOracleByTime();
+
+            //虚拟表任务
+            VidOracleDataExport.exportOracleByTime();
 
         }
     }
