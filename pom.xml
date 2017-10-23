@@ -227,7 +227,7 @@
                     <execution>
                         <id>make-assembly</id>
                         <!-- 将组装绑定到maven生命周期的哪一阶段 -->
-                        <!--<phase>package</phase>-->
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>

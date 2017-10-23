@@ -52,19 +52,10 @@
         <!-- 把项目readme说明文档，打包进zip文件根目录下 -->
         <fileSet>
             <directory>${project.document.directory}</directory>
-            <outputDirectory></outputDirectory>
-            <includes>
-                <include>readme.*</include>
-            </includes>
-        </fileSet>
-
-        <!-- 把项目相关的说明文档(除了readme文档)，打包进zip文件根目录下的document目录 -->
-        <fileSet>
-            <directory>${project.document.directory}</directory>
             <outputDirectory>document</outputDirectory>
-            <excludes>
-                <exclude>readme.*</exclude>
-            </excludes>
+            <includes>
+                <include>readme*</include>
+            </includes>
         </fileSet>
 
         <!-- 把项目的配置文件，打包进zip文件根目录的config目录 -->
