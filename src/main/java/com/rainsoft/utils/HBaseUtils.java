@@ -5,6 +5,7 @@ import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -441,7 +442,7 @@ public class HBaseUtils {
                         String key = columns[i].toUpperCase();
                         String value = values[i];
                         //如果字段的值为空则不写入HBase
-                        if ((null != value) && (!"".equals(value))) {
+                        if (StringUtils.isNotBlank(value)) {
                             list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
                         }
                     }

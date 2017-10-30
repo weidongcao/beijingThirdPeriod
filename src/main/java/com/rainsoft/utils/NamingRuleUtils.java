@@ -94,8 +94,13 @@ public class NamingRuleUtils {
         return ConfigurationManager.getProperty("bcp.file.path") + "/" + task;
     }
 
+    /**
+     * Bcp需要过滤的关键字段
+     * @param task 任务类型
+     * @return Bcp过滤数组的key
+     */
     public static String getBcpFilterKey(String task) {
-        return "filter_bcp_" + task;
+        return "filter-" + getBcpTaskKey(task);
     }
 
 }
