@@ -107,6 +107,7 @@ public class HBaseUtils {
             } catch (IOException e) {
                 e.printStackTrace();
                 logger.error("获取Hbase数据连接失败");
+                System.exit(-1);
             }
         }
         return conn;
@@ -316,6 +317,8 @@ public class HBaseUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("加载HFile文件失败");
+            System.exit(-1);
         }
 
     }

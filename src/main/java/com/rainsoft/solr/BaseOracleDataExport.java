@@ -4,13 +4,13 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
+import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.ThreadUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.client.solrj.SolrClient;
@@ -42,7 +42,7 @@ public class BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(BaseOracleDataExport.class);
 
     //一次写入文件的数据量
-    static final int writeSize = 100000;
+    private static final int writeSize = 100000;
     //系统分隔符
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
@@ -52,19 +52,19 @@ public class BaseOracleDataExport {
     //创建Solr客户端
     protected static SolrClient client = (SolrClient) context.getBean("solrClient");
 
-    static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     //秒表计时
     static StopWatch watch = new StopWatch();
 
     //导入记录文件
-    static File recordFile;
+    private static File recordFile;
 
     //导入记录
     static Map<String, String> recordMap = new HashMap<>();
 
     //状态：导入成功
-    static final String SUCCESS_STATUS = "success";
+    private static final String SUCCESS_STATUS = "success";
     //状态：导入失败
     private static final String FAIL_STATUS = "fail";
     //是否导入到HBase
@@ -72,7 +72,7 @@ public class BaseOracleDataExport {
     //SparkContext
     private static JavaSparkContext sc = null;
 
-    static JavaSparkContext getSparkContext() {
+    private static JavaSparkContext getSparkContext() {
         if (sc == null || sc.env().isStopped()) {
             SparkConf conf = new SparkConf()
                     .setAppName(BaseOracleDataExport.class.getSimpleName())
@@ -123,7 +123,7 @@ public class BaseOracleDataExport {
         logger.info("程序初始化完成...");
     }
 
-    static void exportData(List<String[]> list, String task) {
+    private static void exportData(List<String[]> list, String task) {
         //根据数据量决定启动多少个线程
         int threadNum = list.size() / 200000 + 1;
         JavaRDD<String[]> javaRDD = getSparkContext().parallelize(list, threadNum);
@@ -152,8 +152,11 @@ public class BaseOracleDataExport {
             exportData(list, task);
         } else {
             logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", NamingRuleUtils.getOracleContentTableName(task), period._1, period._2);
-            //如果没有数据的话休息5分钟
-            ThreadUtils.programSleep(5 * 60);
+            //如果最近两个小时没有数据的话休息5分钟
+            Date lastDate = DateUtils.stringToDate(period._2, "yyyy-MM-dd HH:mm:ss");
+            if (DateUtils.addHours(lastDate, 2).after(new Date())) {
+                ThreadUtils.programSleep(5 * 60);
+            }
         }
         //导入记录写入Map
         recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
@@ -179,7 +182,7 @@ public class BaseOracleDataExport {
      * @param javaRDD JavaRDD<String[]>
      * @param task    任务名
      */
-    static void export2Solr(JavaRDD<String[]> javaRDD, String task) {
+    private static void export2Solr(JavaRDD<String[]> javaRDD, String task) {
         //字段名数组
         String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
         //捕获时间的位置
@@ -255,7 +258,7 @@ public class BaseOracleDataExport {
      * @param javaRDD JavaRDD<String[]> javaRDD
      * @param task    任务名
      */
-    static void export2HBase(JavaRDD<String[]> javaRDD, String task) {
+    private static void export2HBase(JavaRDD<String[]> javaRDD, String task) {
          //将要作为rowkey的字段，service_info表是service_code，其他表都是id
         String rowkeyColumn;
         if (task.equalsIgnoreCase("service")) {
@@ -303,7 +306,7 @@ public class BaseOracleDataExport {
         logger.info("{} : {} 的数据,索引完成", type, captureTime);
     }
 
-    static void overwriteRecordFile() {
+    private static void overwriteRecordFile() {
         //导入记录Map转List
         List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
 
@@ -323,7 +326,7 @@ public class BaseOracleDataExport {
      * @param records 导入记录
      * @param append  是否是追加
      */
-    static void appendRecordIntoFile(String records, boolean append) {
+    private static void appendRecordIntoFile(String records, boolean append) {
         //写入导入记录文件
         try {
             FileUtils.writeStringToFile(recordFile, records, "utf-8", append);
@@ -394,7 +397,7 @@ public class BaseOracleDataExport {
      * @param task   任务名
      * @param period 时间段
      */
-    static void taskDonelogger(String task, Tuple2<String, String> period) {
+    private static void taskDonelogger(String task, Tuple2<String, String> period) {
         //记录任务执行时间
         logger.info(
                 "{} 导出完成。执行时间: {}",
@@ -415,6 +418,8 @@ public class BaseOracleDataExport {
             Thread.sleep(1000);
         } catch (ParseException | InterruptedException e) {
             e.printStackTrace();
+
+            System.exit(-1);
         }
     }
 }

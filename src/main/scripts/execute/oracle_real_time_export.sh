@@ -7,10 +7,10 @@ cd /opt/modules/BeiJingThirdPeriod/
 
 # 执行程序
 # 跑FTP、IM_CHAT、HTTP三个大表
-java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RunOracleBigTableExport
+# java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RunOracleBigTableExport
 
 # 跑所有的内容表包括:ftp、im_chat,http, bbs,email,search,weibo,real,vid
-java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.
+java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RunOracleAllTableExport
 
 # 如果退出的话判断程序是否结束
 while [[ true ]];
