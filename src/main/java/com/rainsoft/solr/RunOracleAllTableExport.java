@@ -37,7 +37,7 @@ public class RunOracleAllTableExport {
             }
         }
         //结束时间
-        Date endTime = endTime_String == null ? null : DateUtils.stringToDate(endTime_String, "yyyy-MM-dd");
+        Date endTime = endTime_String == null ? null : DateUtils.stringToDate(endTime_String, "yyyy-MM-dd HH:mm:ss");
 
         if (null != endTime_String) {
             logger.info("导入结束时间: {}", endTime_String);

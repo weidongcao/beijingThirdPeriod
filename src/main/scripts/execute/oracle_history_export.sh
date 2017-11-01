@@ -8,7 +8,7 @@ cd /opt/modules/BeiJingThirdPeriod/
 # 执行程序
 # 参数说明
 # 第一个参数，导入结束时间
-java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RunOracleBigTableExport 2017-10-20
+java -classpath BeiJingThirdPeriod.jar com.rainsoft.solr.RunOracleAllTableExport "2017-10-20 00:00:00"
 
 # 如果退出的话判断程序是否结束
 while [[ true ]];

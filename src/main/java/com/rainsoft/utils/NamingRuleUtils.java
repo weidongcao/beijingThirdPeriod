@@ -2,6 +2,8 @@ package com.rainsoft.utils;
 
 import com.rainsoft.conf.ConfigurationManager;
 
+import java.io.File;
+
 /**
  * 命名规则工具类
  * Created by Administrator on 2017-10-16.
@@ -91,7 +93,7 @@ public class NamingRuleUtils {
      * @return Bcp本地工作目录
      */
     public static String getBcpWorkDir(String task) {
-        return ConfigurationManager.getProperty("bcp.file.path") + "/" + task;
+        return ConfigurationManager.getProperty("bcp.file.path") + File.separator + task;
     }
 
     /**

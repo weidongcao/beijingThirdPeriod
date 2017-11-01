@@ -24,7 +24,7 @@ public class EmailDaoImpl extends JdbcDaoSupport implements EmailDao{
     public List<RegContentEmail> getEmailByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from reg_content_email where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
+        String templeSql = "select * from reg_content_email where import_time >= to_date('${date}' ,'yyyy-mm-dd') and import_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("Email数据获取一天数据的sql: {}", sql);

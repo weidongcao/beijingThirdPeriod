@@ -32,7 +32,7 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
         JdbcTemplate jdbcTemplate = this.getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
 
-        String templeSql = "select * from ${tableName} where capture_time >= (to_date('${date}' ,'yyyy-mm-dd') + ${startPercent}) and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + ${endPercent})";
+        String templeSql = "select * from ${tableName} where import_time >= (to_date('${date}' ,'yyyy-mm-dd') + ${startPercent}) and import_time < (to_date('${date}' ,'yyyy-mm-dd') + ${endPercent})";
 
         String sql = templeSql.replace("${date}", date);
         sql = sql.replace("${startPercent}", startPercent + "");
@@ -45,20 +45,17 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
     public List<String[]> getHttpByHours(String startTime, String endTime) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(100);
-        String templeSql = "select * from ${tableName} where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+        String templeSql = "select * from ${tableName} where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
 
         String sql = templeSql.replace("${startTime}", startTime)
                 .replace("${endTime}", endTime)
                 .replace("${tableName}", tableName);
         logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
 
-        /**
+        /*
          * 返回结果为数组类型的List
          */
-        List<String[]> list = jdbcTemplate.query(sql, rs -> {
-            return JdbcUtils.resultSetToList(rs);
-        });
-        return list;
+        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
     }
 
 

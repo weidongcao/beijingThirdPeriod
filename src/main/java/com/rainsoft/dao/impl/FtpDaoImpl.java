@@ -29,7 +29,7 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
     public List<RegContentFtp> getFtpBydate(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from REG_CONTENT_FTP where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
+        String templeSql = "select * from REG_CONTENT_FTP where import_time >= to_date('${date}' ,'yyyy-mm-dd') and import_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("FTP数据获取一天数据的sql: {}", sql);
@@ -50,9 +50,9 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setResultsMapCaseInsensitive(true);
         jdbcTemplate.setFetchSize(100);
-        String sql = "select * from REG_CONTENT_FTP where capture_time >= to_date(? ,'yyyy-mm-dd') and capture_time < (to_date(? ,'yyyy-mm-dd') + 1) and rownum < 2";
+        String sql = "select * from REG_CONTENT_FTP where import_time >= to_date(? ,'yyyy-mm-dd') and import_time < (to_date(? ,'yyyy-mm-dd') + 1) and rownum < 2";
 
-        List<String> temp = jdbcTemplate.query(sql, rs -> {
+        return jdbcTemplate.query(sql, rs -> {
             List<String> datas = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
             while (rs.next()) {
@@ -68,7 +68,6 @@ public class FtpDaoImpl extends JdbcDaoSupport implements FtpDao {
 
             return datas;
         });
-        return temp;
     }
 
     @Override

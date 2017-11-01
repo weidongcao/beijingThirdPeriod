@@ -94,7 +94,7 @@ public class JdbcUtils {
      * @return Oracle数据 数组列表
      */
     public static List<String[]> getDatabaseByPeriod(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
-        String templeSql = "select * from ${tableName} where capture_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and capture_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+        String templeSql = "select * from ${tableName} where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
 
         String sql = templeSql.replace("${startTime}", startTime)
                 .replace("${endTime}", endTime)
@@ -104,7 +104,6 @@ public class JdbcUtils {
         /*
          * 返回结果为数组类型的List
          */
-        List<String[]> list = jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
-        return list;
+        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
     }
 }

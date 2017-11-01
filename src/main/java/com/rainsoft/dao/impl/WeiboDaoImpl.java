@@ -25,7 +25,7 @@ public class WeiboDaoImpl extends JdbcDaoSupport implements WeiboDao {
     public List<RegContentWeibo> getWeiboByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from reg_content_weibo where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
+        String templeSql = "select * from reg_content_weibo where import_time >= to_date('${date}' ,'yyyy-mm-dd') and import_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("Weibo数据获取一天数据的sql: {}", sql);

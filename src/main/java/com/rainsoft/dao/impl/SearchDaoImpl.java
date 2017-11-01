@@ -25,7 +25,7 @@ public class SearchDaoImpl extends JdbcDaoSupport implements SearchDao {
     public List<RegContentSearch> getSearchByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(1000);
-        String templeSql = "select * from reg_content_search where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
+        String templeSql = "select * from reg_content_search where import_time >= to_date('${date}' ,'yyyy-mm-dd') and import_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
 
         String sql = templeSql.replace("${date}", date);
         logger.info("Search数据获取一天数据的sql: {}", sql);
