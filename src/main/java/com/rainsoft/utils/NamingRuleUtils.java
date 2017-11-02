@@ -75,7 +75,7 @@ public class NamingRuleUtils {
      * @return Bcp任务的key
      */
     public static String getBcpTaskKey(String task) {
-        return "bcp-" + task.toLowerCase();
+        return "bcp_" + task.toLowerCase();
     }
 
     /**

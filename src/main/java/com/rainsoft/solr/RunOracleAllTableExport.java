@@ -29,7 +29,7 @@ public class RunOracleAllTableExport {
     public static void main(String[] args) {
         //结束时间参数
         String endTime_String = null;
-        if (args.length == 1) {
+        if (args.length >= 1) {
             try {
                 endTime_String = args[0];
             } catch (Exception e) {

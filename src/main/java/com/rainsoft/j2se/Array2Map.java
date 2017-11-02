@@ -18,7 +18,7 @@ import java.util.List;
 public class Array2Map {
     public static void main(String[] args) throws IOException {
         File file = FileUtils.getFile("D:\\0WorkSpace\\JetBrains\\beijingThirdPeriod\\createIndexRecord\\index-record.txt");
-        String str = FileUtils.readFileToString(file);
+        String str = FileUtils.readFileToString(file, "utf-8");
         JSONObject jsonObject = JSONObject.fromObject(str);
 //        JSONArray jsonArray = JSONArray.fromObject(list);
 //        System.out.println(jsonArray.join("\r\n"));

@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-                http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+                http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <!-- Spring连接数据库（Oracle、Mysql、SQL Server）数据源-->
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -13,10 +10,19 @@
         <property name="url" value="${oracle.url}"/>
         <property name="username" value="${oracle.username}"/>
         <property name="password" value="${oracle.password}"/>
-        <property name="maxActive" value="10000"/>
-        <property name="maxIdle" value="10"/>
+        <!-- 连接初始值，连接池启动时创建的连接数量的初始值 -->
+        <property name="initialSize" value="10"/>
+        <!-- 连接池的最大值，同一时间可以从池分配的最多连接数量，0时无限制 -->
+        <property name="maxActive" value="10"/>
+        <!-- 最大空闲值.当经过一个高峰时间后，连接池可以慢慢将已经用不到的连接慢慢释放一部分，一直减少到maxIdle为止 ，0时无限制-->
+        <property name="maxIdle" value="5"/>
+        <!-- 最小空闲值.当空闲的连接数少于阀值时，连接池就会预申请去一些连接，以免洪峰来时来不及申请 -->
         <property name="minIdle" value="2"/>
+        <!-- 是否对已备语句进行池管理（布尔值），是否对PreparedStatement进行缓存 -->
+        <property name="poolPreparedStatements" value="true"/>
+        <!-- 在抛出异常之前，池等待连接被回收的最长时间（当没有可用连接时）。设置为-1表示无限等待。 -->
         <property name="maxWait" value="600000"/>
+        <!-- 用于验证连接是否成功的查询SQL语句，SQL语句必须至少要返回一行数据 -->
         <property name="validationQuery" value="select 1 from dual"/>
     </bean>
 

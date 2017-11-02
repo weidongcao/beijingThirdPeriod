@@ -24,7 +24,7 @@ public class JsonUtils {
         InputStream in = JsonUtils.class.getClassLoader().getResourceAsStream(path);
         String oracleTableFieldsJson = null;
         try {
-            oracleTableFieldsJson = IOUtils.toString(in);
+            oracleTableFieldsJson = IOUtils.toString(in, "utf-8");
         } catch (IOException e) {
             e.printStackTrace();
         }
