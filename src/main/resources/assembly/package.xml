@@ -59,7 +59,7 @@
         </fileSet>
 
         <!-- 把项目的配置文件，打包进zip文件根目录的config目录 -->
-        <fileSet>
+        <!--<fileSet>
             <directory>${project.config.directory}</directory>
             <outputDirectory>config</outputDirectory>
             <includes>
@@ -67,7 +67,7 @@
                 <include>*.properties</include>
                 <include>*.json</include>
             </includes>
-        </fileSet>
+        </fileSet>-->
 
         <!-- 把项目的脚本文件目录(src/main/scripts )中的启动脚本文件，打包进zip文件的根目录 -->
         <fileSet>
