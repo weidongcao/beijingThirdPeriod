@@ -1,12 +1,7 @@
 package com.rainsoft.bcp;
 
-import com.rainsoft.utils.NamingRuleUtils;
-import com.rainsoft.utils.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * FTP类型的BCP文件导入到SOlr、HBase
@@ -20,9 +15,17 @@ class FtpBcpImportHBaseSolr extends BaseBcpImportHBaseSolr {
     public static void bcpImportHBaseSolr(){
         logger.info("开始处理 {} 类型的Bcp文件", task);
         //将Bcp文件从文件池中移到工作目录
-        moveBcpfileToWorkDir(task);
+//        moveBcpfileToWorkDir(task);
 
         // Bcp文件导入到HBase、Solr
         filesContentImportHBaseSolr(task);
+    }
+
+    public static void main(String[] args) {
+//        while (true) {
+//            bcpImportHBaseSolr();
+//        }
+            bcpImportHBaseSolr();
+//        }
     }
 }

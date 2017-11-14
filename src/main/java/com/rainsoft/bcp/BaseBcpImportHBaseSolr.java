@@ -24,6 +24,8 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -36,8 +38,13 @@ import java.util.*;
  */
 class BaseBcpImportHBaseSolr implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(BaseBcpImportHBaseSolr.class);
-    private static SolrClient client = SolrUtil.getClusterSolrClient();
+
+    //创建Spring Context
+    protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+    //创建Solr客户端
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
     private static JavaSparkContext sparkContext = null;
+
     //将Bcp文件从文件池中移到工作目录命令模板
     private static final String shellMvTemplate = "find ${bcp_pool_dir} -name \"*-${task}*.bcp\"  | tail -n ${operator_bcp_number} |xargs -i mv {} ${bcp_file_path}/${task}";
     //Bcp文件池目录
@@ -46,9 +53,12 @@ class BaseBcpImportHBaseSolr implements Serializable {
     private static final String operatorBcpNumber = ConfigurationManager.getProperty("operator.bcp.number");
     //要移动到的目录
     private static final String bcpFilePath = ConfigurationManager.getProperty("bcp.file.path");
+    //是否导入到HBase
+    private static boolean isExport2HBase = ConfigurationManager.getBoolean("is.export.to.hbase");
 
     /**
      * 获取SparkContext
+     *
      * @return SparkContext
      */
     private static JavaSparkContext getSparkContext() {
@@ -66,6 +76,7 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * 将Bcp文件的内容导入到HBase、Solr
+     *
      * @param task 任务类型
      */
     static void filesContentImportHBaseSolr(String task) {
@@ -95,8 +106,9 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * 开始导入任务
+     *
      * @param lines Bcp 数据
-     * @param task 任务类型
+     * @param task  任务类型
      */
     private static void runImport(List<String> lines, String task) {
         JavaRDD<String> originalRDD = getSparkContext().parallelize(lines);
@@ -138,30 +150,36 @@ class BaseBcpImportHBaseSolr implements Serializable {
         JavaRDD<String[]> filterKeyColumnRDD = valueArrayRDD.filter(
                 (Function<String[], Boolean>) values -> {
                     boolean ifFilter = true;
-                    for (String column : filterColumns){
-                        int index = ArrayUtils.indexOf(columns, column.toLowerCase());
-                        if (StringUtils.isBlank(values[index + 1])) {
-                            ifFilter = false;
-                            break;
+
+                    if (ArrayUtils.isNotEmpty(filterColumns)) {
+
+                        for (String column : filterColumns) {
+                            int index = ArrayUtils.indexOf(columns, column.toLowerCase());
+                            if (StringUtils.isBlank(values[index + 1])) {
+                                ifFilter = false;
+                                break;
+                            }
                         }
                     }
                     return ifFilter;
                 }
         );
-
         //RDD持久化
         filterKeyColumnRDD.persist(StorageLevel.MEMORY_ONLY());
         //Bcp文件数据写入Solr
         bcpWriteIntoSolr(filterKeyColumnRDD, task);
 
         //BCP文件数据写入HBase
-        bcpWriteIntoHBase(filterKeyColumnRDD, task);
+        if (isExport2HBase) {
+            bcpWriteIntoHBase(filterKeyColumnRDD, task);
+        }
     }
 
     /**
      * Bcp数据导入到Solr
+     *
      * @param javaRDD JavaRDD
-     * @param task 任务类型
+     * @param task    任务类型
      */
     private static void bcpWriteIntoSolr(JavaRDD<String[]> javaRDD, String task) {
         logger.info("开始将 {} 的BCP数据索引到Solr", task);
@@ -202,7 +220,7 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
                         for (int i = 1; i < str.length; i++) {
                             String value = str[i];
-                            if ((i -1 ) >= columns.length) {
+                            if ((i - 1) >= columns.length) {
                                 break;
                             }
                             String key = columns[i - 1].toUpperCase();
@@ -217,7 +235,7 @@ class BaseBcpImportHBaseSolr implements Serializable {
                     if (list.size() > 0) {
                         //写入Solr
                         client.add(list, 1000);
-                        logger.info("---->写入Solr成功数据量:{}", list.size());
+                        logger.info("---->写入Solr {} 条数据成功", list.size());
                     } else {
                         logger.info("{} 此Spark Partition 数据为空", task);
                     }
@@ -229,8 +247,9 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * Bcp数据导入到HBase
+     *
      * @param javaRDD JavaRDD
-     * @param task 任务类型
+     * @param task    任务类型
      */
     private static void bcpWriteIntoHBase(JavaRDD<String[]> javaRDD, String task) {
         logger.info("{}的BCP数据开始写入HBase...", task);
@@ -263,7 +282,8 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * Java执行外部Shell命令
-     * @param task 任务类型
+     *
+     * @param task    任务类型
      * @param shellMv 要执行的Shell命令
      */
     private static void execShell(String task, String shellMv) {
@@ -286,6 +306,7 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * 将Bcp文件从接收目录移动到工作目录
+     *
      * @param task 任务类型
      */
     static void moveBcpfileToWorkDir(String task) {
@@ -300,7 +321,8 @@ class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * 生成HBase的RowKey&Solr的ID
-     * @param fields 字段名数组
+     *
+     * @param fields           字段名数组
      * @param captureTimeIndex 获取时间下标
      * @return rowkey
      */
@@ -323,6 +345,10 @@ class BaseBcpImportHBaseSolr implements Serializable {
             rowKey = uuid;
         }
         return rowKey;
+    }
+
+    public static void main(String[] args) {
+
     }
 }
 
