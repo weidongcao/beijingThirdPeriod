@@ -7,6 +7,7 @@ import com.rainsoft.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -37,10 +38,16 @@ public class RunOracleAllTableExport {
             }
         }
         //结束时间
-        Date endTime = endTime_String == null ? null : DateUtils.stringToDate(endTime_String, "yyyy-MM-dd HH:mm:ss");
+        Date endTime = null;
 
         if (null != endTime_String) {
             logger.info("导入结束时间: {}", endTime_String);
+            try {
+                endTime = DateUtils.parseDate(endTime_String, "yyyy-MM-dd HH:mm:ss");
+            } catch (ParseException e) {
+                logger.error("给定的日期格式不正确正确的格式为:yyyy-MM-dd HH:mm:ss");
+                System.exit(-1);
+            }
         }
 
         while (true) {
