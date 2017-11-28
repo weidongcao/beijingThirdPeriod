@@ -72,6 +72,8 @@ public class BaseOracleDataExport {
     //SparkContext
     private static JavaSparkContext sc = null;
 
+    private static int syncTime = ConfigurationManager.getInteger("sync.time");
+
     private static JavaSparkContext getSparkContext() {
         if (sc == null || sc.env().isStopped()) {
             SparkConf conf = new SparkConf()
@@ -155,7 +157,7 @@ public class BaseOracleDataExport {
             //如果最近两个小时没有数据的话休息5分钟
             Date lastDate = DateUtils.stringToDate(period._2, "yyyy-MM-dd HH:mm:ss");
             if (DateUtils.addHours(lastDate, 2).after(new Date())) {
-                ThreadUtils.programSleep(5 * 60);
+                ThreadUtils.programSleep(syncTime);
             }
         }
         //导入记录写入Map

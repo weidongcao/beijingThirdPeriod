@@ -37,17 +37,7 @@ public class HttpDaoImpl extends JdbcDaoSupport implements HttpDao {
     public List<String[]> getHttpByHours(String startTime, String endTime) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(100);
-        String templeSql = "select * from ${tableName} where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
-
-        String sql = templeSql.replace("${startTime}", startTime)
-                .replace("${endTime}", endTime)
-                .replace("${tableName}", tableName);
-        logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
-
-        /*
-         * 返回结果为数组类型的List
-         */
-        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
+        return JdbcUtils.getDatabaseByPeriod(jdbcTemplate, tableName, startTime, endTime);
     }
 
 

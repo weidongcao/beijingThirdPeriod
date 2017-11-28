@@ -1,5 +1,6 @@
 package com.rainsoft.solr;
 
+import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.dao.ImchatDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ public class ImchatOracleDataExport extends BaseOracleDataExport {
     //dao
     private static ImchatDao dao = (ImchatDao) context.getBean("imchatDao");
 
+    //sync time
+    private static int hours = ConfigurationManager.getInteger("oracle.imchat.time.batch");
+
     /**
      * 按时间将Oracle的数据导出到Solr、HBase
      */
@@ -27,7 +31,7 @@ public class ImchatOracleDataExport extends BaseOracleDataExport {
         watch.start();
 
         //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(task, 24);
+        Tuple2<String, String> period = getPeriod(task, hours);
         logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
 
         //获取数据库指定捕获时间段的数据

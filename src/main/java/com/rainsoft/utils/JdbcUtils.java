@@ -1,5 +1,6 @@
 package com.rainsoft.utils;
 
+import com.rainsoft.conf.ConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -94,9 +95,12 @@ public class JdbcUtils {
      * @return Oracle数据 数组列表
      */
     public static List<String[]> getDatabaseByPeriod(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
-        String templeSql = "select * from ${tableName} where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+        String oracleConditionTime = ConfigurationManager.getProperty("oracle.condition.time");
+//        String templeSql = "select * from ${tableName} where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+        String templeSql = "select * from ${tableName} where ${oracleConditionTime} >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and ${oracleConditionTime} < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
 
-        String sql = templeSql.replace("${startTime}", startTime)
+        String sql = templeSql.replace("${oracleConditionTime}", oracleConditionTime)
+                .replace("${startTime}", startTime)
                 .replace("${endTime}", endTime)
                 .replace("${tableName}", tableName);
         logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);

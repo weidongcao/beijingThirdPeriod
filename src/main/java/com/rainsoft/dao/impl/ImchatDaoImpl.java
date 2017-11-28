@@ -18,6 +18,7 @@ import java.util.List;
 public class ImchatDaoImpl extends JdbcDaoSupport implements ImchatDao {
     private static final Logger logger = LoggerFactory.getLogger(ImchatDaoImpl.class);
 
+    private static final String tableName = "REG_CONTENT_IM_CHAT";
     @Override
     public List<RegContentImChat> getImchatBydate(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
@@ -34,15 +35,6 @@ public class ImchatDaoImpl extends JdbcDaoSupport implements ImchatDao {
     public List<String[]> getImChatByHours(String startTime, String endTime) {
                 JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.setFetchSize(100);
-        String templeSql = "select * from REG_CONTENT_IM_CHAT where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
-
-        String sql = templeSql.replace("${startTime}", startTime)
-                .replace("${endTime}", endTime);
-        logger.info("im_chat 数据获取Oracle数据sql: {}", sql);
-
-        /*
-         * 返回结果为数组类型的List
-         */
-        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
+        return JdbcUtils.getDatabaseByPeriod(jdbcTemplate, tableName, startTime, endTime);
     }
 }
