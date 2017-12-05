@@ -116,7 +116,7 @@ public class BcpImportHBaseSolrService implements Serializable {
         JavaRDD<String[]> valueArrrayRDD = originalRDD.mapPartitions(
                 new FlatMapFunction<Iterator<String>, String[]>() {
                     @Override
-                    public Iterable<String[]> call(Iterator<String> iter) throws Exception {
+                    public Iterator<String[]> call(Iterator<String> iter) throws Exception {
                         List<String[]> list = new ArrayList<>();
                         while (iter.hasNext()) {
                             String str = iter.next();
@@ -136,7 +136,7 @@ public class BcpImportHBaseSolrService implements Serializable {
 
                             list.add(fields);
                         }
-                        return list;
+                        return list.iterator();
                     }
                 }
         );
@@ -235,7 +235,7 @@ public class BcpImportHBaseSolrService implements Serializable {
                     String rowKey = strings[0];
                     //将一条数据转为HBase能够识别的形式
                     HBaseUtils.addFields(strings, task, list, rowKey);
-                    return list;
+                    return list.iterator();
                 }
         ).sortByKey();
         //写入HBase

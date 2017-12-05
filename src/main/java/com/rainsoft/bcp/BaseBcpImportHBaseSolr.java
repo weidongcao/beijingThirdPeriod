@@ -140,7 +140,7 @@ class BaseBcpImportHBaseSolr implements Serializable {
                         //添加到值列表
                         list.add(fields);
                     }
-                    return list;
+                    return list.iterator();
                 }
         );
 

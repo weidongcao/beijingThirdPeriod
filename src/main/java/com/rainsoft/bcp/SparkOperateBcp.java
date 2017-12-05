@@ -49,14 +49,14 @@ public class SparkOperateBcp implements Serializable {
         JavaRDD<String[]> valueArrrayRDD = originalRDD.mapPartitions(
                 new FlatMapFunction<Iterator<String>, String[]>() {
                     @Override
-                    public Iterable<String[]> call(Iterator<String> iter) throws Exception {
+                    public Iterator<String[]> call(Iterator<String> iter) throws Exception {
                         List<String[]> list = new ArrayList<>();
                         while (iter.hasNext()) {
                             String str = iter.next();
                             String[] fields = str.split("\t");
                             list.add(fields);
                         }
-                        return list;
+                        return list.iterator();
                     }
                 }
         );
@@ -153,13 +153,13 @@ public class SparkOperateBcp implements Serializable {
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
                 new PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>() {
                     @Override
-                    public Iterable<Tuple2<RowkeyColumnSecondarySort, String>> call(String[] strings) throws Exception {
+                    public Iterator<Tuple2<RowkeyColumnSecondarySort, String>> call(String[] strings) throws Exception {
                         List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
                         //获取HBase的RowKey
                         String rowKey = strings[0];
                         //将一条数据转为HBase能够识别的形式
                         HBaseUtils.addFields(strings, task, list, rowKey);
-                        return list;
+                        return list.iterator();
                     }
                 }
         ).sortByKey();

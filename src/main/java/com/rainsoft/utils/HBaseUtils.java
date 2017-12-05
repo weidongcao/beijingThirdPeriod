@@ -29,6 +29,7 @@ import scala.Tuple2;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -405,7 +406,7 @@ public class HBaseUtils {
                             list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
                         }
                     }
-                    return list;
+                    return list.iterator();
                 }
         ).sortByKey();
         return hfileRDD;
@@ -446,7 +447,7 @@ public class HBaseUtils {
                             list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowKey, key), value));
                         }
                     }
-                    return list;
+                    return list.iterator();
                 }
         ).sortByKey();
         return hfileRDD;
