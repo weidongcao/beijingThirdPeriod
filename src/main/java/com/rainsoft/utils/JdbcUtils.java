@@ -97,7 +97,8 @@ public class JdbcUtils {
     public static List<String[]> getDatabaseByPeriod(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
         String oracleConditionTime = ConfigurationManager.getProperty("oracle.condition.time");
 //        String templeSql = "select * from ${tableName} where import_time >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and import_time < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
-        String templeSql = "select * from ${tableName} where ${oracleConditionTime} >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and ${oracleConditionTime} < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+        //内容表与场所表join，获取内容表字段及场所表场所名
+        String templeSql = "select content.*, service.service_name from ${tableName} content left join service_info service on content.service_code = service.service_code where content.${oracleConditionTime} >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and content.${oracleConditionTime} < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
 
         String sql = templeSql.replace("${oracleConditionTime}", oracleConditionTime)
                 .replace("${startTime}", startTime)
