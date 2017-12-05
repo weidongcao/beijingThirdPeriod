@@ -1,6 +1,8 @@
 package com.rainsoft.j2se;
 
 import com.rainsoft.utils.DateFormatUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,21 +35,28 @@ public class TestSolr {
     public static void main(String[] args)
             throws IOException, SolrServerException {
         //从Solr查询数据
-        querySolr(
-                "*:*"
-        );
-        //向Solr插入或者更新索引的例子
-//        insertOrupdateSolr();
+        querySolr();
+//        insertTestData();
+    }
 
-        //删除Solr的索引
-//        deleteByQuery(
-//                "docType:\"网页\" " +
-//                "USER_NAME:\"郭晓静\" " +
-//                "REF_DOMAIN:\"speed.qq.com\" " +
-//                "DEST_IP:\"3722762918\""
-//        );
-        // 关闭连接
-        client.close();
+    public static void insertTestData() throws IOException, SolrServerException {
+        File file = FileUtils.getFile("D:\\opt\\aaa.txt");
+        List<String> list = FileUtils.readLines(file, "utf-8");
+        List<SolrInputDocument> docs = new ArrayList<>();
+        for (String line : list) {
+            if (StringUtils.isNotBlank(line)) {
+
+                SolrInputDocument doc = new SolrInputDocument();
+                String id = UUID.randomUUID().toString().replace("-", "");
+                doc.addField("ID", id);
+                doc.addField("docType", "聊天");
+                doc.addField("SUMMARY", line);
+                doc.addField("MSG", "");
+                docs.add(doc);
+            }
+        }
+
+        client.add(docs, 1000);
     }
 
     public static void insertOrupdateSolr()
@@ -94,12 +104,17 @@ public class TestSolr {
         }
     }
 
-    public static void querySolr(String q)
+    public static void querySolr()
             throws IOException, SolrServerException {
         SolrQuery params = new SolrQuery();
-        params.set("q", q);
-        params.set("start", 0);
-        params.set("rows", 5);
+//        params.set("q", "我要买绝地武士星空仪");
+//        params.set("start", 0);
+//        params.set("rows", 20);
+        params.setQuery("我要买绝地武士星空仪");
+        params.setStart(0);
+        params.setRows(60);
+//        params.set
+
         QueryResponse rsp = client.query(params);
         SolrDocumentList docs = rsp.getResults();
         System.out.println("文档数量：" + docs.getNumFound());

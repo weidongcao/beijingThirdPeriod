@@ -1,17 +1,13 @@
 package com.rainsoft.hbase;
 
-import com.rainsoft.BigDataConstants;
 import com.rainsoft.utils.HBaseUtils;
-import com.rainsoft.utils.HDFSUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +17,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.Scope.row;
 
 /**
  * 测试通过Spark把Oracle的数据导入到HBase里
@@ -55,14 +49,14 @@ public class SparkExportToHBase {
         JavaRDD<String[]> fieldRDD = originalRDD.mapPartitions(
                 new FlatMapFunction<Iterator<String>, String[]>() {
                     @Override
-                    public Iterable<String[]> call(Iterator<String> iter) throws Exception {
+                    public Iterator<String[]> call(Iterator<String> iter) throws Exception {
                         List<String[]> list = new ArrayList<>();
                         while (iter.hasNext()) {
                             String str = iter.next();
                             String[] fields = str.split("\t");
                             list.add(fields);
                         }
-                        return list;
+                        return list.iterator();
                     }
                 }
         );
@@ -72,7 +66,7 @@ public class SparkExportToHBase {
         JavaPairRDD<RowkeyColumnSecondarySort, String> hbasePairRDD = originalRDD.flatMapToPair(
                 new PairFlatMapFunction<String, RowkeyColumnSecondarySort, String>() {
                     @Override
-                    public Iterable<Tuple2<RowkeyColumnSecondarySort, String>> call(String line) throws Exception {
+                    public Iterator<Tuple2<RowkeyColumnSecondarySort, String>> call(String line) throws Exception {
 
                         List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
                         String[] cols = line.split("\t");
@@ -84,7 +78,7 @@ public class SparkExportToHBase {
                                 list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowkey, fieldNames[i]), value));
                             }
                         }
-                        return list;
+                        return list.iterator();
                     }
                 }
         ).sortByKey();
