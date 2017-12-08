@@ -1,8 +1,7 @@
 package com.rainsoft.spark;
 
-import com.rainsoft.bcp.SparkOperateBcp;
+import com.rainsoft.bcp.yuntan.old2.SparkOperateBcp;
 import com.rainsoft.BigDataConstants;
-import com.rainsoft.utils.NamingRuleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

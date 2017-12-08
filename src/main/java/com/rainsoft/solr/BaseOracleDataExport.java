@@ -19,7 +19,10 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -128,7 +131,11 @@ public class BaseOracleDataExport {
     private static void exportData(List<String[]> list, String task) {
         //根据数据量决定启动多少个线程
         int threadNum = list.size() / 200000 + 1;
-        JavaRDD<String[]> javaRDD = getSparkContext().parallelize(list, threadNum);
+        JavaRDD<Row> javaRDD = getSparkContext().parallelize(list, threadNum)
+                .map(
+                        (Function<String[], Row>) v1 -> RowFactory.create(v1)
+                );
+
         //数据持久化
         javaRDD.cache();
 
@@ -184,18 +191,18 @@ public class BaseOracleDataExport {
      * @param javaRDD JavaRDD<String[]>
      * @param task    任务名
      */
-    private static void export2Solr(JavaRDD<String[]> javaRDD, String task) {
+    private static void export2Solr(JavaRDD<Row> javaRDD, String task) {
         //字段名数组
         String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
         //捕获时间的位置
         int captureTimeIndex = ArrayUtils.indexOf(columns, BigDataConstants.CAPTURE_TIME);
 
         javaRDD.foreachPartition(
-                (VoidFunction<Iterator<String[]>>) iterator -> {
+                (VoidFunction<Iterator<Row>>) iterator -> {
                     List<SolrInputDocument> docList = new ArrayList<>();
                     while (iterator.hasNext()) {
                         //数据列数组
-                        String[] str = iterator.next();
+                        Row row = iterator.next();
                         SolrInputDocument doc = new SolrInputDocument();
                         String id = UUID.randomUUID().toString().replace("-", "");
 
@@ -204,8 +211,8 @@ public class BaseOracleDataExport {
                         //docType
                         doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(task));
 
-                        for (int i = 0; i < str.length; i++) {
-                            String colValue = str[i];
+                        for (int i = 0; i < row.length(); i++) {
+                            String colValue = row.getString(i);
                             //如果字段值为空跳过
                             if (StringUtils.isBlank(colValue))
                                 continue;
@@ -223,7 +230,7 @@ public class BaseOracleDataExport {
 
                         //如果有capture_time(小写)字段添加此字段到solr
                         if (captureTimeIndex > 0) {
-                            String captureTimeValue = str[captureTimeIndex];
+                            String captureTimeValue = row.getString(captureTimeIndex);
                             //capture_time
                             doc.addField(
                                     BigDataConstants.CAPTURE_TIME.toLowerCase(),
@@ -260,7 +267,7 @@ public class BaseOracleDataExport {
      * @param javaRDD JavaRDD<String[]> javaRDD
      * @param task    任务名
      */
-    private static void export2HBase(JavaRDD<String[]> javaRDD, String task) {
+    private static void export2HBase(JavaRDD<Row> javaRDD, String task) {
          //将要作为rowkey的字段，service_info表是service_code，其他表都是id
         String rowkeyColumn;
         if (task.equalsIgnoreCase("service")) {
