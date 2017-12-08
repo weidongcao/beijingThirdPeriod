@@ -17,6 +17,8 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.VoidFunction;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import scala.Tuple2;
 
 import java.text.DateFormat;
@@ -27,7 +29,10 @@ import java.util.*;
  * Created by CaoWeiDong on 2017-09-24.
  */
 public class BbsImportSolr {
-    private static SolrClient client = SolrUtil.getClusterSolrClient();
+    //创建Spring Context
+    protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+    //创建Solr客户端
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
     private static int batchCount = ConfigurationManager.getInteger("commit.solr.count");
     private static String task = "bbs";
     private static String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));

@@ -20,6 +20,8 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import scala.Tuple2;
 
 import java.io.Serializable;
@@ -37,6 +39,10 @@ import java.util.List;
  */
 public class SparkOperateBcp implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(SparkOperateBcp.class);
+    //创建Spring Context
+    protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+    //创建Solr客户端
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
 
     public static void run(TaskBean task) {
         logger.info("开始处理 {} 的BCP数据", task.getContentType());
@@ -133,8 +139,7 @@ public class SparkOperateBcp implements Serializable {
                         }
                         if (list.size() > 0) {
                             //写入Solr
-                            SolrClient client = SolrUtil.getClusterSolrClient();
-                            SolrUtil.submit(list, client);
+                            client.add(list, 1000);
                             list.clear();
                             SolrUtil.closeSolrClient(client);
                             logger.info("写入Solr成功...");

@@ -15,6 +15,8 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -27,8 +29,11 @@ import java.util.UUID;
  */
 public class VidImportSolrBase {
     private static final Logger logger = LoggerFactory.getLogger(VidImportSolrBase.class);
+    //创建Spring Context
+    protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+    //创建Solr客户端
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
 
-    private static SolrClient client = SolrUtil.getClusterSolrClient();
     private static int batchCount = ConfigurationManager.getInteger("commit.solr.count");
     private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_reg_vid_info");
     private static String TABLE_NAME = "H_REG_VID_INFO_TMP";

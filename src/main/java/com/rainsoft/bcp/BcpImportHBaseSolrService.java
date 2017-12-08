@@ -25,6 +25,8 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import scala.Tuple2;
 
 import java.io.*;
@@ -36,7 +38,10 @@ import java.util.*;
  */
 public class BcpImportHBaseSolrService implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(BcpImportHBaseSolrService.class);
-    private static SolrClient client = SolrUtil.getClusterSolrClient();
+    //创建Spring Context
+    protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+    //创建Solr客户端
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
     private static JavaSparkContext sparkContext = null;
 
     public JavaSparkContext getSparkContext() {

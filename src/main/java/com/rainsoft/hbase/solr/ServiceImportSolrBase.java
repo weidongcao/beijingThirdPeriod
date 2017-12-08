@@ -15,6 +15,8 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +27,11 @@ import java.util.UUID;
  */
 public class ServiceImportSolrBase {
     private static final Logger logger = LoggerFactory.getLogger(ServiceImportSolrBase.class);
+    //创建Spring Context
+    protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
+    //创建Solr客户端
+    protected static SolrClient client = (SolrClient) context.getBean("solrClient");
 
-    private static SolrClient client = SolrUtil.getClusterSolrClient();
     private static int batchCount = ConfigurationManager.getInteger("commit.solr.count");
     private static String[] columns = FieldConstants.COLUMN_MAP.get("oracle_service_info");
     private static String TABLE_NAME = "H_SERVICE_INFO_TMP";
