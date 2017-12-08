@@ -5,7 +5,7 @@
 bcp_transform_tsv_cmd_template="java -classpath BeiJingThirdPeriod.jar com.rainsoft.bcp.TransformBcp2Tsv"
 
 # TSV文件导入HBase
-bcp_import_hbase_cmd_template="spark-submit --master local[4] --class com.rainsoft.bcp.Main /opt/modules/BeiJingThirdPeriod/BeiJingThirdPeriod.jar"
+bcp_import_hbase_cmd_template="spark-submit --master local[4] --class com.rainsoft.bcp.yuntan.old2.Main /opt/modules/BeiJingThirdPeriod/BeiJingThirdPeriod.jar"
 # TSV 导入Solr
 bcp_import_solr_cmd_template="java -classpath BeiJingThirdPeriod.jar com.rainsoft.bcp.BcpToSolr"
 # BCP文件目录

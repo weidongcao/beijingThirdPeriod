@@ -40,11 +40,11 @@ public class JdbcUtils {
                     break;
                 case Types.TIMESTAMP:
                     Timestamp ts = rs.getTimestamp(index);
-                    value = (ts == null ? null : DateFormatUtils.DATE_TIME_FORMAT.format(ts));
+                    value = (ts == null ? null : DateFormatUtils.SOLR_FORMAT.format(ts));
                     break;
                 case Types.DATE:
                     Date date = rs.getDate(index);
-                    value = (date == null ? null : DateFormatUtils.DATE_TIME_FORMAT.format(date));
+                    value = (date == null ? null : DateFormatUtils.SOLR_FORMAT.format(date));
                     break;
                 case Types.CHAR:
                     value = rs.getString(index);

@@ -102,6 +102,24 @@
     "bcpname",
     "rownumber"
   ],
+  "bcp_ending_trace": [
+    "ending_mac",
+    "capture_time",
+    "field_strength",
+    "dist",
+    "certificate_type",
+    "certificate_code",
+    "ap_mac",
+    "service_code",
+    "equipment_id",
+    "service_code_in",
+    "imei",
+    "iccid",
+    "manufacturer_code",
+    "zipname",
+    "bcpname",
+    "rownumber"
+  ],
   "reg_content_ftp": [
     "id",
     "sessionid",
@@ -505,12 +523,9 @@
     "service_code_in"
   ],
   "filter_bcp_ftp": [
-
   ],
   "filter_bcp_im_chat": [
-
   ],
   "filter_bcp_http": [
-
   ]
 }
