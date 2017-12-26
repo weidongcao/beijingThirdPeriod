@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="yisou" version="1.6">
+
+
+    <!-- required field -->
+	<!-- Solr唯一ID -->	
+    <field name="ID" type="string" indexed="true" stored="true" required="true"/>
+    <!-- oracle里的id -->
+	<field name="SID" type="string" indexed="false" stored="true" />
+    <field name="_version_" type="tlong" indexed="true" stored="true" docValues="true"/>
+    <field name="_root_" type="string" indexed="true" stored="true" docValues="false"/>
+    <!-- 数据类型 -->
+    <field name="docType" type="string" indexed="true" stored="true"/>
+    <!-- 捕获时间的毫秒数 -->
+    <field name="capture_time" type="tlong" indexed="true" stored="false" docValues="true"/>
+    <!-- 导入时间 -->
+    <field name="import_time" type="tdate" indexed="true" stored="false" docValues="true"/>
+    <!-- 捕获时间 -->
+    <field name="CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
+
+    <!-- data field -->
+    <!-- 操作类型 -->
+    <field name="ACTION_TYPE" type="string" indexed="false" stored="true"/>
+    <!--  -->
+    <field name="AGEN_LAVE_TIME" type="string" indexed="false" stored="true"/>
+    <!-- 地区编码 -->
+    <field name="AREA_CODE" type="string" indexed="false" stored="true"/>
+    <!-- 附件 -->
+    <field name="ATTACHMENT" type="string" indexed="false" stored="true"/>
+    <!-- Bcp文件名 -->
+    <!-- <field name="BCPNAME" type="string" indexed="false" stored="true"/>-->
+    <!-- 出生日期 -->
+    <field name="BIRTHDAY" type="date" indexed="false" stored="true"/>
+    <!--  -->
+    <field name="BUSINESS_NATURE" type="string" indexed="false" stored="true"/>
+    <!--  -->
+    <field name="CAUSE" type="string" indexed="false" stored="true"/>
+    <!-- 抄送地址 -->
+    <field name="CC" type="string" indexed="false" stored="true"/>
+    <!-- 密送地址 -->
+    <field name="BCC" type="string" indexed="false" stored="true"/>
+    <!-- 证件类型 -->
+    <field name="CERTIFICATE_TYPE" type="string" indexed="false" stored="true"/>
+    <!-- 聊天时间 -->
+    <field name="CHAT_TIME" type="string" indexed="false" stored="true"/>
+    <!--  -->
+    <!-- <field name="CLIENT_ID" type="string" indexed="false" stored="true"/> -->
+    <!--  -->
+    <!-- <field name="CMD_ANSWER" type="string" indexed="false" stored="true"/>-->
+    <!--  -->
+    <!-- <field name="CMD_RESULT" type="string" indexed="false" stored="true"/> -->
+    <!--  -->
+    <field name="COMMAND" type="string" indexed="false" stored="true"/>
+    <!-- <field name="COOKIE_PATH" type="string" indexed="false" stored="true"/>-->
+    <field name="COUNTRY" type="string" indexed="false" stored="true"/>
+    <field name="DEST_MAC" type="string" indexed="false" stored="true"/>
+    <field name="DEST_PORT" type="string" indexed="false" stored="true"/>
+    <!--<field name="DOWNLOAD_FILE" type="string" indexed="false" stored="true"/>-->
+    <!--<field name="ELEVATION" type="string" indexed="false" stored="true"/>-->
+    <field name="ENDING_NUMS" type="string" indexed="false" stored="true"/>
+    <field name="END_TIME" type="string" indexed="false" stored="true"/>
+    <!--<field name="FILE_PATH" type="string" indexed="false" stored="true"/>-->
+    <field name="FIRST_LOGINTIME" type="string" indexed="false" stored="true"/>
+    <field name="FIRST_ROOM_ID" type="string" indexed="false" stored="true"/>
+    <field name="FIRST_SERVICE_CODE" type="string" indexed="false" stored="true"/>
+    <field name="GROUP_ID" type="string" indexed="false" stored="true"/>
+    <field name="ID_EXPIRETIME" type="string" indexed="false" stored="true"/>
+    <!--<field name="IMPORT_TIME" type="string" indexed="false" stored="true"/>-->
+    <field name="INSTALL_TIME" type="string" indexed="false" stored="true"/>
+    <field name="IP_ADDRESS" type="string" indexed="false" stored="true"/>
+    <field name="ISP" type="string" indexed="false" stored="true"/>
+    <field name="IS_ALLOW_INSERT" type="string" indexed="false" stored="true"/>
+    <field name="IS_COMPLETED" type="string" indexed="false" stored="true"/>
+    <field name="IS_OUTLINE_ALERT" type="string" indexed="false" stored="true"/>
+    <field name="IS_READ" type="string" indexed="false" stored="true"/>
+    <field name="LAST_LOGINTIME" type="string" indexed="false" stored="true"/>
+    <field name="LAST_ROOM_ID" type="string" indexed="false" stored="true"/>
+    <field name="LAST_SERVICE_CODE" type="string" indexed="false" stored="true"/>
+    <field name="LATITUDE" type="string" indexed="false" stored="true"/>
+    <field name="LONGITUDE_LATITUDE" type="string" indexed="false" stored="true"/>
+    <field name="MACHINE_ID" type="string" indexed="false" stored="true"/>
+    <field name="MAILID" type="string" indexed="false" stored="true"/>
+    <field name="MAIL_FROM" type="string" indexed="false" stored="true"/>
+    <field name="MAIL_TO" type="string" indexed="false" stored="true"/>
+    <field name="MANUFACTURER_CODE" type="string" indexed="false" stored="true"/>
+    <field name="NET_TYPE" type="string" indexed="false" stored="true"/>
+    <field name="NICK_NAME" type="string" indexed="false" stored="true"/>
+    <field name="ONLINE_STATUS" type="string" indexed="false" stored="true"/>
+    <field name="ORG_NAME" type="string" indexed="false" stored="true"/>
+    <!--<field name="PASSWD" type="string" indexed="false" stored="true"/>-->
+    <field name="PEOPLE" type="string" indexed="false" stored="true"/>
+    <field name="POLIC_STATION" type="string" indexed="false" stored="true"/>
+    <field name="POSTAL_CODE" type="string" indexed="false" stored="true"/>
+    <field name="POSTING_ID" type="string" indexed="false" stored="true"/>
+    <field name="PRACTITIONER_COUNT" type="string" indexed="false" stored="true"/>
+    <field name="PROBE_VERSION" type="string" indexed="false" stored="true"/>
+    <field name="QQ_NUMS" type="string" indexed="false" stored="true"/>
+    <field name="REALID_NUMS" type="string" indexed="false" stored="true"/>
+    <field name="REAL_ENDING_NUMS" type="string" indexed="false" stored="true"/>
+    <field name="REFILE" type="string" indexed="false" stored="true"/>
+    <field name="REMARK" type="string" indexed="false" stored="true"/>
+    <field name="ROWNUMBER" type="string" indexed="false" stored="true"/>
+    <field name="SEND_TIME" type="string" indexed="false" stored="true"/>
+    <field name="SERVER_NUMS" type="string" indexed="false" stored="true"/>
+    <field name="SERVICE_IMG" type="string" indexed="false" stored="true"/>
+    <field name="SERVICE_TYPE" type="string" indexed="false" stored="true"/>
+    <field name="SEX" type="string" indexed="false" stored="true"/>
+    <field name="SPACE_SIZE" type="string" indexed="false" stored="true"/>
+    <field name="SRC_PORT" type="string" indexed="false" stored="true"/>
+    <field name="START_TIME" type="string" indexed="false" stored="true"/>
+    <field name="STATUS" type="string" indexed="false" stored="true"/>
+    <field name="TEMPLET_VERSION" type="string" indexed="false" stored="true"/>
+    <field name="UPDATE_TIME" type="string" indexed="false" stored="true"/>
+    <field name="UPLOAD_FILE" type="string" indexed="false" stored="true"/>
+    <field name="USER_ADDRESS" type="string" indexed="false" stored="true"/>
+    <field name="USER_PHONE" type="string" indexed="false" stored="true"/>
+    <field name="USE_NUMS" type="string" indexed="false" stored="true"/>
+    <field name="ZIPCODE" type="string" indexed="false" stored="true"/>
+    <!--<field name="ZIPNAME" type="string" indexed="false" stored="true"/>-->
+    <!--<field name="SESSIONID" type="string" indexed="false" stored="true"/> -->
+    <field name="CHECKIN_ID" type="string" indexed="false" stored="true"/>
+    <!--<field name="TERMINAL_LONGITUDE" type="string" indexed="false" stored="true"/> -->
+    <!--<field name="TERMINAL_LATITUDE" type="string" indexed="false" stored="true"/> -->
+    <!--<field name="ZIP_PATH" type="string" indexed="false" stored="true"/> -->
+    <!--<field name="FILE_URL" type="string" indexed="false" stored="true"/> -->
+    <field name="FILE_SIZE" type="string" indexed="false" stored="true"/>
+
+    <!--content field-->
+    <!-- 正文摘要 -->
+    <field name="SUMMARY" type="text_ik" indexed="true" stored="true"/>
+    <!-- 文件名 -->
+    <field name="FILE_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- 游戏名 -->
+    <field name="GAMENAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- 聊天内容 -->
+    <field name="MSG" type="text_ik" indexed="true" stored="true"/>
+    <!-- 关键字 -->
+    <field name="KEYWORD" type="text_ik" indexed="true" stored="true"/>
+    <!-- 域名 -->
+    <field name="DOMAIN_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- 用户名 -->
+    <field name="USER_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- 账号 -->
+    <field name="ACCOUNT" type="text_ik" indexed="true" stored="true"/>
+    <!-- 协议类型 -->
+    <field name="PROTOCOL_TYPE" type="text_ik" indexed="true" stored="true"/>
+
+
+
+    <!-- highlighting fields -->
+    <!--  -->
+    <field name="LAW_PRINCIPAL_CERTIFICATE_ID" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="LAW_PRINCIPAL_CERTIFICATE_TYPE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="SERVICE_NAME_PIN_YIN" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="NET_MONITOR_MAN_TEL" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="NET_MONITOR_MAN" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="NET_MONITOR_DEPARTMENT" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="INFOR_MAN_EMAIL" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="INFOR_MAN_TEL" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="INFOR_MAN" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="PRINCIPAL_TEL" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="PRINCIPAL" type="text_ik" indexed="true" stored="true"/>
+    <!-- 地址 -->
+    <field name="ADDRESS" type="text_ik" indexed="true" stored="true"/>
+    <!-- 场所名称 -->
+    <field name="SERVICE_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- (聊天)发送者账号 -->
+    <field name="SENDER_ACCOUNT" type="text_ik" indexed="true" stored="true"/>
+    <!-- 好友昵称或群名片 -->
+    <field name="FRIEND_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- (聊天)发送者名字 -->
+    <field name="SENDER_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- (聊天)好友账号或群号 -->
+    <field name="FRIEND_ACCOUNT" type="text_ik" indexed="true" stored="true"/>
+    <!-- (聊天)好友账号或群号，不分词 -->
+    <field name="FRIEND_ACCOUNT_TEXT" type="string" indexed="true" stored="true"/>
+    <!-- (聊天)账号昵称 -->
+    <field name="ACCOUNT_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!-- 帖子标题 -->
+    <field name="TITLE" type="text_ik" indexed="true" stored="true"/>
+    <!-- 作者 -->
+    <field name="AUTHOR" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="REF_DOMAIN" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="BUYER_ADDRESS" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="DATA_SOURCE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="KEYWORD_CODE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="IDCODE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="SOURCE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="BUYER_EMAIL" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="BUYER_PHONE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="BUYER_MOBILE" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="BUYER_NAME" type="text_ik" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="ACOUNT_NAME" type="text_ik" indexed="true" stored="true"/>
+
+    <!--not text_ik field-->
+    <field name="SUBJECT" type="string" indexed="true" stored="true"/>
+    <field name="CHAT_TYPE" type="string" indexed="true" stored="true"/>
+    <field name="ROOM_ID" type="string" indexed="true" stored="true"/>
+    <field name="SRC_IP" type="string" indexed="true" stored="true"/>
+    <field name="DEST_IP" type="string" indexed="true" stored="true"/>
+    <field name="REF_URL" type="string" indexed="true" stored="true"/>
+    <field name="SERVICE_CODE_IN" type="string" indexed="true" stored="true"/>
+    <field name="URL" type="string" indexed="true" stored="true"/>
+    <field name="SERVICE_CODE" type="string" indexed="true" stored="true"/>
+    <field name="CERTIFICATE_CODE" type="string" indexed="true" stored="true"/>
+    <field name="SRC_MAC" type="string" indexed="true" stored="true"/>
+    <field name="SERVICE_IP" type="string" indexed="true" stored="true"/>
+    <field name="IS_VIRTUAL" type="string" indexed="true" stored="true"/>
+    <field name="IF_CHECK" type="string" indexed="true" stored="true"/>
+
+	<!-- 云游云采需要增加的字段 -->
+	<!-- 不索引的字段 -->
+    <field name="ANTENNACOUNT" type="string" indexed="false" stored="true"/>
+    <field name="AP_CHANNEL" type="string" indexed="false" stored="true"/>
+    <field name="AP_MAC" type="string" indexed="false" stored="true"/>
+    <field name="AP_SSID" type="string" indexed="false" stored="true"/>
+    <field name="CACHE_SSID" type="string" indexed="false" stored="true"/>
+    <field name="COLLECTION_RADIUS" type="string" indexed="false" stored="true"/>
+	<!-- 距离 -->
+    <field name="DIST" type="string" indexed="false" stored="true"/>
+    <field name="ENDING_BRAND" type="string" indexed="false" stored="true"/>
+	<!-- 设备ID -->
+    <field name="EQUIPMENT_ID" type="string" indexed="false" stored="true"/>
+    <field name="EQUIPMENT_ID1" type="string" indexed="false" stored="true"/>
+	<!-- 设备IP -->
+    <field name="EQUIPMENT_IP" type="string" indexed="false" stored="true"/>
+	<!-- 设备纬度 -->
+    <field name="EQUIPMENT_LAT" type="string" indexed="false" stored="true"/>
+	<!-- 设备经度 -->
+    <field name="EQUIPMENT_LON" type="string" indexed="false" stored="true"/>
+	<!-- 字段长度 -->
+    <field name="FIELD_STRENGTH" type="string" indexed="false" stored="true"/>
+	<!-- 第一次出现的时间 -->
+    <field name="FIRST_TIME" type="date" indexed="false" stored="true"/>
+    <field name="HASGPS" type="string" indexed="false" stored="true"/>
+    <field name="ICCID" type="string" indexed="false" stored="true"/>
+	<!-- 最后一次出现的时间 -->
+    <field name="LAST_TIME" type="date" indexed="false" stored="true"/>
+    <field name="OS_VERSION" type="string" indexed="false" stored="true"/>
+    <field name="SOFTWARE_ORGCODE" type="string" indexed="false" stored="true"/>
+	<!-- 软件版本 -->
+    <field name="SOFTWARE_VERSION" type="string" indexed="false" stored="true"/>
+    <field name="SUBWAY_COMPARTMENT" type="string" indexed="false" stored="true"/>
+	<!-- 地铁线 -->
+    <field name="SUBWAY_LINE" type="string" indexed="false" stored="true"/>
+    <field name="SUBWAY_VEHICLE" type="string" indexed="false" stored="true"/>
+	<!-- 系统 -->
+    <field name="SYSTEM" type="string" indexed="false" stored="true"/>
+	<!-- 上传间隔 -->
+    <field name="UPLOAD_INTERVAL" type="string" indexed="false" stored="true"/>
+	<!-- x坐标 -->
+    <field name="X_COORDINATE" type="string" indexed="false" stored="true"/>
+	<!-- y坐标 -->
+    <field name="Y_COORDINATE" type="string" indexed="false" stored="true"/>
+
+	<!-- 索引 -->
+	<!-- 设备地址 -->
+    <field name="EQUIPMENT_ADDRESS" type="text_ik" indexed="true" stored="true"/>
+	<!-- 设备名称 -->
+    <field name="EQUIPMENT_NAME" type="text_ik" indexed="true" stored="true"/>
+	<!-- 电话号码 -->
+    <field name="PHONE_NUMBER" type="text_ik" indexed="true" stored="true"/>
+	<!-- 车牌号 -->
+    <field name="VEHICLE_CODE" type="text_ik" indexed="true" stored="true"/>
+	<!-- 虚拟账号 -->
+    <field name="VID_ACCOUNT" type="text_ik" indexed="true" stored="true"/>
+
+	<!-- 终端类型 -->
+    <field name="ENCRYPT_TYPE" type="string" indexed="true" stored="true"/>
+	<!-- 终端mac地址 -->
+    <field name="ENDING_MAC" type="string" indexed="true" stored="true"/>
+	<!-- 设备mac地址 -->
+    <field name="EQUIPMENT_MAC" type="string" indexed="true" stored="true"/>
+	<!-- 设备类型 -->
+    <field name="EQUIPMENT_TYPE" type="string" indexed="true" stored="true"/>
+	<!-- IMSI号 -->
+    <field name="IMEI" type="string" indexed="true" stored="true"/>
+
+    
+
+    <dynamicField name="*_s" type="string" indexed="true" stored="true"/>
+
+    <!-- normal types -->
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+    <fieldType name="date" class="solr.TrieDateField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="long" class="solr.TrieLongField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+    <fieldType name="int" class="solr.TrieIntField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="float" class="solr.TrieFloatField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+
+    <fieldType name="strings" class="solr.StrField" sortMissingLast="true" multiValued="true" docValues="true" />
+    <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+    <fieldType name="ints" class="solr.TrieIntField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="floats" class="solr.TrieFloatField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="longs" class="solr.TrieLongField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="doubles" class="solr.TrieDoubleField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+
+    <!--  trie types -->
+    <fieldType name="tlong" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+    <fieldType name="tdate" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"/>
+    <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
+
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+        <analyzer type="index">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+            <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="text_ik" class="solr.TextField">
+        <analyzer type="index">
+            <tokenizer class="org.apache.lucene.analysis.ik.IKTokenizerFactory" useSmart="false"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="org.apache.lucene.analysis.ik.IKTokenizerFactory" useSmart="true"/>
+        </analyzer>
+    </fieldType>
+
+    <uniqueKey>ID</uniqueKey>
+
+    <!-- <defaultSearchField>text_cn</defaultSearchField> -->
+
+    <solrQueryParser defaultOperator="AND"/>
+
+</schema>
