@@ -168,7 +168,11 @@ public class SolrUtil {
             }
         }
         return identifier;
+    }
 
+    public static String createRowkey() {
+        String prefixRowkey = createRowKeyPrefix(new Date());
+        return prefixRowkey + createRowkeyIdentifier(null);
     }
 
 }
