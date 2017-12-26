@@ -154,14 +154,16 @@ public class BaseOracleDataExport {
             exportData(list, task);
         } else {
             logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", NamingRuleUtils.getOracleContentTableName(task), period._1, period._2);
-            //如果最近两个小时没有数据的话休息5分钟
-            Date lastDate = DateUtils.stringToDate(period._2, "yyyy-MM-dd HH:mm:ss");
+
+            //如果最近两个小时没有数据的话休息一下
+            Date lastDate = DateUtils.stringToDate(getHeadmostExportRecord(recordMap), "yyyy-MM-dd HH:mm:ss");
             if (DateUtils.addHours(lastDate, 2).after(new Date())) {
                 ThreadUtils.programSleep(syncTime);
             }
         }
         //导入记录写入Map
         recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
+
         //导入记录写入文件
         overwriteRecordFile();
 
@@ -261,7 +263,7 @@ public class BaseOracleDataExport {
      * @param task    任务名
      */
     private static void export2HBase(JavaRDD<String[]> javaRDD, String task) {
-         //将要作为rowkey的字段，service_info表是service_code，其他表都是id
+        //将要作为rowkey的字段，service_info表是service_code，其他表都是id
         String rowkeyColumn;
         if (task.equalsIgnoreCase("service")) {
             rowkeyColumn = "service_code";
@@ -423,5 +425,24 @@ public class BaseOracleDataExport {
 
             System.exit(-1);
         }
+    }
+
+    public static String getHeadmostExportRecord(Map<String, String> map) {
+        String headmost = null;
+        Date temp = null;
+        for (String str : recordMap.values()) {
+            Date date = DateUtils.stringToDate(str, "yyyy-MM-dd HH:mm:ss");
+            if (null == headmost) {
+                headmost = str;
+                temp = date;
+            }
+
+            if (date.before(temp)) {
+                headmost = str;
+                temp = date;
+            }
+        }
+
+        return headmost;
     }
 }
