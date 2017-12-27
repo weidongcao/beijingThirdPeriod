@@ -1,6 +1,7 @@
 package com.rainsoft.j2se;
 
 import com.rainsoft.utils.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -16,17 +17,21 @@ public class TestDate {
 
         cal.set(Calendar.SECOND, 0);
         System.out.println(DateFormatUtils.DATE_TIME_FORMAT.format(cal.getTime()));
+        getMS();
     }
 
     public static void getMS() throws ParseException {
         String aa = "2017-10-10 00:00:00";
-        String AA = "2017-10-11 00:00:00";
+        String AA = "2017-10-10 00:00:00";
         String bb = "2017-07-29";
         String BB = "2017-07-28";
         Date aaDate = DateFormatUtils.DATE_TIME_FORMAT.parse(aa);
         Date AADate = DateFormatUtils.DATE_TIME_FORMAT.parse(AA);
         Date bbDate = DateFormatUtils.ISO_DATE_FORMAT.parse(bb);
         Date BBDate = DateFormatUtils.ISO_DATE_FORMAT.parse(BB);
+
+        System.out.println("aaDate = " + AADate.compareTo(aaDate));
+
 
         Date sss = new Date(23906857445000l);
         System.out.println(DateFormatUtils.DATE_TIME_FORMAT.format(sss));
