@@ -26,3 +26,4 @@ target/
 hs_err_pid*
 createIndexRecord/index-record.txt
 logs/
+src/main/java/com/rainsoft/jdbc/TestDB.java
