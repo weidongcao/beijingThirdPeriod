@@ -32,17 +32,16 @@
         <solr.version>6.1.0</solr.version>
         <!-- Spark版本 -->
         <spark.version>2.0.2</spark.version>
-        <!-- <spark.version>1.6.2</spark.version>-->
         <!-- Hadoop版本 -->
-        <hadoop.version>2.6.0-cdh5.6.1</hadoop.version>
+        <hadoop.version>2.6.0-cdh5.10.2</hadoop.version>
         <!-- hive 版本 -->
-        <hive.version>1.1.0-cdh5.6.1</hive.version>
+        <hive.version>1.1.0-cdh5.10.2</hive.version>
         <!-- hbase 版本 -->
-        <hbase.version>1.0.0-cdh5.6.1</hbase.version>
+        <hbase.version>1.2.0-cdh5.10.2</hbase.version>
         <!-- spring 版本 -->
-        <spring.version>4.1.6.RELEASE</spring.version>
+        <spring.version>4.3.10.RELEASE</spring.version>
         <!-- Zookeeper 版本 -->
-        <zookeeper.version>3.4.5-cdh5.6.1</zookeeper.version>
+        <zookeeper.version>3.4.5-cdh5.10.2</zookeeper.version>
     </properties>
 
     <!--
@@ -375,7 +374,7 @@
                     <execution>
                         <id>make-assembly</id>
                         <!-- 将组装绑定到maven生命周期的哪一阶段 -->
-                        <!--<phase>package</phase>-->
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>

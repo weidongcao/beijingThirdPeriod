@@ -36,7 +36,9 @@ import java.util.*;
  * Created by CaoWeiDong on 2017-09-29.
  */
 public class BcpImportHBaseSolrService implements Serializable {
+
     private static final Logger logger = LoggerFactory.getLogger(BcpImportHBaseSolrService.class);
+    private static final long serialVersionUID = 2913512324150921375L;
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
     //创建Solr客户端
@@ -118,40 +120,32 @@ public class BcpImportHBaseSolrService implements Serializable {
 
         //对BCP文件数据进行基本的处理，并生成ID(HBase的RowKey，Solr的Sid)
         JavaRDD<String[]> valueArrrayRDD = originalRDD.mapPartitions(
-                new FlatMapFunction<Iterator<String>, String[]>() {
-                    @Override
-                    public Iterator<String[]> call(Iterator<String> iter) throws Exception {
-                        List<String[]> list = new ArrayList<>();
-                        while (iter.hasNext()) {
-                            String str = iter.next();
-                            String[] fields = str.split(BigDataConstants.BCP_FIELD_SEPARATOR);
-                            //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
-                            long captureTimeMinSecond;
-                            try {
-                                int CaptureTimeIndex = ArrayUtils.indexOf(task.getColumns(), BigDataConstants.CAPTURE_TIME);
-                                captureTimeMinSecond = DateFormatUtils.DATE_TIME_FORMAT.parse(fields[CaptureTimeIndex]).getTime();
-                            } catch (Exception e) {
-                                continue;
-                            }
-                            //捕获时间的毫秒+UUID作为数据的ID(HBase的rowKey,Solr的SID, Oracle的ID)
-                            String uuid = UUID.randomUUID().toString().replace("-", "");
-                            String rowKey = captureTimeMinSecond + "_" + uuid;
-                            fields = ArrayUtils.add(fields, 0, rowKey);
-
-                            list.add(fields);
+                (FlatMapFunction<Iterator<String>, String[]>) iter -> {
+                    List<String[]> list = new ArrayList<>();
+                    while (iter.hasNext()) {
+                        String str = iter.next();
+                        String[] fields = str.split(BigDataConstants.BCP_FIELD_SEPARATOR);
+                        //捕获时间的毫秒，HBase按毫秒将同一时间捕获的数据聚焦到一起
+                        long captureTimeMinSecond;
+                        try {
+                            int CaptureTimeIndex = ArrayUtils.indexOf(task.getColumns(), BigDataConstants.CAPTURE_TIME);
+                            captureTimeMinSecond = DateFormatUtils.DATE_TIME_FORMAT.parse(fields[CaptureTimeIndex]).getTime();
+                        } catch (Exception e) {
+                            continue;
                         }
-                        return list.iterator();
+                        //捕获时间的毫秒+UUID作为数据的ID(HBase的rowKey,Solr的SID, Oracle的ID)
+                        String uuid = UUID.randomUUID().toString().replace("-", "");
+                        String rowKey = captureTimeMinSecond + "_" + uuid;
+                        fields = ArrayUtils.add(fields, 0, rowKey);
+
+                        list.add(fields);
                     }
+                    return list.iterator();
                 }
         );
 
         JavaRDD<String[]> filterKeyColumnRDD = valueArrrayRDD.filter(
-                new Function<String[], Boolean>() {
-                    @Override
-                    public Boolean call(String[] strings) throws Exception {
-                        return validColumns(strings, task);
-                    }
-                }
+                (Function<String[], Boolean>) strings -> validColumns(strings, task)
         );
         filterKeyColumnRDD.persist(StorageLevel.MEMORY_ONLY());
         if (logger.isDebugEnabled()) {

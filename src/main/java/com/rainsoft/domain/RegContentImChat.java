@@ -5,8 +5,10 @@ import java.io.Serializable;
 /**
  * Created by Administrator on 2017-06-12.
  */
-public class RegContentImChat {
+public class RegContentImChat implements Serializable{
 
+
+    private static final long serialVersionUID = -3805660056448339567L;
     //ID
     public String id = "";
     //会话ID

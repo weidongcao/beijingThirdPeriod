@@ -5,8 +5,10 @@ import java.io.Serializable;
 /**
  * Created by Administrator on 2017-06-12.
  */
-public class RegContentHttp{
+public class RegContentHttp implements Serializable{
 
+
+    private static final long serialVersionUID = -5949001294450481485L;
     //ID
     public String id = "";
     //会话ID

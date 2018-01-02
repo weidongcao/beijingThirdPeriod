@@ -27,7 +27,9 @@ import java.util.*;
  * Created by CaoWeiDong on 2017-09-29.
  */
 public class BaseBcpImportHBaseSolr implements Serializable {
+
     public static final Logger logger = LoggerFactory.getLogger(BaseBcpImportHBaseSolr.class);
+    private static final long serialVersionUID = -7320556147408518899L;
 
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");

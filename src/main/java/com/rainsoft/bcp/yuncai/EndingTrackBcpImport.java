@@ -2,7 +2,6 @@ package com.rainsoft.bcp.yuncai;
 
 import com.rainsoft.FieldConstants;
 import com.rainsoft.bcp.BaseBcpImportHBaseSolr;
-import com.rainsoft.utils.LinuxUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import com.rainsoft.utils.SparkUtils;
 import com.rainsoft.utils.io.FileUtils;

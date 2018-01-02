@@ -18,10 +18,12 @@ import java.io.Serializable;
  * Created by CaoWeiDong on 2017-07-29.
  */
 public class BcpFileImport implements Serializable {
+
     private static final Logger logger = LoggerFactory.getLogger(BcpFileImport.class);
 
     //    private static final String tsvDataPathTemplate = "file:///" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
     private static final String hbaseTablePrefix = "H_";
+    private static final long serialVersionUID = 5676116812659626351L;
 
     public static void main(String[] args) {
         TaskBean ftp = getFtpTask();
@@ -76,7 +78,6 @@ public class BcpFileImport implements Serializable {
      */
     private static TaskBean getImchatTask() {
         String task = BigDataConstants.CONTENT_TYPE_IM_CHAT;
-        String oracleTableName = NamingRuleUtils.getOracleContentTableName(task);
         TaskBean imChat = new TaskBean();
 
         //BCP文件路径
@@ -105,7 +106,6 @@ public class BcpFileImport implements Serializable {
      */
     private static TaskBean getHttpTask() {
         String task = BigDataConstants.CONTENT_TYPE_HTTP;
-        String oracleTableName = NamingRuleUtils.getOracleContentTableName(task);
         TaskBean http = new TaskBean();
 
         //BCP文件路径

@@ -16,7 +16,7 @@ public class TestGuava {
         Optional<Integer> a = Optional.fromNullable(v1);
         Optional<Integer> b = Optional.of(v2);
         System.out.println("a.absent() = " + Optional.absent());
-        System.out.println("b.absent() = " + b.absent());
+        System.out.println("b.absent() = " + Optional.absent());
         System.out.println("a.equals(b) = " + b.equals(Optional.of(Integer.valueOf(10))));
         System.out.println("b.hashCode() = " + b.hashCode());
         System.out.println(tester.sun(a, b));

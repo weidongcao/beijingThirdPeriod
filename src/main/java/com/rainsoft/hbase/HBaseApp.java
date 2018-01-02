@@ -9,7 +9,6 @@ import org.apache.hadoop.io.IOUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class HBaseApp {
     public static void main(String[] args) throws Exception {
@@ -18,30 +17,11 @@ public class HBaseApp {
         app.scanData("emp");
 
     }
-    public void deleteData() throws Exception {
-        String tableName = "user";
-
-        // Get table instance
-        Table table = HBaseUtils.getTable(tableName);
-
-        Delete delete = new Delete(Bytes.toBytes("10005"));
-
-        delete.deleteColumn(//
-                Bytes.toBytes("info"), //
-                Bytes.toBytes("sex") //
-        );
-
-        table.delete(delete);
-
-        // close
-        table.close();
-    }
 
     public void putData() {
         String tableName = "H_REG_CONTENT_FTP";
         List<Put> puts = new ArrayList<>();
 
-        Put put1 = new Put(Bytes.toBytes(UUID.randomUUID().toString().replace("-", "")));
         try {
             Table table = HBaseUtils.getTable(tableName);
             table.put(puts);

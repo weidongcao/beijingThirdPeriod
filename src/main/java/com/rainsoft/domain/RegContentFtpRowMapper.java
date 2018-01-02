@@ -2,15 +2,20 @@ package com.rainsoft.domain;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  * Created by Administrator on 2017-06-12.
  */
-public class RegContentFtpRowMapper implements RowMapper {
+public class RegContentFtpRowMapper implements RowMapper<RegContentFtp>, Serializable {
+
+
+    private static final long serialVersionUID = 1561235458163021279L;
+
     @Override
-    public Object mapRow(ResultSet rs, int i) throws SQLException {
+    public RegContentFtp mapRow(ResultSet rs, int i) throws SQLException {
         RegContentFtp ftp = new RegContentFtp();
         ftp.setId(rs.getString(0));
         ftp.setSessionid(rs.getString(1));

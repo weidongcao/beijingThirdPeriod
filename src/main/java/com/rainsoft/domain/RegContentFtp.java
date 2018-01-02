@@ -1,13 +1,14 @@
 package com.rainsoft.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Created by Administrator on 2017-06-12.
  */
-public class RegContentFtp{
+public class RegContentFtp implements Serializable{
 
+
+    private static final long serialVersionUID = -2578872952135136062L;
     //ID
     public String id = "";
     //会话ID

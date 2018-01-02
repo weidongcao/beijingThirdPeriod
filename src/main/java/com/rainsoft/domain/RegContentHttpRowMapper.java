@@ -8,9 +8,9 @@ import java.sql.SQLException;
 /**
  * Created by Administrator on 2017-06-15.
  */
-public class RegContentHttpRowMapper implements RowMapper {
+public class RegContentHttpRowMapper implements RowMapper<RegContentHttp> {
     @Override
-    public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public RegContentHttp mapRow(ResultSet rs, int rowNum) throws SQLException {
         RegContentHttp http = new RegContentHttp();
         http.setId(rs.getString(1));
         http.setSessionid(rs.getString(2));

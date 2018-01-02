@@ -7,7 +7,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 

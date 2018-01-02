@@ -18,8 +18,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final String tsvDataPathTemplate = "file://" + ConfigurationManager.getProperty("load.data.workspace") + "/work/bcp-${task}";
-//    private static final String tsvDataPathTemplate = "file:///" + ConfigurationManager.getProperty("bcp_file_path") + File.separator;
-    private static final String hbaseTablePrefix = "H_";
+
     public static void main(String[] args) {
         String type = args[0];
 

@@ -10,6 +10,8 @@ import java.util.Date;
  */
 public class TaskBean implements Serializable {
 
+
+    private static final long serialVersionUID = 6737434433568418101L;
     //BCP文件路径
     private String bcpPath;
     //HBase表名

@@ -1,6 +1,5 @@
 package com.rainsoft.dao;
 
-import com.rainsoft.domain.RegContentHttp;
 import com.rainsoft.domain.RegContentImChat;
 
 import java.util.List;

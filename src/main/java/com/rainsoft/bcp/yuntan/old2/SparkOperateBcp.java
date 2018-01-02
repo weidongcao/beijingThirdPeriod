@@ -38,7 +38,10 @@ import java.util.List;
  * Created by CaoWeiDong on 2017-07-29.
  */
 public class SparkOperateBcp implements Serializable {
+
+
     private static final Logger logger = LoggerFactory.getLogger(SparkOperateBcp.class);
+    private static final long serialVersionUID = 6320018818012744723L;
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
     //创建Solr客户端
@@ -53,17 +56,14 @@ public class SparkOperateBcp implements Serializable {
 
         //对BCP文件数据进行基本的处理，并生成ID(HBase的RowKey，Solr的Sid)
         JavaRDD<String[]> valueArrrayRDD = originalRDD.mapPartitions(
-                new FlatMapFunction<Iterator<String>, String[]>() {
-                    @Override
-                    public Iterator<String[]> call(Iterator<String> iter) throws Exception {
-                        List<String[]> list = new ArrayList<>();
-                        while (iter.hasNext()) {
-                            String str = iter.next();
-                            String[] fields = str.split("\t");
-                            list.add(fields);
-                        }
-                        return list.iterator();
+                (FlatMapFunction<Iterator<String>, String[]>) iter -> {
+                    List<String[]> list = new ArrayList<>();
+                    while (iter.hasNext()) {
+                        String str = iter.next();
+                        String[] fields = str.split("\t");
+                        list.add(fields);
                     }
+                    return list.iterator();
                 }
         );
         /*
@@ -104,48 +104,45 @@ public class SparkOperateBcp implements Serializable {
          * 数据写入Solr
          */
         javaRDD.foreachPartition(
-                new VoidFunction<Iterator<String[]>>() {
-                    @Override
-                    public void call(Iterator<String[]> iterator) throws Exception {
-                        List<SolrInputDocument> list = new ArrayList<>();
-                        while (iterator.hasNext()) {
-                            //数据列数组
-                            String[] str = iterator.next();
-                            SolrInputDocument doc = new SolrInputDocument();
-                            String rowkey = str[0];
-                            //ID
-                            doc.addField("ID", rowkey.split("_")[1]);
-                            //SID
-                            doc.addField(BigDataConstants.SOLR_CONTENT_ID.toUpperCase(), rowkey);
-                            //docType
-                            doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(task.getContentType()));
-                            //capture_time
-                            doc.addField("capture_time", rowkey.split("_")[0]);
-                            //import_time
-                            doc.addField("import_time".toUpperCase(), DateFormatUtils.DATE_TIME_FORMAT.format(new Date()));
-                            String[] values = ArrayUtils.subarray(str, 1, str.length);
-                            for (int i = 0; i < values.length; i++) {
-                                String value = values[i];
-                                String key = task.getColumns()[i].toUpperCase();
-                                //如果字段的值为空则不写入Solr
-                                if ((null != value) && (!"".equals(value))) {
-                                    if (!"FILE_URL".equalsIgnoreCase(key) && !"FILE_SIZE".equalsIgnoreCase(key)) {
-                                        doc.addField(key, value);
-                                    }
+                (VoidFunction<Iterator<String[]>>) iterator -> {
+                    List<SolrInputDocument> list = new ArrayList<>();
+                    while (iterator.hasNext()) {
+                        //数据列数组
+                        String[] str = iterator.next();
+                        SolrInputDocument doc = new SolrInputDocument();
+                        String rowkey = str[0];
+                        //ID
+                        doc.addField("ID", rowkey.split("_")[1]);
+                        //SID
+                        doc.addField(BigDataConstants.SOLR_CONTENT_ID.toUpperCase(), rowkey);
+                        //docType
+                        doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(task.getContentType()));
+                        //capture_time
+                        doc.addField("capture_time", rowkey.split("_")[0]);
+                        //import_time
+                        doc.addField("import_time".toUpperCase(), DateFormatUtils.DATE_TIME_FORMAT.format(new Date()));
+                        String[] values = ArrayUtils.subarray(str, 1, str.length);
+                        for (int i = 0; i < values.length; i++) {
+                            String value = values[i];
+                            String key = task.getColumns()[i].toUpperCase();
+                            //如果字段的值为空则不写入Solr
+                            if ((null != value) && (!"".equals(value))) {
+                                if (!"FILE_URL".equalsIgnoreCase(key) && !"FILE_SIZE".equalsIgnoreCase(key)) {
+                                    doc.addField(key, value);
                                 }
                             }
-                            list.add(doc);
+                        }
+                        list.add(doc);
 
-                        }
-                        if (list.size() > 0) {
-                            //写入Solr
-                            client.add(list, 1000);
-                            list.clear();
-                            SolrUtil.closeSolrClient(client);
-                            logger.info("写入Solr成功...");
-                        } else {
-                            logger.info("{} 此Spark Partition 数据为空", task.getContentType());
-                        }
+                    }
+                    if (list.size() > 0) {
+                        //写入Solr
+                        client.add(list, 1000);
+                        list.clear();
+                        SolrUtil.closeSolrClient(client);
+                        logger.info("写入Solr成功...");
+                    } else {
+                        logger.info("{} 此Spark Partition 数据为空", task.getContentType());
                     }
                 }
         );
@@ -156,16 +153,13 @@ public class SparkOperateBcp implements Serializable {
         logger.info("{}的BCP数据开始写入HBase...", task.getContentType());
 
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(
-                new PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>() {
-                    @Override
-                    public Iterator<Tuple2<RowkeyColumnSecondarySort, String>> call(String[] strings) throws Exception {
-                        List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
-                        //获取HBase的RowKey
-                        String rowKey = strings[0];
-                        //将一条数据转为HBase能够识别的形式
-                        HBaseUtils.addFields(strings, task, list, rowKey);
-                        return list.iterator();
-                    }
+                (PairFlatMapFunction<String[], RowkeyColumnSecondarySort, String>) strings -> {
+                    List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
+                    //获取HBase的RowKey
+                    String rowKey = strings[0];
+                    //将一条数据转为HBase能够识别的形式
+                    HBaseUtils.addFields(strings, task, list, rowKey);
+                    return list.iterator();
                 }
         ).sortByKey();
         //写入HBase
