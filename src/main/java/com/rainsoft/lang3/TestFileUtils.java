@@ -11,7 +11,7 @@ public class TestFileUtils {
     //系统分隔符
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static void main(String[] args) {
-        String record = "reg_content_bbs-last_export_time\t2017-10-17 00:00:00";
+//        String record = "reg_content_bbs-last_export_time\t2017-10-17 00:00:00";
         File recordFile;
         //导入记录
         String importRecordFile = "createIndexRecord/index-record.txt";
@@ -20,5 +20,6 @@ public class TestFileUtils {
         //创建导入记录文件
         recordFile = FileUtils.getFile(convertImportRecordFile);
         File parentFile = recordFile.getParentFile();
+        System.out.println(parentFile.toString());
     }
 }

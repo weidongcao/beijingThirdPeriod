@@ -1,9 +1,7 @@
 package com.rainsoft.spark;
 
-import com.rainsoft.bcp.yuntan.old2.SparkOperateBcp;
 import com.rainsoft.BigDataConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.rainsoft.bcp.yuntan.old2.SparkOperateBcp;
 
 /**
  * Spark处理BCP文件
@@ -13,7 +11,9 @@ import org.slf4j.LoggerFactory;
  * Created by CaoWeiDong on 2017-07-29.
  */
 public class ImchatSparkOperateBcp extends SparkOperateBcp {
-    private static final Logger logger = LoggerFactory.getLogger(ImchatSparkOperateBcp.class);
+
+
+    private static final long serialVersionUID = -3286917479275863075L;
 
     //数据类型
     protected String contentType = BigDataConstants.CONTENT_TYPE_HTTP;

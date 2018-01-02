@@ -133,7 +133,7 @@ public class BaseOracleDataExport {
         int threadNum = list.size() / 200000 + 1;
         JavaRDD<Row> javaRDD = getSparkContext().parallelize(list, threadNum)
                 .map(
-                        (Function<String[], Row>) v1 -> RowFactory.create(v1)
+                        (Function<String[], Row>) RowFactory::create
                 );
 
         //数据持久化

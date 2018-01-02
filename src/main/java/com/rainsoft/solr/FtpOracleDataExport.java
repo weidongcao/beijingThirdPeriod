@@ -20,7 +20,7 @@ public class FtpOracleDataExport extends BaseOracleDataExport {
     private static FtpDao dao = (FtpDao) context.getBean("ftpDao");
 
     //sync time
-    private static int hours = ConfigurationManager.getInteger("oracle.ftp.time.batch");
+    private static int hours = ConfigurationManager.getInteger("oracle.ftp.export.length");
     /**
      * 按时间将Oracle的数据导出到Solr、HBase
      */

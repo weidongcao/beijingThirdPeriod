@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
  * Created by CaoWeiDong on 2017-07-29.
  */
 public class FtpSparkOperateBcp extends SparkOperateBcp {
+
     private static final Logger logger = LoggerFactory.getLogger(FtpSparkOperateBcp.class);
+    private static final long serialVersionUID = -1629869710970656155L;
 
     //数据类型
     protected String contentType = BigDataConstants.CONTENT_TYPE_FTP;

@@ -97,6 +97,7 @@ public class SimpleSorl {
 
             UpdateResponse rspcommit = client.commit();
             System.out.println("commit doc to index" + " result:" + rsp.getStatus() + " Qtime:" + rsp.getQTime());
+            System.out.println(rspcommit.toString());
 
         } catch (SolrServerException | IOException e) {
             // TODO Auto-generated catch block

@@ -1,7 +1,6 @@
 package com.rainsoft.utils;
 
 import com.rainsoft.BigDataConstants;
-import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
@@ -82,7 +81,7 @@ public class SparkUtils {
         return prop;
     }
 
-    public static void writeIntoOracle(Dataset df, String tableName) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static void writeIntoOracle(Dataset<Row> df, String tableName) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         String username = ConfigurationManager.getProperty("oracle.username");
         String passWord = ConfigurationManager.getProperty("oracle.password");
         String driver = ConfigurationManager.getProperty("oracle.driver");

@@ -15,6 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by CaoWeiDong on 2017-07-31.
  */
 public class SolrCollectionPool  implements Serializable {
+
+    private static final long serialVersionUID = -2558482447589221772L;
     private static Logger log = LoggerFactory.getLogger(SolrCollectionPool.class);
     public static SolrCollectionPool instance = new SolrCollectionPool();
     private static Map<String, BlockingQueue<CloudSolrClient>> poolMap = new ConcurrentHashMap<>();

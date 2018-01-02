@@ -3,7 +3,6 @@ package com.rainsoft.hbase.solr;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
-import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -18,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

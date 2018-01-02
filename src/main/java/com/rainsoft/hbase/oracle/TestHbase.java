@@ -1,14 +1,10 @@
 package com.rainsoft.hbase.oracle;
 
-import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.VoidFunction;
-import scala.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +35,7 @@ public class TestHbase {
         JavaRDD<String> originalRDD = sc.parallelize(list);
 
         originalRDD.foreach(
-                new VoidFunction<String>() {
-                    @Override
-                    public void call(String s) throws Exception {
-                        System.out.println(s);
-                    }
-                }
+                (VoidFunction<String>) s -> System.out.println(s)
         );
         /*JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = originalRDD.flatMapToPair(
                 new PairFlatMapFunction<String, RowkeyColumnSecondarySort, String>() {
@@ -55,5 +46,6 @@ public class TestHbase {
                     }
                 }
         )*/
+        sc.close();
     }
 }

@@ -21,7 +21,7 @@ public class HttpOracleDataExport extends BaseOracleDataExport {
     private static HttpDao dao = (HttpDao) context.getBean("httpDao");
 
     //sync time
-    private static int hours = ConfigurationManager.getInteger("oracle.http.time.batch");
+    private static int hours = ConfigurationManager.getInteger("oracle.http.export.length");
 
     /**
      * 按时间将Oracle的数据导出到Solr、HBase

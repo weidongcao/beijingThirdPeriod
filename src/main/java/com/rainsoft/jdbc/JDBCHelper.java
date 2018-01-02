@@ -2,8 +2,6 @@ package com.rainsoft.jdbc;
 
 
 import com.rainsoft.conf.ConfigurationManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.LinkedList;
@@ -17,7 +15,6 @@ import java.util.List;
  * @author caoweidong
  */
 public class JDBCHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JDBCHelper.class);
     private static final String driver = ConfigurationManager.getProperty("oracle.driver");
     private static final String url = ConfigurationManager.getProperty("oracle.url");
     private static final String username = ConfigurationManager.getProperty("oracle.username");

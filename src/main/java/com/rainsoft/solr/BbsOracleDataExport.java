@@ -1,6 +1,7 @@
 package com.rainsoft.solr;
 
 import com.rainsoft.BigDataConstants;
+import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.dao.BbsDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,9 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
 
     private static BbsDao dao = (BbsDao) context.getBean("bbsDao");
 
+    //sync time
+    private static int hours = ConfigurationManager.getInteger("oracle.batch.export.length");
+
     /**
      * 按时间将Oracle的数据导出到Solr、HBase
      */
@@ -28,7 +32,7 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
         watch.start();
 
         //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(task, 240);
+        Tuple2<String, String> period = getPeriod(task, hours);
         logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
 
         //获取数据库指定捕获时间段的数据

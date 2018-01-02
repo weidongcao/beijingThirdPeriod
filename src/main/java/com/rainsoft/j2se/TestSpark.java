@@ -12,7 +12,6 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,21 +34,18 @@ public class TestSpark {
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
         JavaRDD<String[]> dataRDD = jsc.parallelize(list);
         JavaRDD<Row> rowRDD = dataRDD.map(
-                new Function<String[], Row>() {
-                    @Override
-                    public Row call(String[] v1) throws Exception {
-                        return RowFactory.create(ArrayUtils.add(v1, 0, "rowkey"));
-                    }
+                (Function<String[], Row>) (String[] v1) -> {
+                    String[] temp = ArrayUtils.add(v1, 0, "rowkey");
+                    return RowFactory.create(temp);
                 }
         );
+//        JavaRDD<Row> rowRDD = dataRDD.map(
+//                (Function<String[], Row>) v1 -> RowFactory.create(ArrayUtils.add(v1, 0, "rowkey"))
+//        );
 
         rowRDD.foreach(
-                new VoidFunction<Row>() {
-                    @Override
-                    public void call(Row row) throws Exception {
-                        System.out.println(row.toString());
-                    }
-                }
+                (VoidFunction<Row>) row -> System.out.println(row.toString())
         );
+        jsc.close();
     }
 }

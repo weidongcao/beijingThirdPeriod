@@ -26,3 +26,5 @@ target/
 hs_err_pid*
 createIndexRecord/index-record.txt
 logs/
+createIndexRecord/index-record.txt~
+*.un~

@@ -1,10 +1,8 @@
 package com.rainsoft.j2se;
 
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.hive.SparkExportSolr;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.SQLContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +22,8 @@ public class SparkSQLTest {
         Map<String, String> options = new HashMap<>();
         options.put("url", ConfigurationManager.getProperty("oracle.url"));
         options.put("dbtable", "service_info");
-        SQLContext sqlContext = new SQLContext(sc);
 
 
+        sc.close();
     }
 }

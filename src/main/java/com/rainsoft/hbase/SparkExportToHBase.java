@@ -47,39 +47,33 @@ public class SparkExportToHBase {
         String[] fieldNames = IOUtils.toString(in, "utf-8").split("\r\n");
         JavaRDD<String> originalRDD = sc.textFile(hdfsDataPath);
         JavaRDD<String[]> fieldRDD = originalRDD.mapPartitions(
-                new FlatMapFunction<Iterator<String>, String[]>() {
-                    @Override
-                    public Iterator<String[]> call(Iterator<String> iter) throws Exception {
-                        List<String[]> list = new ArrayList<>();
-                        while (iter.hasNext()) {
-                            String str = iter.next();
-                            String[] fields = str.split("\t");
-                            list.add(fields);
-                        }
-                        return list.iterator();
+                (FlatMapFunction<Iterator<String>, String[]>) iter -> {
+                    List<String[]> list = new ArrayList<>();
+                    while (iter.hasNext()) {
+                        String str = iter.next();
+                        String[] fields = str.split("\t");
+                        list.add(fields);
                     }
+                    return list.iterator();
                 }
         );
         /*
          * 数据转换为HBase的HFile格式
          */
         JavaPairRDD<RowkeyColumnSecondarySort, String> hbasePairRDD = originalRDD.flatMapToPair(
-                new PairFlatMapFunction<String, RowkeyColumnSecondarySort, String>() {
-                    @Override
-                    public Iterator<Tuple2<RowkeyColumnSecondarySort, String>> call(String line) throws Exception {
+                (PairFlatMapFunction<String, RowkeyColumnSecondarySort, String>) line -> {
 
-                        List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
-                        String[] cols = line.split("\t");
-                        String rowkey = cols[0];
+                    List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
+                    String[] cols = line.split("\t");
+                    String rowkey = cols[0];
 
-                        for (int i = 1; i < cols.length; i++) {
-                            String value = cols[i];
-                            if ((null != value) && (!"".equals(cols[i]))) {
-                                list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowkey, fieldNames[i]), value));
-                            }
+                    for (int i = 1; i < cols.length; i++) {
+                        String value = cols[i];
+                        if ((null != value) && (!"".equals(cols[i]))) {
+                            list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowkey, fieldNames[i]), value));
                         }
-                        return list.iterator();
                     }
+                    return list.iterator();
                 }
         ).sortByKey();
 

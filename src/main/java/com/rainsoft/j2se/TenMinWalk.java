@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static net.sf.ezmorph.test.ArrayAssertions.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by CaoWeiDong on 2017-12-25.
@@ -35,10 +37,10 @@ public class TenMinWalk {
     }
 
     public static void main(String[] args) {
-        assertEquals("Should return true", true, TenMinWalk.isValid(new char[] {'n','s','n','s','n','s','n','s','n','s'}));
-        assertEquals("Should return false", false, TenMinWalk.isValid(new char[] {'w','e','w','e','w','e','w','e','w','e','w','e'}));
-        assertEquals("Should return false", false, TenMinWalk.isValid(new char[] {'w'}));
-        assertEquals("Should return false", false, TenMinWalk.isValid(new char[] {'n','n','n','s','n','s','n','s','n','s'}));
+        assertTrue("Should return true", TenMinWalk.isValid(new char[]{'n', 's', 'n', 's', 'n', 's', 'n', 's', 'n', 's'}));
+        assertFalse("Should return false", TenMinWalk.isValid(new char[]{'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e'}));
+        assertFalse("Should return false", TenMinWalk.isValid(new char[]{'w'}));
+        assertFalse("Should return false", TenMinWalk.isValid(new char[]{'n', 'n', 'n', 's', 'n', 's', 'n', 's', 'n', 's'}));
     }
 
 

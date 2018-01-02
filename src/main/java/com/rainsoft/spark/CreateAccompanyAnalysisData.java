@@ -1,11 +1,12 @@
 package com.rainsoft.spark;
 
-import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Created by CaoWeiDong on 2017-12-14.
@@ -38,7 +39,6 @@ public class CreateAccompanyAnalysisData {
     public static void createTrackRandomData(String communityPath, String namePath, String outputPath, int communityNum, int peopleNum) throws IOException {
         List<String> communities = FileUtils.readLines(FileUtils.getFile(communityPath), "utf-8");
         List<String> names = FileUtils.readLines(FileUtils.getFile(namePath), "utf-8");
-        List<String> coms = communities.subList(0, 100);
 
         int index;
         String name;

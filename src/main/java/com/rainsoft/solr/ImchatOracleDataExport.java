@@ -21,7 +21,7 @@ public class ImchatOracleDataExport extends BaseOracleDataExport {
     private static ImchatDao dao = (ImchatDao) context.getBean("imchatDao");
 
     //sync time
-    private static int hours = ConfigurationManager.getInteger("oracle.imchat.time.batch");
+    private static int hours = ConfigurationManager.getInteger("oracle.imchat.export.length");
 
     /**
      * 按时间将Oracle的数据导出到Solr、HBase

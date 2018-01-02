@@ -10,7 +10,6 @@ import org.apache.spark.sql.SparkSession;
 import scala.Tuple2;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -37,20 +36,17 @@ public class HBaseLoadData {
 
         //将数据添加RowKey及进行二次排序
         JavaPairRDD<RowkeyColumnSecondarySort, String> hbasePairRDD = dataRDD.flatMapToPair(
-                new PairFlatMapFunction<Row, RowkeyColumnSecondarySort, String>() {
-                    @Override
-                    public Iterator<Tuple2<RowkeyColumnSecondarySort, String>> call(Row row) throws Exception {
-                        List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
+                (PairFlatMapFunction<Row, RowkeyColumnSecondarySort, String>) row -> {
+                    List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
 
-                        String rowkey = SolrUtil.createRowkey();
-                        for (int i = 0; i < row.length(); i++) {
-                            String column = columns[i];
-                            String value = row.getString(i);
-                            list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowkey, column), value));
-                        }
-
-                        return list.iterator();
+                    String rowkey = SolrUtil.createRowkey();
+                    for (int i = 0; i < row.length(); i++) {
+                        String column = columns[i];
+                        String value = row.getString(i);
+                        list.add(new Tuple2<>(new RowkeyColumnSecondarySort(rowkey, column), value));
                     }
+
+                    return list.iterator();
                 }
         ).sortByKey();
 

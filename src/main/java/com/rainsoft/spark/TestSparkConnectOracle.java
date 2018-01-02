@@ -28,7 +28,7 @@ public class TestSparkConnectOracle {
                 .option("password", oraclePassword)
                 .load();
 
-        oracleDS.registerTempTable("service_info");
+        oracleDS.createOrReplaceTempView("service_info");
 
         spark.sql("select * from service_info").show();
 

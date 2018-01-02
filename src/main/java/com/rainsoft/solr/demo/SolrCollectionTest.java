@@ -1,7 +1,6 @@
 package com.rainsoft.solr.demo;
 
 import com.rainsoft.conf.ConfigurationManager;
-import com.rainsoft.utils.DateFormatUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -13,8 +12,6 @@ import org.apache.solr.common.cloud.ZkConfigManager;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * 测试通过Solr的Java API操作Collection
