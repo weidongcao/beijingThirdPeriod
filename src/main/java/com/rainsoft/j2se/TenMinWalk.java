@@ -3,7 +3,6 @@ package com.rainsoft.j2se;
 import java.util.HashMap;
 import java.util.Map;
 
-import static net.sf.ezmorph.test.ArrayAssertions.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

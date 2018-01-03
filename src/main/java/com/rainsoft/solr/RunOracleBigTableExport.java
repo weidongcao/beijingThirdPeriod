@@ -1,9 +1,7 @@
 package com.rainsoft.solr;
 
-import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.NamingRuleUtils;
-import com.rainsoft.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,6 @@ import java.util.Date;
  */
 public class RunOracleBigTableExport {
     private static final Logger logger = LoggerFactory.getLogger(RunOracleBigTableExport.class);
-    private static int syncTime = ConfigurationManager.getInteger("sync.time");
 
     public static void main(String[] args) {
         //结束时间参数
@@ -53,15 +50,12 @@ public class RunOracleBigTableExport {
             }
             //迁移Ftp表的历史数据
             FtpOracleDataExport.exportOracleByTime();
-            ThreadUtils.programSleep(60 * syncTime);
 
             //迁移聊天表的历史数据
             ImchatOracleDataExport.exportOracleByTime();
-            ThreadUtils.programSleep(60 * syncTime);
 
             //迁移网页表的历史数据
             HttpOracleDataExport.exportOracleByTime();
-            ThreadUtils.programSleep(60 * syncTime);
 
         }
         logger.info("程序执行结束,马上退出");

@@ -75,7 +75,8 @@ public class BaseOracleDataExport {
     //SparkContext
     private static JavaSparkContext sc = null;
 
-    private static int syncTime = ConfigurationManager.getInteger("sync.time");
+    //导入记录中最慢的导入记录
+    protected static Date earliestRecordTime = null;
 
     private static JavaSparkContext getSparkContext() {
         if (sc == null || sc.env().isStopped()) {
@@ -85,9 +86,7 @@ public class BaseOracleDataExport {
                     .setMaster("local");
             sc = new JavaSparkContext(conf);
         }
-
         return sc;
-
     }
 
     static {
@@ -161,12 +160,18 @@ public class BaseOracleDataExport {
             exportData(list, task);
         } else {
             logger.info("Oracle数据库 {} 表在{} 至 {} 时间段内没有数据", NamingRuleUtils.getOracleContentTableName(task), period._1, period._2);
+
+            //更新导入最慢的导入时间
+            compareEarliestRecordTime(period._2);
+
             //如果最近两个小时没有数据的话休息5分钟
-            Date lastDate = DateUtils.stringToDate(period._2, "yyyy-MM-dd HH:mm:ss");
-            if (DateUtils.addHours(lastDate, 2).after(new Date())) {
-                ThreadUtils.programSleep(syncTime);
+            if (DateUtils.addHours(earliestRecordTime, 2).after(new Date())) {
+                ThreadUtils.programSleep(300);
             }
         }
+        //更新导入最慢的导入时间
+        compareEarliestRecordTime(period._2);
+
         //导入记录写入Map
         recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
         //导入记录写入文件
@@ -268,7 +273,7 @@ public class BaseOracleDataExport {
      * @param task    任务名
      */
     private static void export2HBase(JavaRDD<Row> javaRDD, String task) {
-         //将要作为rowkey的字段，service_info表是service_code，其他表都是id
+        //将要作为rowkey的字段，service_info表是service_code，其他表都是id
         String rowkeyColumn;
         if (task.equalsIgnoreCase("service")) {
             rowkeyColumn = "service_code";
@@ -429,6 +434,39 @@ public class BaseOracleDataExport {
             e.printStackTrace();
 
             System.exit(-1);
+        }
+    }
+
+    /**
+     * 更新导入记录中导入最慢的导入时间
+     */
+    private static void compareEarliestRecordTime(String dateText) {
+        Date date = DateUtils.stringToDate(dateText, "yyyy-MM-dd HH:mm:ss");
+        //如果earliestRecordTime和导入记录都是空的
+        if ((null == earliestRecordTime) && (recordMap.isEmpty())) {
+            earliestRecordTime = date;
+            return;
+        } else if ((null == earliestRecordTime) && (!recordMap.isEmpty())) {
+            //记录记录不为空，从导入记录是查找最早的导入时间
+            for (String str : recordMap.values()) {
+                Date record = DateUtils.stringToDate(str, "yyyy-MM-dd HH:mm:ss");
+                compareEarliestRecordWithTime(record);
+            }
+        }
+        compareEarliestRecordWithTime(date);
+    }
+
+    /**
+     * 将最早的导入时间与指定的时间进行比较，哪个时间更早，就用哪个
+     * @param date
+     */
+    private static void compareEarliestRecordWithTime(Date date) {
+        if (null == earliestRecordTime) {
+            earliestRecordTime = date;
+        } else {
+            if (date.before(earliestRecordTime)) {
+                earliestRecordTime = date;
+            }
         }
     }
 }
