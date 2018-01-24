@@ -1,5 +1,6 @@
 package com.rainsoft.utils.io;
 
+import javax.print.DocFlavor;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -28,7 +29,7 @@ public class BufferedReader extends Reader {
 	/** The skipLF flag when the mark was set */
 	private boolean markedSkipLF = false;
 
-	private static int defaultCharBufferSize = 8192;
+	private static int defaultCharBufferSize = 10 * 1024 * 1024;
 	private static int defaultExpectedLineLength = 80;
 
 	/**
@@ -303,6 +304,9 @@ public class BufferedReader extends Reader {
 //				omitLF = false;
 
 				for (i = nextChar; i < nChars; i++) {
+					if (i < 2) {
+						continue;
+					}
 					c = cb[i];
 					/* |$|表示一行内容结束 */
 					if (c == '|' && i+2 < nChars && cb[i+1] == '$' && cb[i+2] == '|') { // old: if ((c == '\n') || (c == '\r'))
