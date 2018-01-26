@@ -1,5 +1,6 @@
 package com.rainsoft.solr.demo;
 
+import com.rainsoft.utils.SolrUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -35,6 +36,7 @@ public class SolrHttpConnection {
 
             docs.add(doc1);
         }
+        SolrUtil.setCloudSolrClientDefaultCollection(client);
         client.add(docs);
         client.commit();
     }

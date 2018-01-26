@@ -4,6 +4,7 @@ import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Result;
@@ -83,11 +84,13 @@ public class BbsImportSolr {
                         }
                         docList.add(doc);
                         if (!docList.isEmpty() && (docList.size() >= batchCount)) {
+                            SolrUtil.setCloudSolrClientDefaultCollection(client);
                             client.add(docList, 10000);
                             docList.clear();
                         }
                     }
                     if (!docList.isEmpty()) {
+                        SolrUtil.setCloudSolrClientDefaultCollection(client);
                         client.add(docList, 10000);
                     }
                 }

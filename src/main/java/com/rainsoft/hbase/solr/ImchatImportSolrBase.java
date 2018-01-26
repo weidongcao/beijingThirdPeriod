@@ -62,14 +62,16 @@ public class ImchatImportSolrBase {
             SolrUtil.createSolrinputDocumentFromHBase(doc, result, columns, CF);
             docList.add(doc);
             if (!docList.isEmpty() && (docList.size() >= batchCount)) {
+                SolrUtil.setCloudSolrClientDefaultCollection(client);
                 client.add(docList, 10000);
                 logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
                 docList.clear();
             }
         }
         if (!docList.isEmpty()) {
-            logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
+            SolrUtil.setCloudSolrClientDefaultCollection(client);
             client.add(docList, 10000);
+            logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
         }
         IOUtils.closeStream(resultScanner);
         IOUtils.closeStream(table);

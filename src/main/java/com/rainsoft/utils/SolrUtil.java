@@ -1,11 +1,16 @@
 package com.rainsoft.utils;
 
+import com.rainsoft.BigDataConstants;
+import com.rainsoft.FieldConstants;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.sql.Row;
@@ -14,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -22,26 +28,6 @@ import java.util.List;
  */
 public class SolrUtil {
     private static final Logger logger = LoggerFactory.getLogger(SolrUtil.class);
-
-    public static boolean delSolrByCondition(String condition, SolrClient client) {
-
-        UpdateRequest commit = new UpdateRequest();
-
-        boolean commitStatus = false;
-        try {
-            commit.deleteByQuery(condition);
-            commit.setCommitWithin(10000);
-            commit.process(client);
-            commitStatus = true;
-//            client.close();
-        } catch (SolrServerException e) {
-            logger.error("Solr 删除数据失败： {}", e);
-        } catch (IOException e) {
-            logger.error("Solr 删除数据失败： {}", e);
-            e.printStackTrace();
-        }
-        return commitStatus;
-    }
 
     public static void closeSolrClient(SolrClient client) {
         try {
@@ -84,19 +70,74 @@ public class SolrUtil {
             String[] columns,
             Row row,
             SolrInputDocument doc
-    ) throws ParseException {
+    ) {
         for (int i = 0; i < row.length(); i++) {
             if (i >= columns.length) {
                 break;
             }
             String value = row.getString(i + 1);
             String key = columns[i].toUpperCase();
+
+            //判断字段是否需要写入到Solr,配置在column.json文件中定义
+            String[] exclusionFields = FieldConstants.COLUMN_MAP.get("solr_exclusion_fields");
+            if (ArrayUtils.contains(exclusionFields, key.toLowerCase())) {
+                continue;
+            }
             //如果字段的值为空则不写入Solr
             if (StringUtils.isNotBlank(value)) {
-                if (key.contains("TIME")) {
-                    value = value.replace(" ", "T") + "Z";
+                if (key.equalsIgnoreCase("ending_mac")) {
+                    value = value.replace("-", "");
+                }
+                if (key.equalsIgnoreCase("first_time")
+                        || key.equalsIgnoreCase("last_time")
+                        || key.equalsIgnoreCase("capture_time")) {
+                    try {
+                        if (null == value || "".equals(value)) {
+                            continue;
+                        }
+                        value = DateFormatUtils.SOLR_FORMAT.format(DateFormatUtils.DATE_TIME_FORMAT.parse(value));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
                 doc.addField(key, value);
+            }
+        }
+    }
+
+    /**
+     * 根据字段名和字段值把数据写入到SolrInputDocument
+     * @param doc SolrInputDocument
+     * @param fieldName 字段名
+     * @param fieldValue 字段值
+     */
+    public static void addSolrFieldValue(SolrInputDocument doc, String fieldName, String fieldValue) {
+        //如果字段值为空跳过
+        if (StringUtils.isBlank(fieldValue))
+            return;
+
+        //字段不需要导入到Solr中
+        if (ArrayUtils.contains(FieldConstants.COLUMN_MAP.get("solr_exclusion_fields"), fieldName.toLowerCase())) {
+            return;
+        }
+        //字段在Solr里是日期类型
+        if (ArrayUtils.contains(FieldConstants.COLUMN_MAP.get("solr_date_field_type"), fieldName.toLowerCase())) {
+            try {
+                Date temp = DateUtils.parseDate(fieldValue, "yyyy-MM-dd HH:mm:ss");
+                //如果是capture_time则另外再转转时间戳存储一份
+                if (BigDataConstants.CAPTURE_TIME.equalsIgnoreCase(fieldName)) {
+                    doc.addField(fieldName.toLowerCase(), temp.getTime());
+                }
+                doc.addField(fieldName.toUpperCase(), temp);
+            } catch (ParseException e) {
+                //日期转换失败，什么都不做直接跳过
+            }
+        } else {    //字段在Solr里是text类型
+            //sid
+            if ("id".equalsIgnoreCase(fieldName)) {
+                doc.addField("SID", fieldValue);
+            } else {
+                doc.addField(fieldName.toUpperCase(), fieldValue);
             }
         }
     }
@@ -175,4 +216,28 @@ public class SolrUtil {
         return prefixRowkey + createRowkeyIdentifier(null);
     }
 
+    /**
+     * 获取Solr Collection的名称
+     * 例如：yisou20180100
+     * @param identify 项目标识,一般为yisou
+     * @param days 一个Collection保存多少天的数据（一般为10天）
+     * @return Collection 名称
+     */
+    public static String createSolrCollectionName(String identify, int days) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int dayIdentify = (calendar.get(Calendar.DAY_OF_MONTH) - 1) / days;
+        return identify + year + month + dayIdentify;
+    }
+
+    /**
+     * 如果是CloudSolrClient的话设置默认的Collection
+     * @param client SolrClient
+     */
+    public static void setCloudSolrClientDefaultCollection(SolrClient client) {
+        if (client instanceof CloudSolrClient) {
+            ((CloudSolrClient) client).setDefaultCollection(createSolrCollectionName("yisou", 10));
+        }
+    }
 }

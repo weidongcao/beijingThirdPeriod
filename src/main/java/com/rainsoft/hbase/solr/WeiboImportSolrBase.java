@@ -4,6 +4,7 @@ import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -68,6 +69,7 @@ public class WeiboImportSolrBase {
             }
             docList.add(doc);
             if (!docList.isEmpty() && (docList.size() >= batchCount)) {
+                SolrUtil.setCloudSolrClientDefaultCollection(client);
                 client.add(docList, 10000);
                 logger.info("{} 写入Solr {} 数据成功...", task, docList.size());
                 docList.clear();

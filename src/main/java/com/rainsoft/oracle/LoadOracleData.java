@@ -92,7 +92,7 @@ public class LoadOracleData {
         String filePathTemplate = constantPath + File.separator     //${basePath}
                 + "${dir}" + File.separator         //${workType}
                 + tableName + File.separator        //${workType}
-                + tableName + "_data_" + DateFormatUtils.STEMP_FORMAT.format(new Date()) + "${random}.tsv"; //${tableDataFileName}
+                + tableName + "_data_" + DateFormatUtils.NO_SEPARATOR_FORMAT.format(new Date()) + "${random}.tsv"; //${tableDataFileName}
 
         String createFilePath = filePathTemplate.replace("${dir}", "data");
         String random = RandomStringUtils.randomAlphabetic(8);

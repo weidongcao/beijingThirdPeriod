@@ -7,6 +7,7 @@ import com.rainsoft.domain.TaskBean;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.DateFormatUtils;
 import com.rainsoft.utils.HBaseUtils;
+import com.rainsoft.utils.SolrUtil;
 import com.rainsoft.utils.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -212,6 +213,7 @@ public class BcpImportHBaseSolrService implements Serializable {
                     }
                     if (list.size() > 0) {
                         //写入Solr
+                        SolrUtil.setCloudSolrClientDefaultCollection(client);
                         client.add(list, 1000);
                         logger.info("---->写入Solr成功数据量:{}", list.size());
                     } else {

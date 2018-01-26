@@ -137,6 +137,7 @@ public class SparkOperateBcp implements Serializable {
                     }
                     if (list.size() > 0) {
                         //写入Solr
+                        SolrUtil.setCloudSolrClientDefaultCollection(client);
                         client.add(list, 1000);
                         list.clear();
                         SolrUtil.closeSolrClient(client);

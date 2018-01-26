@@ -3,6 +3,7 @@ package com.rainsoft.hbase.solr;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.utils.HBaseUtils;
+import com.rainsoft.utils.SolrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -67,8 +68,9 @@ public class RealidImportSolrBase {
             }
         }
         if (!docList.isEmpty()) {
-            logger.info("{} 写入Solr {} 数据成功...", taskType, docList.size());
+            SolrUtil.setCloudSolrClientDefaultCollection(client);
             client.add(docList, 10000);
+            logger.info("{} 写入Solr {} 数据成功...", taskType, docList.size());
         }
         IOUtils.closeStream(resultScanner);
         IOUtils.closeStream(table);
