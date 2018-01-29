@@ -135,16 +135,7 @@ public class SparkOperateBcp implements Serializable {
                         list.add(doc);
 
                     }
-                    if (list.size() > 0) {
-                        //写入Solr
-                        SolrUtil.setCloudSolrClientDefaultCollection(client);
-                        client.add(list, 1000);
-                        list.clear();
-                        SolrUtil.closeSolrClient(client);
-                        logger.info("写入Solr成功...");
-                    } else {
-                        logger.info("{} 此Spark Partition 数据为空", task.getContentType());
-                    }
+                    SolrUtil.submitToSolr(client, list, 0, new Date());
                 }
         );
         logger.info("####### {}的BCP数据索引Solr完成 #######", task.getContentType());

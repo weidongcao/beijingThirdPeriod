@@ -424,7 +424,7 @@ public class HBaseUtils {
                 (PairFlatMapFunction<Row, RowkeyColumnSecondarySort, String>) row -> {
                     List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
                     //获取HBase的RowKey
-                    String rowKey = row.getString(rowKeyIndex);
+                    String rowKey = SolrUtil.createRowkey();
                     //将一条数据转为HBase能够识别的形式
                     for (int i = 0; i < row.length(); i++) {
                         //如果数据值的个数超过数据名的个数,超出的舍弃

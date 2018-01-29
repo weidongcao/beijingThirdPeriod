@@ -36,7 +36,7 @@ public class SolrHttpConnection {
 
             docs.add(doc1);
         }
-        SolrUtil.setCloudSolrClientDefaultCollection(client);
+        SolrUtil.setCloudSolrClientDefaultCollection(client, new Date());
         client.add(docs);
         client.commit();
     }

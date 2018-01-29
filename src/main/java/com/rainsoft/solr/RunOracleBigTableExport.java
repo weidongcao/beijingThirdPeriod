@@ -18,6 +18,10 @@ public class RunOracleBigTableExport {
     private static final Logger logger = LoggerFactory.getLogger(RunOracleBigTableExport.class);
 
     public static void main(String[] args) {
+        doJob(args);
+    }
+
+    public static void doJob(String[] args) {
         //结束时间参数
         String endTime_String = null;
         if (args.length == 1) {
@@ -59,6 +63,5 @@ public class RunOracleBigTableExport {
 
         }
         logger.info("程序执行结束,马上退出");
-
     }
 }

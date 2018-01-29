@@ -107,8 +107,9 @@ public class SolrUtil {
 
     /**
      * 根据字段名和字段值把数据写入到SolrInputDocument
-     * @param doc SolrInputDocument
-     * @param fieldName 字段名
+     *
+     * @param doc        SolrInputDocument
+     * @param fieldName  字段名
      * @param fieldValue 字段值
      */
     public static void addSolrFieldValue(SolrInputDocument doc, String fieldName, String fieldValue) {
@@ -219,25 +220,64 @@ public class SolrUtil {
     /**
      * 获取Solr Collection的名称
      * 例如：yisou20180100
+     *
      * @param identify 项目标识,一般为yisou
-     * @param days 一个Collection保存多少天的数据（一般为10天）
+     * @param  date     要写入的日期
+     * @param days     一个Collection保存多少天的数据（一般为10天）
      * @return Collection 名称
      */
-    public static String createSolrCollectionName(String identify, int days) {
+    public static String createSolrCollectionName(String identify, Date date, int days) {
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
         int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int dayIdentify = (calendar.get(Calendar.DAY_OF_MONTH) - 1) / days;
-        return identify + year + month + dayIdentify;
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        if (day > 30) {
+            day--;
+        }
+        int dayIdentify = (day - 1) / days;
+        if (month < 10) {
+            return identify + year + "0" + month + "0" + dayIdentify;
+        } else {
+            return identify + year +  month + "0" + dayIdentify;
+        }
     }
 
     /**
      * 如果是CloudSolrClient的话设置默认的Collection
      * @param client SolrClient
+     * @param date 数据生成的日期
      */
-    public static void setCloudSolrClientDefaultCollection(SolrClient client) {
+    public static void setCloudSolrClientDefaultCollection(SolrClient client, Date date) {
         if (client instanceof CloudSolrClient) {
-            ((CloudSolrClient) client).setDefaultCollection(createSolrCollectionName("yisou", 10));
+            String collectionName = createSolrCollectionName("yisou", date, 10);
+            logger.info("当前的Solr Collection为: {}", collectionName);
+            ((CloudSolrClient) client).setDefaultCollection(collectionName);
         }
+    }
+
+    /**
+     * 当SolrInputDocument列表大于指定长度时,把数据写入Solr
+     * @param client SolrClient
+     * @param list List<SolrInputDocument>
+     * @param size List的大小
+     * @param date 数据产生的日期
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Date date)
+            throws IOException, SolrServerException {
+        if (list.size() >= size) {
+            setCloudSolrClientDefaultCollection(client, date);
+            client.add(list, 10000);
+            logger.info("写入Solr {} 条数据", list.size());
+            list.clear();
+        }
+    }
+
+    public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, String str)
+            throws IOException, SolrServerException, ParseException {
+        Date date = DateUtils.parseDate(str, "yyyy-MM-dd HH:mm:ss");
+        submitToSolr(client,  list, size, date);
     }
 }

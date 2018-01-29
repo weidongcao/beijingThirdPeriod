@@ -48,15 +48,7 @@ public class NamingRuleUtils {
      * @return HBase表列簇
      */
     public static String getHBaseContentTableCF(String task) {
-        if ("service".equalsIgnoreCase(task)) {
-            return "SERVICE_INFO";
-        } else if ("real".equalsIgnoreCase(task)) {
-            return "REALID_INFO";
-        } else if ("vid".equalsIgnoreCase(task)) {
-            return "VID_INFO";
-        } else {
-            return "CONTENT_" + task.toUpperCase();
-        }
+        return "INFO";
     }
 
     /**

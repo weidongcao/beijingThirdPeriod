@@ -13,12 +13,13 @@ import org.apache.solr.common.SolrInputDocument;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 /**
  * Created by CaoWeiDong on 2017-12-14.
  */
-public class SolrAliceTest {
+public class SolrAliasTest {
     public static final String zkhost = "data1.hadoop.com,data2.hadoop.com,data3.hadoop.com,node1.hadoop.com,node2.hadoop.com";
     public static CloudSolrClient client = new CloudSolrClient.Builder().withZkHost(zkhost).build();
 

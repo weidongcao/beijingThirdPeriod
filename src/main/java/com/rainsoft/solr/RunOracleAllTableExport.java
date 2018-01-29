@@ -25,6 +25,10 @@ public class RunOracleAllTableExport {
     private static final Logger logger = LoggerFactory.getLogger(RunOracleAllTableExport.class);
 
     public static void main(String[] args) {
+        doJob(args);
+    }
+
+    public static void doJob(String[] args) {
         //结束时间参数
         String endTime_String = null;
         if (args.length >= 1) {
@@ -50,7 +54,12 @@ public class RunOracleAllTableExport {
         while (true) {
             //如果超过结束时间结束任务
             if (null != endTime) {
-                Date lastRecordDate = DateUtils.stringToDate(BaseOracleDataExport.recordMap.get(NamingRuleUtils.getRealTimeOracleRecordKey("http")), "yyyy-MM-dd HH:mm:ss");
+                Date lastRecordDate = DateUtils.stringToDate(
+                        BaseOracleDataExport.recordMap.get(
+                                NamingRuleUtils.getRealTimeOracleRecordKey("http")
+                        ),
+                        "yyyy-MM-dd HH:mm:ss"
+                );
                 if (endTime.before(lastRecordDate)) {
                     break;
                 }
@@ -90,6 +99,5 @@ public class RunOracleAllTableExport {
 
         }
         logger.info("程序执行结束,马上退出");
-
     }
 }

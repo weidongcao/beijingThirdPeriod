@@ -35,16 +35,17 @@ public class FieldConstants {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        DOC_TYPE_MAP.put("ftp", "文件");
-        DOC_TYPE_MAP.put("im_chat", "聊天");
-        DOC_TYPE_MAP.put("http", "网页");
         DOC_TYPE_MAP.put("bbs", "论坛");
         DOC_TYPE_MAP.put("email", "邮件");
-        DOC_TYPE_MAP.put("weibo", "微博");
-        DOC_TYPE_MAP.put("search", "搜索");
+        DOC_TYPE_MAP.put("ftp", "文件");
+        DOC_TYPE_MAP.put("http", "网页");
+        DOC_TYPE_MAP.put("im_chat", "聊天");
         DOC_TYPE_MAP.put("real", "真实");
-        DOC_TYPE_MAP.put("vid", "虚拟");
+        DOC_TYPE_MAP.put("search", "搜索");
         DOC_TYPE_MAP.put("service", "场所");
+        DOC_TYPE_MAP.put("vid", "虚拟");
+        DOC_TYPE_MAP.put("weibo", "微博");
+        DOC_TYPE_MAP.put("ending_trace", "ending_mac");
 
     }
 

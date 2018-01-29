@@ -103,6 +103,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                     }
                     if (list.size() > 0) {
                         //写入Solr
+                        SolrUtil.setCloudSolrClientDefaultCollection(client, new Date());
                         client.add(list, 1000);
                         logger.info("---->写入Solr {} 条数据成功", list.size());
                     } else {

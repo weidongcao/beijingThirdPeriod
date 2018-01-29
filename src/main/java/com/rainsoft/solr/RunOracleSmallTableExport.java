@@ -7,7 +7,10 @@ package com.rainsoft.solr;
 public class RunOracleSmallTableExport {
 
     public static void main(String[] args) {
+        doJob(args);
+    }
 
+    public static void doJob(String[] args) {
         while (true) {
             //Bbs任务
             BbsOracleDataExport.exportOracleByTime();
