@@ -118,7 +118,11 @@
     "manufacturer_code",
     "zipname",
     "bcpname",
-    "rownumber"
+    "rownumber",
+    "equipment_lon",
+    "equipment_lat",
+    "first_time",
+    "last_time"
   ],
   "reg_content_ftp": [
     "id",
@@ -527,5 +531,31 @@
   "filter_bcp_im_chat": [
   ],
   "filter_bcp_http": [
+  ],
+  "solr_exclusion_fields": [
+    "bcpname",
+    "client_id",
+    "cmd_answer",
+    "cmd_result",
+    "cookie_path",
+    "download_file",
+    "elevation",
+    "file_path",
+    "import_time",
+    "passwd",
+    "zipname",
+    "terminal_longitude",
+    "terminal_latitude",
+    "zip_path",
+    "file_url"
+  ],
+  "solr_date_field_type": [
+    "capture_time",
+    "import_time",
+    "birthday",
+    "first_logintime",
+    "last_logintime",
+    "first_time",
+    "last_time"
   ]
 }
