@@ -9,6 +9,7 @@ import java.io.File;
  * Created by Administrator on 2017-10-16.
  */
 public class NamingRuleUtils {
+    private static String bcpWorkRootDir = ConfigurationManager.getProperty("bcp.file.path");
     /**
      * Oracle内容表的命名规则
      * reg_content_${任务类型}
@@ -44,10 +45,9 @@ public class NamingRuleUtils {
     /**
      * 内容表HBase列簇的命令规则
      * CONTENT_${任务类型}
-     * @param task 任务类型
      * @return HBase表列簇
      */
-    public static String getHBaseContentTableCF(String task) {
+    public static String getHBaseContentTableCF() {
         return "INFO";
     }
 
@@ -85,7 +85,7 @@ public class NamingRuleUtils {
      * @return Bcp本地工作目录
      */
     public static String getBcpWorkDir(String task) {
-        return ConfigurationManager.getProperty("bcp.file.path") + File.separator + task;
+        return  bcpWorkRootDir + File.separator + task;
     }
 
     /**

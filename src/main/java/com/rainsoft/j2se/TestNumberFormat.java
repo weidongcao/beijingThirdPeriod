@@ -14,7 +14,6 @@ public class TestNumberFormat {
         NumberFormat numberFormat = NumberFormat.getNumberInstance();
         Double myNumber=23323.3323232323;
         int aaa = 2374828;
-        Double test=0.3434;
         System.out.println(numberFormat.format(myNumber));
         System.out.println(numberFormat.format(aaa));
     }

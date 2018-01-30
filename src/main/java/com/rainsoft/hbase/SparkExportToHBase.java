@@ -38,7 +38,7 @@ public class SparkExportToHBase {
         //oracle表名
         String tableName = NamingRuleUtils.getOracleContentTableName(taskType);
         //列簇名
-        String cf = NamingRuleUtils.getHBaseContentTableCF(taskType);
+        String cf = NamingRuleUtils.getHBaseContentTableCF();
         //HFile的HDFS临时存储目录
         String tempHDFSPath = NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getOracleContentTableName(taskType));
 

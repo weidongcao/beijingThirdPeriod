@@ -35,6 +35,12 @@ public class SparkUtils {
         return jsc;
     }
 
+    /**
+     * 给BCP文件的数据添加唯一主键
+     * @param lines
+     * @param task
+     * @return JavaRDD<Row>
+     */
     public static JavaRDD<Row> bcpDataAddRowkey(List<String> lines, String task) {
 
         JavaRDD<String> originalRDD = getSparkContext(null).parallelize(lines);

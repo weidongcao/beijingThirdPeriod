@@ -10,7 +10,7 @@ import org.apache.commons.lang.ArrayUtils;
 public class TestArrayUtils {
     public static void main(String[] args) {
 
-        String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("ftp"));
+        String[] columns = FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("ftp"));
 
         int captureTimeIndex = ArrayUtils.indexOf(columns, "aaaaaaaa");
         System.out.println("captureTimeIndex = " + captureTimeIndex);

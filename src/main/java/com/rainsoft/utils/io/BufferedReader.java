@@ -1,6 +1,5 @@
 package com.rainsoft.utils.io;
 
-import javax.print.DocFlavor;
 import java.io.IOException;
 import java.io.Reader;
 

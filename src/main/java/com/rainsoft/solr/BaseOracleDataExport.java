@@ -25,7 +25,6 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import scala.Tuple2;
 
-import javax.naming.Name;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -142,7 +141,7 @@ public class BaseOracleDataExport {
      */
     private static void export2Solr(JavaRDD<Row> javaRDD, String task) {
         //字段名数组
-        String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
+        String[] columns = FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName(task));
         javaRDD.foreachPartition(
                 (VoidFunction<Iterator<Row>>) iterator -> {
                     List<SolrInputDocument> docList = new ArrayList<>();
@@ -192,7 +191,7 @@ public class BaseOracleDataExport {
         //将数据转为可以进行二次排序的形式
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = HBaseUtils.getHFileRDD(
                 javaRDD,
-                FieldConstants.COLUMN_MAP.get(
+                FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(
                         NamingRuleUtils.getOracleContentTableName(task)
                 ),
                 rowkeyColumn

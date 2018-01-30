@@ -21,10 +21,10 @@ public class TestSpark {
     public static void main(String[] args) {
 
         List<String[]> list = new ArrayList<>();
-        list.add(FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey("ftp")));
-        list.add(FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("ftp")));
-        list.add(FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey("http")));
-        list.add(FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("http")));
+        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey("ftp")));
+        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("ftp")));
+        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey("http")));
+        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("http")));
 
         SparkSession spark = SparkSession.builder()
                 .appName(TestSpark.class.getSimpleName())

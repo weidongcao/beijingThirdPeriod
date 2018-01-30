@@ -20,7 +20,7 @@ public class LinuxUtils {
      * @param task    任务类型
      * @param shellMv 要执行的Shell命令
      */
-    public static void execShell(String task, String shellMv) {
+    public static void execShell(String shellMv, String task) {
         //执行Shell命令,将Bcp文件从文件池移动到工作目录
         try {
             logger.info("执行Shell命令,将 {} 类型的Bcp文件从文件池移动到工作目录", task);

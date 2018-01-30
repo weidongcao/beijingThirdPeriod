@@ -195,7 +195,7 @@ public class HBaseUtils {
         //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
         JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = transformSecondarySortToHfileFormat(
                 dataRDD,
-                NamingRuleUtils.getHBaseContentTableCF(task)
+                NamingRuleUtils.getHBaseContentTableCF()
         );
 
         //HFile在HDFS上的临时目录
