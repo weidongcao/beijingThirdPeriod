@@ -12,6 +12,8 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -44,6 +46,11 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     public static final String bcpFilePath = ConfigurationManager.getProperty("bcp.file.path");
     //是否导入到HBase
     public static boolean isExport2HBase = ConfigurationManager.getBoolean("is.export.to.hbase");
+    //SparkSession
+    protected static SparkSession spark = new SparkSession.Builder()
+            .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
+            .master("local")
+            .getOrCreate();
 
 
     /**
@@ -65,14 +72,13 @@ public class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * Bcp数据导入到Solr
-     *
      * @param javaRDD JavaRDD
      * @param task    任务类型
      */
     public static void bcpWriteIntoSolr(JavaRDD<Row> javaRDD, String task) {
         logger.info("开始将 {} 的BCP数据索引到Solr", task);
         //Bcp文件对应的字段名
-        String[] columns = FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task));
+        String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task));
 
         /*
          * 数据写入Solr
@@ -82,33 +88,20 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                     List<SolrInputDocument> list = new ArrayList<>();
                     while (iterator.hasNext()) {
                         Row row = iterator.next();
-                        SolrInputDocument doc = new SolrInputDocument();
-                        String rowkey = row.getString(0);
-                        //SID
-                        doc.addField(BigDataConstants.SOLR_CONTENT_ID.toUpperCase(), rowkey);
-
-                        //docType
-                        doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(task));
-
-                        //Solr唯一主键
-                        doc.addField(("ID".toUpperCase()), UUID.randomUUID().toString().replace("-", ""));
-
-                        //import_time
-                        Date curDate = new Date();
-                        doc.addField("import_time".toUpperCase(), DateFormatUtils.SOLR_FORMAT.format(curDate));
-
-                        SolrUtil.addBcpIntoSolrInputDocument(columns, row, doc);
+                        //SolrImputDocument添加通用外部字段
+                        SolrInputDocument doc = addSolrExtraField(task, row);
+                        for (int i = 0; i < row.length(); i++) {
+                            if (i >= columns.length) {
+                                break;
+                            }
+                            String value = row.getString(i + 1);
+                            String key = columns[i].toUpperCase();
+                            //添加字段到SolrInputDocument
+                            SolrUtil.addSolrFieldValue(doc, key, value);
+                        }
                         list.add(doc);
-
                     }
-                    if (list.size() > 0) {
-                        //写入Solr
-                        SolrUtil.setCloudSolrClientDefaultCollection(client, new Date());
-                        client.add(list, 1000);
-                        logger.info("---->写入Solr {} 条数据成功", list.size());
-                    } else {
-                        logger.info("{} 此Spark Partition 数据为空", task);
-                    }
+                    SolrUtil.submitToSolr(client, list, 0, new Date());
                 }
         );
 
@@ -128,7 +121,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
         //将数据转为可以进行二次排序的形式
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = HBaseUtils.getHFileRDD(
                 javaRDD,
-                FieldConstants.COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task))
+                FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task))
         );
 
         //写入HBase
@@ -150,7 +143,57 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                 .replace("${operator_bcp_number}", operatorBcpNumber)
                 .replace("${bcp_file_path}", bcpFilePath);
 
-        LinuxUtils.execShell(task, shellMv);
+        LinuxUtils.execShell(shellMv, task);
+    }
+
+    /**
+     * 生成SolrInputDocument并添加通用的额外字段
+     * @param task 任务类型
+     * @param row row
+     * @return SolrInputDocument
+     */
+    protected static SolrInputDocument addSolrExtraField(String task, Row row) {
+        SolrInputDocument doc = new SolrInputDocument();
+        String rowkey = row.getString(0);
+        //SID
+        doc.addField(BigDataConstants.SOLR_CONTENT_ID.toUpperCase(), rowkey);
+        //docType
+        doc.addField(BigDataConstants.SOLR_DOC_TYPE_KEY, FieldConstants.DOC_TYPE_MAP.get(task));
+        //Solr唯一主键
+        doc.addField(("ID".toUpperCase()), UUID.randomUUID().toString().replace("-", ""));
+        //import_time
+        doc.addField("import_time".toUpperCase(), new Date());
+
+        return doc;
+    }
+
+    public static File[] getTaskBcpFiles(String task) {
+        String os = System.getProperty("os.name");
+        File[] files;
+        //适应在Windows上测试与Linux运行
+        if (os.toLowerCase().contains("windows")) {
+            // 第二步：从工作目录读取文件列表
+            files = FileUtils.getFile("D:\\0WorkSpace\\data\\yuncai").listFiles();
+        } else {
+            // 第一步:将Bcp文件从文件池移到工作目录
+            moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
+            // 第二步：从工作目录读取文件列表
+            files = FileUtils.getFile(NamingRuleUtils.getBcpWorkDir(task)).listFiles();
+        }
+        return files;
+    }
+
+    public static void bcpWriteIntoHBaseSolr(JavaRDD<Row> dataRDD, String task) {
+        // RDD持久化
+        dataRDD.persist(StorageLevel.MEMORY_ONLY());
+        // Spark数据导入到Solr
+        bcpWriteIntoSolr(dataRDD, task);
+        // Spark数据导入到HBase
+        if (isExport2HBase == true) {
+            bcpWriteIntoHBase(dataRDD, task);
+        }
+        // RDD取消持久化
+        dataRDD.unpersist();
     }
 }
 

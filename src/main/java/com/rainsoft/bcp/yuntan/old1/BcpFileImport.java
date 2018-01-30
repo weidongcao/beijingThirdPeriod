@@ -58,13 +58,13 @@ public class BcpFileImport implements Serializable {
         ftp.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
         ftp.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
         //HBase列簇
-        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
         //HFile在HDFS上的临时存储目录
         ftp.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
         //数据类型
         ftp.setContentType(task);
         //全部字段名数组
-        ftp.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + task));
+        ftp.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
         //需要过滤的关键字段
         ftp.setKeyColumns(new String[]{"file_name"});
 
@@ -85,13 +85,13 @@ public class BcpFileImport implements Serializable {
         //HBase表名
         imChat.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
         //HBase列簇
-        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
         //HFile在HDFS上的临时存储目录
         imChat.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
         //数据类型
         imChat.setContentType(task);
         //全部字段名数组
-        imChat.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + task));
+        imChat.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
         //需要过滤的关键字段
         imChat.setKeyColumns(new String[]{});
 
@@ -113,13 +113,13 @@ public class BcpFileImport implements Serializable {
         //HBase表名
         http.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
         //HBase列簇
-        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
         //HFile在HDFS上的临时存储目录
         http.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
         //数据类型
         http.setContentType(task);
         //全部字段名数组
-        http.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + task));
+        http.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
         //需要过滤的关键字段
         http.setKeyColumns(new String[]{"ref_domain"});
 

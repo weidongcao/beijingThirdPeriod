@@ -43,8 +43,8 @@ public class Main {
         ftp.setCaptureTimeIndex(17);
         ftp.setContentType(task);
         ftp.setDocType(BigDataConstants.SOLR_DOC_TYPE_FTP_VALUE);
-        ftp.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_FTP));
-        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        ftp.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
+        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
         ftp.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
         ftp.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
 
@@ -62,9 +62,9 @@ public class Main {
         imChat.setCaptureTimeIndex(20);
         imChat.setContentType(task);
         imChat.setDocType(BigDataConstants.SOLR_DOC_TYPE_IMCHAT_VALUE);
-        imChat.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_IM_CHAT));
+        imChat.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
         imChat.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
-        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
         imChat.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
 
         String path = ConfigurationManager.getProperty("bcp.file.path") + File.separator + task;
@@ -84,9 +84,9 @@ public class Main {
         http.setCaptureTimeIndex(22);
         http.setContentType(task);
         http.setDocType(BigDataConstants.SOLR_DOC_TYPE_HTTP_VALUE);
-        http.setColumns(FieldConstants.COLUMN_MAP.get("bcp_" + BigDataConstants.CONTENT_TYPE_HTTP));
+        http.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
         http.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
-        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF(task));
+        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
         http.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
 
 
