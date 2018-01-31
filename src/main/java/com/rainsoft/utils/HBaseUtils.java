@@ -184,10 +184,17 @@ public class HBaseUtils {
 
         //加载HFile文件到HBase
         loadHFile(tablename, tempHDFSPath);
-
-
     }
 
+    /**
+     * 将数据写入到HBase
+     * 分为三步：
+     * 第一步：生成HFile文件
+     * 第二步：HFile文件临时存储到HDFS
+     * 第三步：HBase加载HFile文件
+     * @param dataRDD 需要写入的数据
+     * @param task  任务类型
+     */
     public static void writeData2HBase(JavaPairRDD<RowkeyColumnSecondarySort, String> dataRDD, String task) {
 
         logger.info("开始Spark生成HFile文件并写HBase...");
@@ -390,10 +397,12 @@ public class HBaseUtils {
                     String rowKey = row.getString(0);
                     //将一条数据转为HBase能够识别的形式
                     for (int i = 1; i < row.length(); i++) {
-                        if (i >= columns.length) {
+                        //如果字段值的个数经字段名多, 多出的舍去
+                        if ((i -1) >= columns.length) {
                             break;
                         }
-                        String key = columns[i].toUpperCase();
+                        //数据的第一字段是RowKey,字段名数组没有这个字段,故需要减1
+                        String key = columns[i - 1].toUpperCase();
                         String value = row.getString(i);
                         //如果字段的值为空则不写入HBase
                         if ((null != value) && (!"".equals(value))) {

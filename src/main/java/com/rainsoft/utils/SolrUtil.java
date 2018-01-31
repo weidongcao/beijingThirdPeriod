@@ -17,7 +17,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Administrator on 2017-04-06.
@@ -38,7 +37,7 @@ public class SolrUtil {
             return;
 
         //字段不需要导入到Solr中
-        if (FieldConstants.FILTER_COLUMN_MAP.get("exclusion_fields").contains(fieldName.toLowerCase())) {
+        if (FieldConstants.SOLR_FIELD_MAP.get("exclusion_fields").contains(fieldName.toLowerCase())) {
             return;
         }
         //字段在Solr里是日期类型

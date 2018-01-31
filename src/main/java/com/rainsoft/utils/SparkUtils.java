@@ -37,21 +37,18 @@ public class SparkUtils {
 
     /**
      * 给BCP文件的数据添加唯一主键
-     * @param lines
+     * @param dataRDD JavaRDD<String>
      * @param task
      * @return JavaRDD<Row>
      */
-    public static JavaRDD<Row> bcpDataAddRowkey(List<String> lines, String task) {
-
-        JavaRDD<String> originalRDD = getSparkContext(null).parallelize(lines);
-
+    public static JavaRDD<Row> bcpDataAddRowkey(JavaRDD<String> dataRDD, String task) {
         /*
          * 对BCP文件数据进行基本的处理
          * 生成ID(HBase的RowKey，Solr的Sid)
          * 将ID作为在第一列
          *
          */
-        JavaRDD<Row> valuesRDD = originalRDD.mapPartitions(
+        JavaRDD<Row> valuesRDD = dataRDD.mapPartitions(
                 (FlatMapFunction<Iterator<String>, Row>) iter -> {
                     //数据list
                     List<Row> list = new ArrayList<>();

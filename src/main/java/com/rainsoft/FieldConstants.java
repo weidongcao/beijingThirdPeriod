@@ -46,15 +46,15 @@ public class FieldConstants {
             //Oracle表字段
             JSONObject oracleJsonObject = jsonObject.getJSONObject("oracle-table");
             for (String key : oracleJsonObject.keySet()) {
-                JSONArray jsonArray = jsonObject.getJSONArray(key);
+                JSONArray jsonArray = oracleJsonObject.getJSONArray(key);
                 String[] fields = jsonArray.toArray(new String[jsonArray.size()]);
                 ORACLE_TABLE_COLUMN_MAP.put(key, fields);
             }
 
             //需要检验的字段
-            JSONObject checkJsonObject = jsonObject.getJSONObject("bcp-filter-field");
-            for (String key : checkJsonObject.keySet()) {
-                JSONArray jsonArray = jsonObject.getJSONArray(key);
+            JSONObject filterJsonObject = jsonObject.getJSONObject("bcp-filter-field");
+            for (String key : filterJsonObject.keySet()) {
+                JSONArray jsonArray = filterJsonObject.getJSONArray(key);
                 Set<String> fields = new HashSet<>(jsonArray.toJavaList(String.class));
                 FILTER_COLUMN_MAP.put(key, fields);
             }
@@ -62,7 +62,7 @@ public class FieldConstants {
             //Solr字段类型
             JSONObject solrJsonObject = jsonObject.getJSONObject("solr-fields");
             for (String key : solrJsonObject.keySet()) {
-                JSONArray jsonArray = jsonObject.getJSONArray(key);
+                JSONArray jsonArray = solrJsonObject.getJSONArray(key);
                 Set<String> fields = new HashSet<>(jsonArray.toJavaList(String.class));
                 SOLR_FIELD_MAP.put(key, fields);
             }
