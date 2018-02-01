@@ -149,6 +149,15 @@
     <build>
         <finalName>BeiJingThirdPeriod</finalName>
         <plugins>
+            <!-- 配置JDK版本 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
             <!-- The configuration of maven-jar-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -158,7 +167,6 @@
                 <configuration>
                     <!-- Configuration of the archiver -->
                     <archive>
-
                         <!--生成的jar中，不要包含pom.xml和pom.properties这两个文件-->
                         <addMavenDescriptor>false</addMavenDescriptor>
 
