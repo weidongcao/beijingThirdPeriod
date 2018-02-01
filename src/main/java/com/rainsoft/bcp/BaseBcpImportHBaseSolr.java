@@ -10,6 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.spark.Success;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -68,7 +69,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * 5. 写入到Solr及HBase
      * 6. 删除BCP文件
      */
-    static void doTask(String task) {
+    static String doTask(String task) {
         //第一步: 获取BCP文件列表
         File[] bcpFiles = getTaskBcpFiles(task);
 
@@ -86,8 +87,10 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                 // 第六步: 删除文件
                 bcpFile.delete();
             }
+            return "success";
         } else {
             logger.info("{} 没有需要处理的数据", task);
+            return "none";
         }
     }
 
@@ -119,13 +122,13 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     private static File[] getTaskBcpFiles(String task) {
         String os = System.getProperty("os.name");
         File[] files;
+        moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
         //适应在Windows上测试与Linux运行
         if (os.toLowerCase().contains("windows")) {
             // 第二步：从工作目录读取文件列表
             files = FileUtils.getFile("D:\\0WorkSpace\\data\\yuncai").listFiles();
         } else {
             // 第一步:将Bcp文件从文件池移到工作目录
-            moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
             // 第二步：从工作目录读取文件列表
             files = FileUtils.getFile(NamingRuleUtils.getBcpWorkDir(task)).listFiles();
         }
@@ -214,7 +217,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      *
      * @param task 任务类型
      */
-    private static void moveBcpfileToWorkDir(String task, String shellMvTemplate) {
+    private static void moveBcpfileToWorkDir(String shellMvTemplate, String task) {
 
         String shellMv = shellMvTemplate.replace("${bcp_pool_dir}", bcpPoolDir)
                 .replace("${task}", task)
@@ -262,6 +265,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
         if ((null == checkColumns) || checkColumns.size() == 0) {
             return dataRDD;
         }
+
         // 对关键字段进行过滤
         JavaRDD<Row> filterKeyColumnRDD = dataRDD.filter(
                 (Function<Row, Boolean>) values -> {
