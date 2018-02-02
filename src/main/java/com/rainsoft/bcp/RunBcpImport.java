@@ -15,7 +15,7 @@ public class RunBcpImport {
     public static void main(String[] args) {
         while (true) {
             runBigTasks(bigTasks);
-            runSmallTasks(smallTasks);
+            runSmallTasks();
         }
     }
 
@@ -45,9 +45,8 @@ public class RunBcpImport {
      * 执行小任务
      * 一般为Bbs、Email、Search、Real、Vid、Service
      * 因为数据量小,每4个小时执行一次
-     * @param smallTasks
      */
-    public static void runSmallTasks(String[] smallTasks) {
+    public static void runSmallTasks() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         if (hour % 6 == 0) {
