@@ -42,7 +42,6 @@ public class ImmutableTest {
         System.out.println("unmodifiableList add a item after list: " + unmodifiableList);
     }
 
-    @Test
     public void testGuavaImmutable() {
         List<String> list = new ArrayList<>();
         list.add("aaa");
@@ -68,5 +67,36 @@ public class ImmutableTest {
                 .add(new Color(0, 191, 255))
                 .build();
         System.out.println("imColorSet = " + imColorSet);
+    }
+
+    public void testCopyOf() {
+        ImmutableSet<String> imSet = ImmutableSet.of("peida", "jerry", "harry", "lisa");
+        System.out.println("imSet: " + imSet);
+        ImmutableList<String> imlist = ImmutableList.copyOf(imSet);
+        System.out.println("imlist = " + imlist);
+        ImmutableSortedSet<String> imSortSet = ImmutableSortedSet.copyOf(imSet);
+        System.out.println("imSortSet = " + imSortSet);
+
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            list.add("bigdata-" + i);
+        }
+
+        System.out.println("list = " + list);
+        ImmutableList<String> imInfolist = ImmutableList.copyOf(list.subList(2, 9));
+        System.out.println("imInfolist = " + imInfolist);
+        int imInfolistSize = imInfolist.size();
+        System.out.println("imInfolistSize = " + imInfolistSize);
+        ImmutableSet<String> imInfoSet = ImmutableSet.copyOf(imInfolist.subList(2, imInfolistSize - 3));
+        System.out.println("imInfoSet = " + imInfoSet);
+    }
+
+    @Test
+    public void testAsList() {
+        ImmutableList<String> imList = ImmutableList.of("peida", "jerry", "harry", "lisa", "jerry");
+        System.out.println("imList = " + imList);
+        ImmutableSortedSet<String> imSortSet = ImmutableSortedSet.copyOf(imList);
+        System.out.println("imSortSet = " + imSortSet);
+        System.out.println("imSortSet.asList() = " + imSortSet.asList());
     }
 }
