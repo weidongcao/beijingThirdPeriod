@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class TestJava8 {
     public static void main(String[] args) {
         List<String> strs = Arrays.asList( "zzz", "bbb", "ccc", "ddd", "xxx", "yyy", "aaa", "", " ", "   ");
+
         List<String> filtered = strs.stream().filter(
                 str -> !str.isEmpty()
         ).sorted()

@@ -1,18 +1,17 @@
 package com.rainsoft.j2se;
 
 import com.rainsoft.FieldConstants;
-import com.rainsoft.utils.NamingRuleUtils;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.VoidFunction;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import scala.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by CaoWeiDong on 2017-10-20.
@@ -20,31 +19,36 @@ import java.util.List;
 public class TestSpark {
     public static void main(String[] args) {
 
-        List<String[]> list = new ArrayList<>();
-        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey("ftp")));
-        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("ftp")));
-        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey("http")));
-        list.add(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("http")));
-
+        String[] arr = FieldConstants.BCP_FILE_COLUMN_MAP.get("bcp_ftp");
+        List<Integer[]> list = new ArrayList<>();
+        Random rand = new Random();
+        for (int i = 0; i < 9; i++) {
+            Integer[] ints = new Integer[31];
+            for (int j = 0; j < 31; j++) {
+                ints[j] = rand.nextInt();
+            }
+            list.add(ints);
+        }
         SparkSession spark = SparkSession.builder()
                 .appName(TestSpark.class.getSimpleName())
-                .master("local[4]")
+                .master("local")
                 .getOrCreate();
 
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
-        JavaRDD<String[]> dataRDD = jsc.parallelize(list);
-        JavaRDD<Row> rowRDD = dataRDD.map(
-                (Function<String[], Row>) (String[] v1) -> {
-                    String[] temp = ArrayUtils.add(v1, 0, "rowkey");
-                    return RowFactory.create(temp);
+        JavaRDD<Integer[]> dataRDD = jsc.parallelize(list);
+        JavaPairRDD<String, Integer> pairRDD = dataRDD.flatMapToPair(
+                (PairFlatMapFunction<Integer[], String, Integer>) ints -> {
+                    List<Tuple2<String, Integer>> list1 = new ArrayList<>();
+                    for (int i = 0; i < ints.length; i++) {
+                        String key = arr[i];
+                        Integer value = ints[i];
+                        list1.add(new Tuple2<>(key, value));
+                    }
+                    return list1.iterator();
                 }
         );
-//        JavaRDD<Row> rowRDD = dataRDD.map(
-//                (Function<String[], Row>) v1 -> RowFactory.create(ArrayUtils.add(v1, 0, "rowkey"))
-//        );
-
-        rowRDD.foreach(
-                (VoidFunction<Row>) row -> System.out.println(row.toString())
+        pairRDD.foreach(
+                (VoidFunction<Tuple2<String, Integer>>) tuple -> System.out.println(tuple.toString())
         );
         jsc.close();
     }
