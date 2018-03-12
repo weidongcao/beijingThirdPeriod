@@ -61,7 +61,7 @@ public class SparkExportToHBase {
          * 数据转换为HBase的HFile格式
          */
         JavaPairRDD<RowkeyColumnSecondarySort, String> hbasePairRDD = originalRDD.flatMapToPair(
-                (PairFlatMapFunction<String, RowkeyColumnSecondarySort, String>) line -> {
+                (PairFlatMapFunction<String, RowkeyColumnSecondarySort, String>) (String line) -> {
 
                     List<Tuple2<RowkeyColumnSecondarySort, String>> list = new ArrayList<>();
                     String[] cols = line.split("\t");
