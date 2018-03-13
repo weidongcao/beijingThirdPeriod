@@ -45,7 +45,7 @@ public class ShopDaoImpl extends JdbcDaoSupport implements ShopDao{
      * @return
      */
     @Override
-    public Long getMinIdFromDate(Optional<String> date) {
+    public Optional<Long> getMinIdFromDate(Optional<String> date) {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, date);
     }
 
@@ -57,7 +57,7 @@ public class ShopDaoImpl extends JdbcDaoSupport implements ShopDao{
      * @return
      */
     @Override
-    public List<String[]> getDataById(Long id) {
+    public List<String[]> getDataById(Optional<Long> id) {
         return JdbcUtils.getDataById(getJdbcTemplate(), tableName, id);
     }
 }

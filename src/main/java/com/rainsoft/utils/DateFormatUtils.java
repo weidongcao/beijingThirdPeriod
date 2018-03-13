@@ -9,6 +9,7 @@ import java.util.Date;
  */
 public class DateFormatUtils extends org.apache.commons.lang3.time.DateFormatUtils {
     public static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     public static final DateFormat HOUR_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH");
 
     //SOlr日期格式

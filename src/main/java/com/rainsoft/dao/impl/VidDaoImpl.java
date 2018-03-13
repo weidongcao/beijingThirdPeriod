@@ -42,7 +42,7 @@ public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
                 .replace("${tableName}", tableName);
         logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
 
-        /**
+        /*
          * 返回结果为数组类型的List
          */
         List<String[]> list = jdbcTemplate.query(sql, rs -> {
@@ -55,7 +55,7 @@ public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
      * @return
      */
     @Override
-    public Long getMinId() {
+    public Optional<Long> getMinId() {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, Optional.absent());
     }
 
@@ -67,7 +67,7 @@ public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
      * @return
      */
     @Override
-    public List<String[]> getDataById(Long id) {
+    public List<String[]> getDataById(Optional<Long> id) {
         return JdbcUtils.getDataById(getJdbcTemplate(), tableName, id);
     }
 }

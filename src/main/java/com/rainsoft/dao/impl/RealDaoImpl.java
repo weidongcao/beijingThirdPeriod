@@ -55,7 +55,7 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
      * @return
      */
     @Override
-    public Long getMinId() {
+    public Optional<Long> getMinId() {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, Optional.absent());
     }
 
@@ -67,7 +67,7 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
      * @return
      */
     @Override
-    public List<String[]> getDataById(Long id) {
+    public List<String[]> getDataById(Optional<Long> id) {
         return JdbcUtils.getDataById(getJdbcTemplate(), tableName, id);
     }
 }

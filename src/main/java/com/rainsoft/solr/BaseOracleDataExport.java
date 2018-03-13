@@ -8,7 +8,6 @@ import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
@@ -24,12 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import scala.Tuple2;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,13 +52,11 @@ public class BaseOracleDataExport {
     //导入记录文件
     private static File recordFile;
     //导入记录
-    static Map<String, Tuple2<String, Long>> recordMap = new HashMap<>();
+    static Map<String, Long> recordMap = new HashMap<>();
     //是否导入到HBase
     private static boolean isExport2HBase = ConfigurationManager.getBoolean("is.export.to.hbase");
     //SparkContext
     private static JavaSparkContext sc = null;
-    //导入记录中最慢的导入记录
-    private static Date earliestRecordTime = null;
 
     /**
      * 应用初始化
@@ -90,30 +85,16 @@ public class BaseOracleDataExport {
      *
      * @param list   数据列表
      * @param task   任务名
-     * @param period 时间段
      */
-    static void exportRealTimeData(List<String[]> list, String task, Tuple2<String, String> period) {
+    static void exportRealTimeData(List<String[]> list, String task) {
         if (list.size() > 0) {
             //数据导出到Solr、HBase
             exportData(list, task);
-        } else {
-            logger.info(
-                    "Oracle数据库 {} 表在{} 至 {} 时间段内没有数据",
-                    NamingRuleUtils.getOracleContentTableName(task),
-                    period._1,
-                    period._2
-            );
-            //如果最近两个小时没有数据的话休息5分钟
-            if (DateUtils.addHours(earliestRecordTime, 2).after(new Date())) {
-                ThreadUtils.programSleep(300);
-            }
         }
-        //更新导入最慢的导入时间
-        earliestRecordTime = compareEarliestRecordTime(earliestRecordTime, period._2);
         //导入记录写入Map
-        recordMap.put(NamingRuleUtils.getRealTimeOracleRecordKey(task), period._2());
+        recordMap.put(NamingRuleUtils.getOracleRecordKey(task), getMapValueBytask(recordMap,task) + list.size());
         //导入记录写入文件
-        overwriteRecordFile();
+        overwriteRecordFile(recordFile, recordMap);
         //停止计时
         watch.stop();
         //重置计时器
@@ -149,6 +130,7 @@ public class BaseOracleDataExport {
         javaRDD.foreachPartition(
                 (VoidFunction<Iterator<Row>>) iterator -> {
                     List<SolrInputDocument> docList = new ArrayList<>();
+                    //导入时间，集群版Solr需要根据导入时间确定具体导入到哪个Collection
                     Optional<Object> importTime = Optional.absent();
                     while (iterator.hasNext()) {
                         //数据列数组
@@ -207,15 +189,18 @@ public class BaseOracleDataExport {
         logger.info("Oracle {} 数据写入HBase完成", task);
     }
 
-    private static void overwriteRecordFile() {
+    private static void overwriteRecordFile(File file, Map<String, Long> map) {
         //导入记录Map转List
-        List<String> newRecordList = recordMap.entrySet().stream().map(entry -> entry.getKey() + "\t" + entry.getValue()).collect(Collectors.toList());
+        List<String> newRecordList = map.entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + "\t" + entry.getValue())
+                .collect(Collectors.toList());
         //对转换后的导入记录List进行排序
         Collections.sort(newRecordList);
         //导入记录List转String
         String newRecords = StringUtils.join(newRecordList, "\r\n");
         //写入导入记录文件
-        appendRecordIntoFile(newRecords, false);
+        appendRecordIntoFile(file, newRecords, false);
     }
 
     /**
@@ -224,65 +209,15 @@ public class BaseOracleDataExport {
      * @param records 导入记录
      * @param append  是否是追加
      */
-    private static void appendRecordIntoFile(String records, boolean append) {
+    private static void appendRecordIntoFile(File file, String records, boolean append) {
         //写入导入记录文件
         try {
-            FileUtils.writeStringToFile(recordFile, records, "utf-8", append);
+            FileUtils.writeStringToFile(file, records, "utf-8", append);
         } catch (IOException e) {
             e.printStackTrace();
             logger.error("写入失败:{}", records);
             System.exit(-1);
         }
-    }
-
-    /**
-     * 更新导入记录中导入最慢的导入时间
-     * 此方法主要用于控制大表与小表导入速度的问题
-     * 如果导入慢的时间与recordMap都为空，则把新的时间赋给最慢的时间
-     * 如果最慢的时间为空，从导入记录里查找最早的导入时间
-     * 如果都不为空，则比较原来最慢的时间与新的时间的大小，如果新的时间比它早，则赋值给它
-     *
-     * @param slowestTime 导入记录中导入最慢的时间
-     * @param dateText 新的时间
-     * @return slowestTime 导入记录中导入最慢的时间
-     */
-    private static Date compareEarliestRecordTime(Date slowestTime, String dateText) {
-        Date date = DateUtils.stringToDate(dateText, "yyyy-MM-dd HH:mm:ss");
-        //如果slowestDate和导入记录都是空的,则把新的时间赋给slowestTime
-        if ((null == slowestTime) && (recordMap.isEmpty())) {
-            slowestTime = date;
-        } else if ((null == slowestTime) && (!recordMap.isEmpty())) {   //导入记录为空
-            //记录记录不为空，从导入记录是查找最早的导入时间
-            for (Tuple2<String, Long> tuple : recordMap.values()) {
-                Date record = DateUtils.stringToDate(tuple._1, "yyyy-MM-dd HH:mm:ss");
-                //更新导入最慢的记录
-                slowestTime = compareEarliestRecordWithTime(slowestTime, record);
-            }
-        } else {
-            //比较导入最慢的时间与新的时间
-            slowestTime = compareEarliestRecordWithTime(slowestTime, date);
-        }
-        return slowestTime;
-    }
-
-    /**
-     * 比较两个时间，
-     * 如果原来的时间为空，把新时间赋给它
-     * 如果新时间早于原来的时间，把新时间赋给原来的时间
-     * 数据抽取的时候有的数据抽得快，比如说小表，有的数据抽取得慢，比如说大表
-     * 通过此方法得到导入最慢的时间
-     * @param oldDate 原来的时间
-     * @param newDate 新的时间
-     */
-    private static Date compareEarliestRecordWithTime(Date oldDate, Date newDate) {
-        if (null == oldDate) {
-            oldDate = newDate;
-        } else {
-            if (newDate.before(oldDate)) {
-                oldDate = newDate;
-            }
-        }
-        return oldDate;
     }
 
     /**
@@ -323,34 +258,9 @@ public class BaseOracleDataExport {
         for (String record : recordsList) {
             //导入记录的格式是: key importTimeTimestamp_maxId
             String[] kv = record.split("\t");
-            String[] timeAndId = kv[1].split("^");
-            recordMap.put(kv[0], new Tuple2<>(timeAndId[0], Long.valueOf(timeAndId[1])));
+            recordMap.put(kv[0], Long.valueOf(kv[1]));
         }
 
-        /*
-         * 如果还没有导入记录，从3个月前开始导入,并添加对应记录
-         */
-        boolean writeFlat = false;
-        for (String task : FieldConstants.DOC_TYPE_MAP.keySet()) {
-            //导入记录的key
-            String recordKey = NamingRuleUtils.getRealTimeOracleRecordKey(task);
-            //不包含任务导入记录则添加,从3个月前开始
-            if (recordMap.containsKey(recordKey) != true) {
-                writeFlat = true;
-                //从3个月前开始
-                Date date = DateUtils.truncate(new Date(), Calendar.DATE);
-                //三个月前的日期
-                date = DateUtils.addMonths(date, -3);
-                //获取三个月前最小的ID
-                String recordValue = DateFormatUtils.format(date, "yyyy-MM-dd HH:mm:ss");
-
-                recordMap.put(recordKey, recordValue);
-            }
-        }
-        if (writeFlat == true) {
-            logger.info("没有导入记录,设置程序从3个月前开始导入");
-            overwriteRecordFile();
-        }
         logger.info("程序初始化完成...");
     }
 
@@ -361,14 +271,18 @@ public class BaseOracleDataExport {
      * @return ID
      */
     public static Optional<Long> getTaskStartId(String task) {
-        String recordKey = NamingRuleUtils.getRealTimeOracleRecordKey(task);
-        Tuple2<String, Long> recordValue = recordMap.get(recordKey);
+        String recordKey = NamingRuleUtils.getOracleRecordKey(task);
+        return Optional.of(recordMap.get(recordKey));
+    }
 
-        if (null != recordValue) {
-            return Optional.of(recordValue._2);
-        } else {
-            return Optional.absent();
-        }
-
+    /**
+     * 根据任务类型获取抽取记录的Value
+     * value为当前抽取到的id
+     * @param map
+     * @param task
+     * @return
+     */
+    public static Long getMapValueBytask(Map<String, Long> map, String task) {
+        return map.get(NamingRuleUtils.getOracleRecordKey(task));
     }
 }

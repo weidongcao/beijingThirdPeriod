@@ -56,7 +56,7 @@ public class NamingRuleUtils {
      * @param task 任务类型
      * @return 任务实时导入的RowKey
      */
-    public static String getRealTimeOracleRecordKey(String task) {
+    public static String getOracleRecordKey(String task) {
         return getOracleContentTableName(task).toLowerCase() + "-last_export_time";
     }
 

@@ -14,7 +14,7 @@ public interface SearchDao {
 
     List<String[]> getSearchByHours(String startTime, String endTime);
 
-    Long getMinIdFromDate(Optional<String> date);
+    Optional<Long> getMinIdFromDate(Optional<String> date);
 
-    List<String[]> getDataById(Long id);
+    List<String[]> getDataById(Optional<Long> id);
 }

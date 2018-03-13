@@ -16,7 +16,7 @@ public interface FtpDao {
 
     RegContentFtp getFtpById(int id);
 
-    Long getMinIdFromDate(Optional<String> date);
+    Optional<Long> getMinIdFromDate(Optional<String> date);
 
-    List<String[]> getDataById(Long id);
+    List<String[]> getDataById(Optional<Long> id);
 }

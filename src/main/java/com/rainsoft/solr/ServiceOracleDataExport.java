@@ -1,10 +1,11 @@
 package com.rainsoft.solr;
 
+import com.google.common.base.Optional;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.dao.ServiceDao;
+import com.rainsoft.utils.NamingRuleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple2;
 
 import java.util.List;
 
@@ -29,19 +30,20 @@ public class ServiceOracleDataExport extends BaseOracleDataExport {
         //监控执行情况
         watch.start();
 
-        //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(task, hours);
-        logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
-
+        Optional<Long> id = getTaskStartId(task);
+        if (id.isPresent() == false) {
+            id = dao.getMinId();
+            //添加到输入记录Map
+            recordMap.put(NamingRuleUtils.getOracleRecordKey(task), id.get());
+        }
         //获取数据库指定捕获时间段的数据
-        List<String[]> dataList = dao.getServiceByHours(period._1, period._2);
-        logger.info("从数据库查询数据结束,数据量: {}", dataList.size());
+        List<String[]> dataList = dao.getDataById(id);
 
         //实时数据导出
-        exportRealTimeData(dataList, task, period);
+        exportRealTimeData(dataList, task);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         while (true) {
             exportOracleByTime();
         }

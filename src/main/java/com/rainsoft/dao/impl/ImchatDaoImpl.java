@@ -44,7 +44,7 @@ public class ImchatDaoImpl extends JdbcDaoSupport implements ImchatDao {
      * @return
      */
     @Override
-    public Long getMinIdFromDate(Optional<String> date) {
+    public Optional<Long> getMinIdFromDate(Optional<String> date) {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, date);
     }
 
@@ -56,7 +56,7 @@ public class ImchatDaoImpl extends JdbcDaoSupport implements ImchatDao {
      * @return
      */
     @Override
-    public List<String[]> getDataById(Long id) {
+    public List<String[]> getDataById(Optional<Long> id) {
         return JdbcUtils.getDataById(getJdbcTemplate(), tableName, id);
     }
 }

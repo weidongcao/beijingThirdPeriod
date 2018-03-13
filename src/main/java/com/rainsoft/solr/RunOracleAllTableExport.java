@@ -52,24 +52,6 @@ public class RunOracleAllTableExport {
         }
 
         while (true) {
-            //如果超过结束时间结束任务
-            if (null != endTime) {
-                Date lastRecordDate = DateUtils.stringToDate(
-                        BaseOracleDataExport.recordMap.get(
-                                NamingRuleUtils.getRealTimeOracleRecordKey("http")
-                        )._1,
-                        "yyyy-MM-dd HH:mm:ss"
-                );
-                if (endTime.before(lastRecordDate)) {
-                    break;
-                }
-                //获取时间的小数数
-//                int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                //白天休息不迁移历史数据
-//                if (hour >= 6 && hour < 22) {
-//                    break;
-//                }
-            }
             //迁移Ftp表的历史数据
             FtpOracleDataExport.exportOracleByTime();
 
@@ -98,6 +80,5 @@ public class RunOracleAllTableExport {
             VidOracleDataExport.exportOracleByTime();
 
         }
-        logger.info("程序执行结束,马上退出");
     }
 }

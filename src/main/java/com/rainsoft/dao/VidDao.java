@@ -1,5 +1,6 @@
 package com.rainsoft.dao;
 
+import com.google.common.base.Optional;
 import com.rainsoft.domain.RegVidInfo;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface VidDao {
 
     List<String[]> getVidByHours(String startTime, String endTime);
 
-    Long getMinId();
+    Optional<Long> getMinId();
 
-    List<String[]> getDataById(Long id);
+    List<String[]> getDataById(Optional<Long> id);
 }

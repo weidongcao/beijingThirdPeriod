@@ -2,12 +2,10 @@ package com.rainsoft.dao.impl;
 
 import com.google.common.base.Optional;
 import com.rainsoft.dao.BbsDao;
-import com.rainsoft.domain.RegContentBbs;
 import com.rainsoft.utils.JdbcUtils;
 import com.rainsoft.utils.NamingRuleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
@@ -23,18 +21,6 @@ public class BbsDaoImpl extends JdbcDaoSupport implements BbsDao {
 
     //BBS数据在Oracle中的表名
     private static final String tableName = NamingRuleUtils.getOracleContentTableName("bbs");
-
-    @Override
-    public List<RegContentBbs> getBbsByPeriod(String date) {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        String templeSql = "select * from ${tableName} where capture_time >= to_date('${date}' ,'yyyy-mm-dd') and capture_time < (to_date('${date}' ,'yyyy-mm-dd') + 1)";
-
-        String sql = templeSql.replace("${date}", date)
-                .replace("${tableName}", tableName);
-        logger.info("Bbs数据获取一天数据的sql: {}", sql);
-
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RegContentBbs.class));
-    }
 
     /**
      * 查询指定开始时间和结束时间之间的数据并返回列表
@@ -54,7 +40,7 @@ public class BbsDaoImpl extends JdbcDaoSupport implements BbsDao {
      * @return
      */
     @Override
-    public Long getMinIdFromDate(Optional<String> optional) {
+    public Optional<Long> getMinIdFromDate(Optional<String> optional) {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, optional);
     }
 
@@ -66,7 +52,7 @@ public class BbsDaoImpl extends JdbcDaoSupport implements BbsDao {
      * @return
      */
     @Override
-    public List<String[]> getDataById(Long id) {
+    public List<String[]> getDataById(Optional<Long> id) {
         return JdbcUtils.getDataById(getJdbcTemplate(), tableName, id);
     }
 }

@@ -129,7 +129,7 @@ public class JdbcUtils {
      * @param optional 一个指定的Java日期
      * @return
      */
-    public static Long getMinIdFromDate(JdbcTemplate jdbcTemplate, String tableName, Optional<String> optional) {
+    public static Optional<Long> getMinIdFromDate(JdbcTemplate jdbcTemplate, String tableName, Optional<String> optional) {
         //拼装查询SQL
         String sql = JdbcUtils.getMinIdSqlTemplate.replace("${tablename}", tableName);
 
@@ -139,7 +139,7 @@ public class JdbcUtils {
         }
 
         logger.info("查询从 {} 起 {} 表最小的ID的Sql为：{}", optional.get(), tableName, sql);
-        return jdbcTemplate.queryForObject(sql, Long.class);
+        return Optional.of(jdbcTemplate.queryForObject(sql, Long.class));
     }
 
     /**
@@ -149,12 +149,12 @@ public class JdbcUtils {
      * @param id
      * @return
      */
-    public static List<String[]> getDataById(JdbcTemplate jdbcTemplate, String tableName,  Long id) {
+    public static List<String[]> getDataById(JdbcTemplate jdbcTemplate, String tableName,  Optional<Long> id) {
         //一次从Oracle中抽取多少数据（在application.properties配置文件中配置）
         Integer num = ConfigurationManager.getInteger("extract.oracle.count");
 
         String sql = selectByIdsqlTemplqte.replace("${tableName}", tableName)
-                .replace("${id}", id + "")
+                .replace("${id}", id.get() + "")
                 .replace("${num}", num + "");
 
         logger.info("从 {} 表抽取数据sql: {}", tableName, sql);
