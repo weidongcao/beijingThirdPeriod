@@ -57,7 +57,7 @@ public class RunOracleAllTableExport {
                 Date lastRecordDate = DateUtils.stringToDate(
                         BaseOracleDataExport.recordMap.get(
                                 NamingRuleUtils.getRealTimeOracleRecordKey("http")
-                        ),
+                        )._1,
                         "yyyy-MM-dd HH:mm:ss"
                 );
                 if (endTime.before(lastRecordDate)) {

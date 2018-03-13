@@ -1,5 +1,6 @@
 package com.rainsoft.dao;
 
+import com.google.common.base.Optional;
 import com.rainsoft.domain.RegContentFtp;
 
 import java.util.List;
@@ -14,4 +15,8 @@ public interface FtpDao {
     List<String> getFtpFieldValueByTime(String date);
 
     RegContentFtp getFtpById(int id);
+
+    Long getMinIdFromDate(Optional<String> date);
+
+    List<String[]> getDataById(Long id);
 }

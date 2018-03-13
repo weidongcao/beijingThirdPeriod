@@ -11,4 +11,8 @@ public interface ServiceDao {
     List<ServiceInfo> getServiceByPeriod(String date);
 
     List<String[]> getServiceByHours(String startTime, String endTime);
+
+    Long getMinId();
+
+    List<String[]> getDataById(Long id);
 }

@@ -21,9 +21,6 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
 
     private static BbsDao dao = (BbsDao) context.getBean("bbsDao");
 
-    //sync time
-    private static int hours = ConfigurationManager.getInteger("oracle.batch.export.length");
-
     /**
      * 按时间将Oracle的数据导出到Solr、HBase
      */
@@ -31,12 +28,8 @@ public class BbsOracleDataExport extends BaseOracleDataExport {
         //监控执行情况
         watch.start();
 
-        //根据当前时间和任务类型获取要从Oracle查询的开始时间和结束时间
-        Tuple2<String, String> period = getPeriod(task, hours);
-        logger.info("{} : 开始索引 {} 到 {} 的数据", task, period._1, period._2);
-
         //获取数据库指定捕获时间段的数据
-        List<String[]> dataList = dao.getBbsByHours(period._1, period._2);
+        List<String[]> dataList = dao.getDataById(getTaskStartId(task).get());
         logger.info("从数据库查询数据结束,数据量: {}", dataList.size());
 
         //实时数据导出

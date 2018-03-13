@@ -1,5 +1,6 @@
 package com.rainsoft.dao;
 
+import com.google.common.base.Optional;
 import com.rainsoft.domain.RegContentWeibo;
 
 import java.util.List;
@@ -12,4 +13,8 @@ public interface WeiboDao {
     List<RegContentWeibo> getWeiboByPeriod(String date);
 
     List<String[]> getWeiboByHours(String startTime, String endTime);
+
+    Long getMinIdFromDate(Optional<String> date);
+
+    List<String[]> getDataById(Long id);
 }

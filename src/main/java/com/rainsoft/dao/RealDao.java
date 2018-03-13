@@ -11,4 +11,8 @@ public interface RealDao {
     List<RegRealIdInfo> getRealByPeriod(String date);
 
     List<String[]> getRealByHours(String startTime, String endTime);
+
+    Long getMinId();
+
+    List<String[]> getDataById(Long id);
 }

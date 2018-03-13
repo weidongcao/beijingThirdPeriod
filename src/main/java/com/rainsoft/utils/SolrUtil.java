@@ -1,5 +1,7 @@
 package com.rainsoft.utils;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -181,12 +183,13 @@ public class SolrUtil {
     }
 
     /**
-     * 当SolrInputDocument列表大于指定长度时,把数据写入Solr
+     * 当要写入Solr的列表达到一定的数量时写入到Solr
+     * 如果是集群版Solr的话要根据日期确定写入到哪个Solr的Collection
      *
-     * @param client SolrClient
-     * @param list   List<SolrInputDocument>
-     * @param size   List的大小
-     * @param date   数据产生的日期
+     * @param client SolrClient客户端，单机版的话为HttpSolrClient，集群版的话为CloudSolrClient
+     * @param list   List<SolrInputDocument> 要写入Solr的列表
+     * @param size   list的大小达到多少时写入到Solr
+     * @param date 要写入到Solr的列表任一数据的捕获时间，如果是集群版的话程序要根据这个字段决定Solr
      * @throws IOException
      * @throws SolrServerException
      */
@@ -200,9 +203,31 @@ public class SolrUtil {
         }
     }
 
-    public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, String str)
+    /**
+     * 当要写入Solr的列表达到一定的数量时写入到Solr
+     * 如果是集群版Solr的话要根据日期确定写入到哪个Solr的Collection
+     *
+     * @param client SolrClient客户端，单机版的话为HttpSolrClient，集群版的话为CloudSolrClient
+     * @param list   List<SolrInputDocument> 要写入Solr的列表
+     * @param size   list的大小达到多少时写入到Solr
+     * @param optional 可能是String类型，也可能是日期类型，要写入到Solr的列表任一数据的捕获时间，如果是集群版的话程序要根据这个字段决定Solr
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Optional<Object> optional)
             throws IOException, SolrServerException, ParseException {
-        Date date = DateUtils.parseDate(str, "yyyy-MM-dd HH:mm:ss");
-        submitToSolr(client, list, size, date);
+        if (optional.isPresent()) {
+            Date date;
+            if (optional.get() instanceof Date) {
+                date = (Date) optional.get();
+            } else if (optional.get() instanceof String) {
+                date = DateUtils.parseDate((String) optional.get(), "yyyy-MM-dd HH:mm:ss");
+            } else {
+                return;
+            }
+            submitToSolr(client, list, size, date);
+        } else {
+            return;
+        }
     }
 }

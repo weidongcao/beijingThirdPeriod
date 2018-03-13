@@ -1,5 +1,6 @@
 package com.rainsoft.dao;
 
+import com.google.common.base.Optional;
 import com.rainsoft.domain.RegContentImChat;
 
 import java.util.List;
@@ -12,4 +13,7 @@ public interface ImchatDao {
 
     List<String[]> getImChatByHours(String startTime, String endTime);
 
+    Long getMinIdFromDate(Optional<String> date);
+
+    List<String[]> getDataById(Long id);
 }

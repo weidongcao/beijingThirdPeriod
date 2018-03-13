@@ -12,4 +12,8 @@ public interface VidDao {
     List<RegVidInfo> getVidByPeriod(String date);
 
     List<String[]> getVidByHours(String startTime, String endTime);
+
+    Long getMinId();
+
+    List<String[]> getDataById(Long id);
 }

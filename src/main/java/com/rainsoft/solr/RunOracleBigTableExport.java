@@ -41,7 +41,10 @@ public class RunOracleBigTableExport {
         while (true) {
             //如果超过结束时间结束任务
             if (null != endTime) {
-                Date lastRecordDate = DateUtils.stringToDate(BaseOracleDataExport.recordMap.get(NamingRuleUtils.getRealTimeOracleRecordKey("http")), "yyyy-MM-dd HH:mm:ss");
+                Date lastRecordDate = DateUtils.stringToDate(
+                        BaseOracleDataExport.recordMap.get(NamingRuleUtils.getRealTimeOracleRecordKey("http"))._1,
+                        "yyyy-MM-dd HH:mm:ss"
+                );
                 if (endTime.before(lastRecordDate)) {
                     break;
                 }
