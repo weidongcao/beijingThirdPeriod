@@ -1,17 +1,13 @@
 package com.rainsoft.dao;
 
-import com.google.common.base.Optional;
+import com.rainsoft.inter.ContentDaoBaseInter;
 
 import java.util.List;
 
 /**
  * Created by CaoWeiDong on 2017-06-28.
  */
-public interface BbsDao {
+public interface BbsDao extends ContentDaoBaseInter {
 
     List<String[]> getBbsByHours(String startTime, String endTime);
-
-    Optional<Long> getMinIdFromDate(Optional<String> date);
-
-    List<String[]> getDataById(Optional<Long> id);
 }

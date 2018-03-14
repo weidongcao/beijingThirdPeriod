@@ -1,7 +1,7 @@
 package com.rainsoft.dao;
 
-import com.google.common.base.Optional;
 import com.rainsoft.domain.RegContentShop;
+import com.rainsoft.inter.ContentDaoBaseInter;
 
 import java.util.List;
 
@@ -9,12 +9,8 @@ import java.util.List;
  * 购物数据Dao层
  * Created by CaoWeiDong on 2017-06-28.
  */
-public interface ShopDao {
+public interface ShopDao extends ContentDaoBaseInter {
     List<RegContentShop> getShopByPeriod(String date);
 
     List<String[]> getShopByHours(String startTime, String endTime);
-
-    Optional<Long> getMinIdFromDate(Optional<String> date);
-
-    List<String[]> getDataById(Optional<Long> id);
 }
