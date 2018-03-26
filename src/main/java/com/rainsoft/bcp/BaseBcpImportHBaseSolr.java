@@ -10,7 +10,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.spark.Success;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -99,7 +98,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @param file Bcp文件
      * @return List<String
      */
-    public static List<String> getFileContent(File file) {
+    private static List<String> getFileContent(File file) {
         List<String> lines = null;
         try {
             lines = FileUtils.readLines(file);
@@ -139,7 +138,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @param dataRDD 要写入的数据
      * @param task   任务类型
      */
-    public static void bcpWriteIntoHBaseSolr(JavaRDD<Row> dataRDD, String task) {
+    private static void bcpWriteIntoHBaseSolr(JavaRDD<Row> dataRDD, String task) {
         // RDD持久化
         dataRDD.persist(StorageLevel.MEMORY_ONLY());
         // Spark数据导入到Solr
@@ -157,7 +156,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @param javaRDD JavaRDD
      * @param task    任务类型
      */
-    public static void bcpWriteIntoSolr(JavaRDD<Row> javaRDD, String task) {
+    private static void bcpWriteIntoSolr(JavaRDD<Row> javaRDD, String task) {
         logger.info("开始将 {} 的BCP数据索引到Solr", task);
         //Bcp文件对应的字段名
         String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task));
@@ -196,7 +195,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @param javaRDD JavaRDD
      * @param task    任务类型
      */
-    public static void bcpWriteIntoHBase(JavaRDD<Row> javaRDD, String task) {
+    private static void bcpWriteIntoHBase(JavaRDD<Row> javaRDD, String task) {
         logger.info("{}的BCP数据开始写入HBase...", task);
 
         //将数据转为可以进行二次排序的形式
@@ -257,7 +256,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @param dataRDD JavaRDD<Row>
      * @return JavaRDD<Row>
      */
-    public static JavaRDD<Row> filterBcpData(JavaRDD<Row> dataRDD, String task) {
+    private static JavaRDD<Row> filterBcpData(JavaRDD<Row> dataRDD, String task) {
         //Bcp文件对应的字段名
         String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task));
         //Bcp文件需要过滤的字段

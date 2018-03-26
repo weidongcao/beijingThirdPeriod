@@ -1,6 +1,5 @@
 package com.rainsoft.dao.impl;
 
-import com.google.common.base.Optional;
 import com.rainsoft.dao.SearchDao;
 import com.rainsoft.domain.RegContentSearch;
 import com.rainsoft.utils.JdbcUtils;
@@ -12,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 购物数据Dao层
@@ -41,8 +41,7 @@ public class SearchDaoImpl extends JdbcDaoSupport implements SearchDao {
     }
     /**
      * 根据日期获取在此日期之后最小(最早)的ID
-     * @param date
-     * @return
+     * @param date 起始日期
      */
     @Override
     public Optional<Long> getMinIdFromDate(Optional<String> date) {
@@ -53,11 +52,10 @@ public class SearchDaoImpl extends JdbcDaoSupport implements SearchDao {
      * 根据指定的ID获取从此ID开始指定数量的数据
      * Oracle内容表的ID是序列自动生成的，是递增的，
      * 通过此方式可以获取到最新的数据
-     * @param id
-     * @return
+     * @param id 起始ID
      */
     @Override
-    public List<String[]> getDataById(Optional<Long> id) {
+    public List<String[]> getDatasByStartIDWithStep(Optional<Long> id) {
         return JdbcUtils.getDataById(getJdbcTemplate(), tableName, id);
     }
 }

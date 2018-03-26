@@ -10,7 +10,7 @@
 cd /opt/modules/BeiJingThirdPeriod/
 
 javaCmd="java -classpath BeiJingThirdPeriod.jar "
-javaPachage="com.rainsoft.bcp"
+javaPachage="com.rainsoft.bcp.yuntan.old1"
 javaClass="BcpFileImport"
 
 cmd="${javaCmd} ${javaPachage}.${javaClass}"
@@ -55,14 +55,14 @@ function killApp() {
 				do
 					pid=`jps | grep ${1} | grep -v grep | grep -v $$ | awk '{print $1}'`
 					if [ -z "${pid}"]; then
-					
+
 						logger "进程资源释放完成."
 						break
 					else
 						sleep 1s
 					fi
 				done
-			fi		
+			fi
 		fi
 	done
 

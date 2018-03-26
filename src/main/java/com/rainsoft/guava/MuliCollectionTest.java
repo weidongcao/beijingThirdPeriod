@@ -19,14 +19,9 @@ public class MuliCollectionTest {
 
         String[] words = strWorld.split("\\|");
 
-        Map<String, Integer> cntMap = new HashMap<String, Integer>();
+        Map<String, Integer> cntMap = new HashMap<>();
         for (String word : words) {
-            Integer cnt = cntMap.get(word);
-            if (cnt == null) {
-                cntMap.put(word, 1);
-            } else {
-                cntMap.put(word, cnt + 1);
-            }
+            cntMap.merge(word, 1, (a, b) -> a + b);
         }
         System.out.println("cntMap:");
         for (String key : cntMap.keySet()) {
@@ -54,8 +49,6 @@ public class MuliCollectionTest {
             wordsMultiset.add("dong", 2);
         }
         System.out.println("--------------------------------------------------|");
-        for (String key : wordsMultiset.elementSet()) {
-        }
     }
 
 }

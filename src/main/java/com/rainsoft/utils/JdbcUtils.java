@@ -1,6 +1,5 @@
 package com.rainsoft.utils;
 
-import com.google.common.base.Optional;
 import com.rainsoft.conf.ConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,11 @@ import java.util.Date;
 public class JdbcUtils {
     private static final Logger logger = LoggerFactory.getLogger(JdbcUtils.class);
     //获取Oracle表最小ID的SQL模板
-    public static final String getMinIdSqlTemplate = "select min(id) from ${tablename} ";
+    private static final String getMinIdSqlTemplate = "select min(id) from ${tablename} ";
     //import_time大于指定日期的条件
-    public static final String importTimeGtConditionTemplate = " import_time >= to_date('${import_time}', 'yyyy-mm-dd')";
+    private static final String importTimeGtConditionTemplate = " import_time >= to_date('${import_time}', 'yyyy-mm-dd')";
     //从Oracle表指定的ID开始抽取指定的数据量
-    public static final String selectByIdsqlTemplqte = "select * from ${tableName} where id >= ${id} and rownum < ${num}";
+    private static final String selectByIdsqlTemplqte = "select * from ${tableName} where id >= ${id} and rownum <= ${num}";
 
     public static String getFieldValue(ResultSet rs, int type, int index) {
         String value = null;
@@ -123,11 +122,12 @@ public class JdbcUtils {
 
     /**
      * 根据Oracle表名及日期获取从指定日期开始最小(最早)的ID
+     * 如果日期为空，则获取该表最小的ID
      *
-     * @param jdbcTemplate
+     * @param jdbcTemplate JdbcTemplate
      * @param tableName Oracle表名
      * @param optional 一个指定的Java日期
-     * @return
+     * @return 最小ID
      */
     public static Optional<Long> getMinIdFromDate(JdbcTemplate jdbcTemplate, String tableName, Optional<String> optional) {
         //拼装查询SQL
@@ -136,18 +136,22 @@ public class JdbcUtils {
         //如果日期不为空，则添加日期的条件
         if (optional.isPresent()) {
             sql += " where " + JdbcUtils.importTimeGtConditionTemplate.replace("${import_time}", optional.get());
+            logger.info("查询从 {} 起 {} 表最小的ID的Sql为：{}", optional.get(), tableName, sql);
+        } else {
+            logger.info("查询 {} 表最小的ID的Sql为：{}", tableName, sql);
         }
+        Long minID = jdbcTemplate.queryForObject(sql, Long.class);
+        logger.info("最小的ID为 {}", minID);
 
-        logger.info("查询从 {} 起 {} 表最小的ID的Sql为：{}", optional.get(), tableName, sql);
-        return Optional.of(jdbcTemplate.queryForObject(sql, Long.class));
+        return Optional.of(minID);
     }
 
     /**
      * 根据指定的ID获取从此ID开始指定数量的数据
      * Oracle内容表的ID是序列自动生成的，是递增的，
      * 通过此方式可以获取到最新的数据
-     * @param id
-     * @return
+     * @param id Oracle表ID
+     * @return List<String[]>
      */
     public static List<String[]> getDataById(JdbcTemplate jdbcTemplate, String tableName,  Optional<Long> id) {
         //一次从Oracle中抽取多少数据（在application.properties配置文件中配置）

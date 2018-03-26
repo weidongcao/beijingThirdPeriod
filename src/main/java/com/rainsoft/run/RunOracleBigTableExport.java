@@ -1,11 +1,10 @@
-package com.rainsoft.solr;
+package com.rainsoft.run;
 
-import com.rainsoft.utils.DateUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.solr.FtpOracleDataExport;
+import com.rainsoft.solr.HttpOracleDataExport;
+import com.rainsoft.solr.ImchatOracleDataExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 /**
  * 导出Oracle内容表大表的数据包括：
@@ -21,7 +20,7 @@ public class RunOracleBigTableExport {
         doJob(args);
     }
 
-    public static void doJob(String[] args) {
+    private static void doJob(String[] args) {
         //结束时间参数
         String endTime_String = null;
         if (args.length == 1) {
@@ -31,14 +30,12 @@ public class RunOracleBigTableExport {
                 logger.error("类型参数异常");
             }
         }
-        //结束时间
-        Date endTime = endTime_String == null ? null : DateUtils.stringToDate(endTime_String, "yyyy-MM-dd HH:mm:ss");
 
         if (null != endTime_String) {
             logger.info("导入结束时间: {}", endTime_String);
         }
 
-        while (true) {
+        do {
             //迁移Ftp表的历史数据
             FtpOracleDataExport.exportOracleByTime();
 
@@ -48,6 +45,6 @@ public class RunOracleBigTableExport {
             //迁移网页表的历史数据
             HttpOracleDataExport.exportOracleByTime();
 
-        }
+        } while (true);
     }
 }

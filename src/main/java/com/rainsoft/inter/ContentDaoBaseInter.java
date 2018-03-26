@@ -1,6 +1,7 @@
 package com.rainsoft.inter;
 
-import com.google.common.base.Optional;
+
+import java.util.Optional;
 
 /**
  * ISec管理综合平台Dao层内容表所有接口的基类

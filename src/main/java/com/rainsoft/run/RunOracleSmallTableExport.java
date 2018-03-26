@@ -1,4 +1,6 @@
-package com.rainsoft.solr;
+package com.rainsoft.run;
+
+import com.rainsoft.solr.*;
 
 /**
  * 导出Oracle内容表小表的数据
@@ -7,10 +9,10 @@ package com.rainsoft.solr;
 public class RunOracleSmallTableExport {
 
     public static void main(String[] args) {
-        doJob(args);
+        doJob();
     }
 
-    public static void doJob(String[] args) {
+    private static void doJob() {
         while (true) {
             //Bbs任务
             BbsOracleDataExport.exportOracleByTime();
@@ -23,15 +25,6 @@ public class RunOracleSmallTableExport {
 
             //Weibo任务
             WeiboOracleDataExport.exportOracleByTime();
-
-            //Shop任务
-//            ShopOracleDataExport.exportOracleByTime();
-
-            //真实表任务
-            RealOracleDataExport.exportOracleByTime();
-
-            //虚拟表任务
-            VidOracleDataExport.exportOracleByTime();
 
         }
     }

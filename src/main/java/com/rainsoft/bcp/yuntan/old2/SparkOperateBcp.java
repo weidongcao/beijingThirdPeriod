@@ -75,21 +75,15 @@ public class SparkOperateBcp implements Serializable {
          *      另外4个字段是："manufacturer_code", "zipname", "bcpname", "rownumber", "
          * 故过滤的时候要把以上情况考虑进去
          */
-        JavaRDD<String[]> filterValuesRDD = valueArrrayRDD.filter(
-                (Function<String[], Boolean>) strings -> {
-                    if (task.getColumns().length + 1 == strings.length) {
-                        //BCP文件 没有新加字段，
-                        return true;
-                    } else if ((task.getColumns().length + 1) == (strings.length + 3)) {
+        JavaRDD<String[]> filterValuesRDD;
+        filterValuesRDD = valueArrrayRDD.filter(
+                (Function<String[], Boolean>) (String[] strings) -> (task.getColumns().length + 1 == strings.length)    //BCP文件 没有新加字段，
                         //BCP文件添加了新的字段，且只添加了三个字段
-                        return true;
-                    } else if (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(task.getContentType()) &&
-                            ((task.getColumns().length + 1) == (strings.length + 3 + 4))) {
+                        || ((task.getColumns().length + 1) == (strings.length + 3))
                         //HTTP的BCP文件添加了新的字段，且添加了7个字段
-                        return true;
-                    }
-                    return false;
-                }
+                        || (BigDataConstants.CONTENT_TYPE_HTTP.equalsIgnoreCase(task.getContentType())
+                        && ((task.getColumns().length + 1) == (strings.length + 3 + 4))
+                )
         );
         //BCP文件数据写入HBase
         bcpWriteIntoHBase(filterValuesRDD, task);
@@ -141,7 +135,7 @@ public class SparkOperateBcp implements Serializable {
         logger.info("####### {}的BCP数据索引Solr完成 #######", task.getContentType());
     }
 
-    public static void bcpWriteIntoHBase(JavaRDD<String[]> javaRDD, TaskBean task) {
+    private static void bcpWriteIntoHBase(JavaRDD<String[]> javaRDD, TaskBean task) {
         logger.info("{}的BCP数据开始写入HBase...", task.getContentType());
 
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = javaRDD.flatMapToPair(

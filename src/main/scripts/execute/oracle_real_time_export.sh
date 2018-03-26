@@ -8,7 +8,7 @@
 cd /opt/modules/BeiJingThirdPeriod/
 
 javaCmd="java -classpath BeiJingThirdPeriod.jar "
-javaPachage="com.rainsoft.solr"
+javaPachage="com.rainsoft.run"
 javaClass="RunOracleAllTableExport"
 
 cmd="${javaCmd} ${javaPachage}.${javaClass}"
@@ -53,14 +53,14 @@ function killApp() {
 				do
 					pid=`jps | grep ${1} | grep -v grep | grep -v $$ | awk '{print $1}'`
 					if [ -z "${pid}"]; then
-					
+
 						logger "进程资源释放完成."
 						break
 					else
 						sleep 1s
 					fi
 				done
-			fi		
+			fi
 		fi
 	done
 

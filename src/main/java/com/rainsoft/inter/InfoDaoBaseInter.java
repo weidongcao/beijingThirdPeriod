@@ -1,6 +1,6 @@
 package com.rainsoft.inter;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * ISec管理综合平台Dao层信息表的基类
