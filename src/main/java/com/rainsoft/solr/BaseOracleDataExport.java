@@ -201,7 +201,7 @@ public class BaseOracleDataExport {
                         //如果是集群版Solr的话根据捕获时间动态写入到相应的Collection
                         SolrUtil.submitToSolr(client, docList, writeSize, importTime);
                     }
-                    SolrUtil.submitToSolr(client, docList, 0, importTime);
+                    SolrUtil.submitToSolr(client, docList, 1, importTime);
                 }
         );
         logger.info("####### {}的数据索引Solr完成 #######", NamingRuleUtils.getOracleContentTableName(task));
