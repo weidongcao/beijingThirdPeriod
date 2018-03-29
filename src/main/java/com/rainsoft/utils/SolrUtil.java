@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by Administrator on 2017-04-06.
@@ -44,7 +41,7 @@ public class SolrUtil {
         //字段在Solr里是日期类型
         if (FieldConstants.SOLR_FIELD_MAP.get("date_type_fields").contains(fieldName.toLowerCase())) {
             try {
-                Date temp = DateUtils.parseDate(fieldValue, "yyyy-MM-dd HH:mm:ss");
+                Date temp = DateUtils.parseDate(fieldValue, Locale.CHINA, "yyyy-MM-dd HH:mm:ss");
                 //如果是capture_time则另外再转转时间戳存储一份
                 if (BigDataConstants.CAPTURE_TIME.equalsIgnoreCase(fieldName)) {
                     doc.addField(fieldName.toLowerCase(), temp.getTime());
@@ -206,7 +203,7 @@ public class SolrUtil {
      * @param client SolrClient客户端，单机版的话为HttpSolrClient，集群版的话为CloudSolrClient
      * @param list   List<SolrInputDocument> 要写入Solr的列表
      * @param size   list的大小达到多少时写入到Solr
-     * @param dateOp 可能是String类型，也可能是日期类型，要写入到Solr的列表任一数据的捕获时间，如果是集群版的话程序要根据这个字段决定Solr
+     * @param dateOp 可能是String类型，也可能是日期类型，要写入到Solr的列表任一数据的捕获时间，如果是集群版的话程序要根据这个字段决定Solr写入到哪个Collection
      */
     public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Optional<Object> dateOp)
             throws IOException, SolrServerException, ParseException {

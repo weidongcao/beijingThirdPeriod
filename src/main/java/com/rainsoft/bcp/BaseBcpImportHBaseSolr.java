@@ -76,13 +76,17 @@ public class BaseBcpImportHBaseSolr implements Serializable {
             for (File bcpFile : bcpFiles) {
                 // 第二步：将BCP文件读出为List<String>
                 List<String> list = getFileContent(bcpFile);
+
                 // 第三步: Spark读取文件内容并添加唯一主键
                 JavaRDD<String> originalRDD = SparkUtils.getSparkContext(spark).parallelize(list);
                 JavaRDD<Row> dataRDD = SparkUtils.bcpDataAddRowkey(originalRDD, task);
+
                 // 第四步: Spark过滤
                 JavaRDD<Row> filterRDD = filterBcpData(dataRDD, task);
+
                 // 第五步: 写入到Sorl、HBase
                 bcpWriteIntoHBaseSolr(filterRDD, task);
+
                 // 第六步: 删除文件
                 bcpFile.delete();
             }
@@ -119,15 +123,16 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @return 文件列表
      */
     private static File[] getTaskBcpFiles(String task) {
+        //判断操作系统类型，Window上做测试，Linux上做生产
         String os = System.getProperty("os.name");
         File[] files;
-        moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
         //适应在Windows上测试与Linux运行
-        if (os.toLowerCase().contains("windows")) {
+        if (os.toLowerCase().contains("windows")) {     //Windows操作系统
             // 第二步：从工作目录读取文件列表
-            files = FileUtils.getFile("D:\\0WorkSpace\\data\\yuncai").listFiles();
-        } else {
+            files = FileUtils.getFile("D:\\0WorkSpace\\Develop\\data\\bcp").listFiles();
+        } else {    //Linux操作系统。
             // 第一步:将Bcp文件从文件池移到工作目录
+            moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
             // 第二步：从工作目录读取文件列表
             files = FileUtils.getFile(NamingRuleUtils.getBcpWorkDir(task)).listFiles();
         }

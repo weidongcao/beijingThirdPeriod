@@ -10,7 +10,7 @@ import java.util.Calendar;
  */
 public class RunBcpImport {
     public static final String[] bigTasks = new String[]{"ftp", "im_chat", "http"};
-    public static final String[] smallTasks = new String[]{"bbs", "email", "search", "weibo", "service", "vid", "real"};
+    public static final String[] smallTasks = new String[]{"bbs", "email", "search", "weibo",};
 
     public static void main(String[] args) {
         while (true) {
@@ -63,12 +63,10 @@ public class RunBcpImport {
             WeiboOracleDataExport.exportOracleByTime();
 
             //虚拟表任务
-            VidOracleDataExport.exportOracleByTime();
+            // VidOracleDataExport.exportOracleByTime();
 
             //真实表任务
-            RealOracleDataExport.exportOracleByTime();
+            // RealOracleDataExport.exportOracleByTime();
         }
     }
-
-
 }

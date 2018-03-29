@@ -317,11 +317,7 @@ public class BaseOracleDataExport {
      */
     private static Optional<Long> getTaskStartId(Map<String, Long> map, String task) {
         String recordKey = NamingRuleUtils.getOracleRecordKey(task);
-        Long l = map.get(recordKey);
-        if (null != l)
-            return Optional.of(l);
-        else
-            return Optional.empty();
+        return Optional.ofNullable(map.get(recordKey));
     }
 
 
