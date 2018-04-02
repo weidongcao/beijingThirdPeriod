@@ -1,49 +1,50 @@
 #! /bin/bash
 
-# 脚本说明
+# 脚本部署步骤
+# 需要修改4个变量
+# tomcat_map: 需要部署的Web应用压缩包及其对应的Tomcat及其端口号,
+# ocnfig_array: 需要替换的配置文件,脚本会去找旧版本里的配置文件来替换当前的,如果旧版本的不存在,则不会替换,这个时候就需要你自己手动修改了
+# app_dir: Web应用压缩包存放的目录
+# home_dir: Tomcat所在的目录
+# app_dir与home_dir不能是同一个目录
+# 修改好这个4个变量就可以执行了
+#
+# 脚本说明:
 # 脚本主要用于部署Tomcat应用程序
-# 有三个Tomcat的应用程序:
-# bigdata.tar.bz2
-# case.tar.bz2
-# isecbiz.tar.bz2
-# 支持压缩包类型为tar.bz2, tar.gz, war, zip,由变量compress_type控制
-# 看情况是否需要复制原来应用程序的依赖包,由if_copy_rely_lib变量控制
-# 不同Tomcat的名称为"Tomcat的名字-应用名称",如Tomcat的名称为apache-tomcat-7.0.79, 应用的名称为bigdata
-# 那么Tomcat的全称就是apache-tomcat-7.0.79-bigdata
+# 脚本可以同时部署多个Tomcat Web项目
+# 所有Web项目的压缩包需要放在指定的目录下,这个目录由app_dir变量控制
+# 所有要部署的Tomcat需要统一放在同一目录下, 这个目录由home_dir变量控制
+#
+# 支持压缩包类型为tar.bz2, tar.gz, war, zip
+# 需要修改的配置文件请添加到config_array数组里,
+# 添加进去后脚本会到Tomcat原来部署的应用的相应的目录下去找
+#
+# 不同Tomcat的名称为"Tomcat的名字-任务名称",
+# 如Tomcat的名称为apache-tomcat-7.0.79,
+# 任务(task)的名称为压缩包不带后缀(如压缩包 名称为case.tar.bz2则任务名称为case)
+# 那么Tomcat的全称就是apache-tomcat-7.0.79-case
+#
+# 关于lib依赖包:脚本肝去解压后的Web应用的WEB-INF目录下找lib目录,如果lib目录不存在则复制旧的Web应用的lib依赖包
 #
 # 部署应用分为以下几步(目录跳转不算)：
 #   1. 解压压缩包
 #   2. 复制lib依赖包(可选由if_copy_rely_lib变量控制)
-#   3. 修改配置文件(删除原来的解压后的配置文件，复制原来应用程序的配置文件)
+#   3. 替换配置文件
 #   4. 停止应用程序服务
 #   5. 将解压后的应用程序部署到相应的Tomcat下
 #   6. 启动Tomcat
 
+#########################################执行脚本修改以下变量#############################################
 # 应用程序部署的Tomcat
-declare -A tomcat_map=(["bigdata"]="apache-tomcat-7.0.79" ["case"]="apache-tomcat-8.5.16" ["isecbiz"]="apache-tomcat-8.5.16")
-# 应用程序所在Tomcat访问时的端口号
-declare -A port_map=(["bigdata"]="" ["case"]="" ["isecbiz"]="")
+declare -A tomcat_map=(["bigdata.tar.bz2"]="apache-tomcat-7.0.79:8080" ["case.tar.bz2"]="apache-tomcat-8.5.16:8080" ["isecbiz.tar.bz2"]="apache-tomcat-8.5.16:8080")
 # 需要修改的应用程序的配置文件
-config_array = ("jdbc" "remoting" "sysconfig")
+config_array=("jdbc.properties" "remoting.properties" "sysconfig.properties")
 
 # 应用压缩包放置的目录
 app_dir="/app/`date -d '1 days ago' "+%Y%m%d"`"
 # Java Web应用部署的Tomcat所在的目录
 home_dir="/home/java"
-# 压缩包类型
-compress_type=".tar.bz2"
-# 是否需要复制依赖包
-if_copy_rely_lib="true"
-
-# 测试用
-# declare -A tomcat_map=(["yisou"]="tomcat")
-# declare -A port_map=(["yisou"]="8090")
-# config_array=("solr")
-#
-# app_dir="/opt/software"
-# home_dir="/solrCloud"
-# compress_type=".war"
-# if_copy_rely_lib="true"
+#########################################执行脚本修改以上变量#############################################
 
 # 打印日志
 function logger() {
@@ -129,21 +130,30 @@ function killProcess() {
 }
 
 # 循环部署Tomcat应用程序
-for task in ${!tomcat_map[@]}
+for compress_file_name in ${!tomcat_map[@]}
 do
-    # 当前应用所在的Tomcat名称
-    tomcat_name=${tomcat_map["${task}"]}-${task}
-    # 应用程序压缩包名称
-    compress_file_name="${task}${compress_type}"
+    # 应用程序压缩包名称(不包含后缀),这里以任务(task)命名
+    task=${compress_file_name%%.*}
+    # 应用程序压缩判刑
+    compress_type=${compress_file_name#*.}
+
+    # 当前应用所在的Tomcat名称(前缀)及端口号
+    tomcat_and_port=${tomcat_map["${compress_file_name}"]}
+    # Tomcat的名称
+    tomcat_name=${tomcat_and_port%:*}-${task}
     # Tomcat端口号
-    tomcat_port=${port_map["${task}"]}
+    tomcat_port=${tomcat_and_port#*:}
+
     # Tomcat应用程序部署的WEB-INF目录
     deploy_web_inf_dir="${home_dir}/${tomcat_name}/webapps/${task}/WEB-INF"
 
+    logger "当前任务类型: ${task}"
     logger "应用程序的压缩包名称: ${compress_file_name}"
+    logger "应用程序的压缩包类型: ${compress_type}"
     logger "当前应用程序要部署的Tomcat: ${tomcat_name}"
     logger "Tomcat端口号: ${tomcat_port}"
     logger "Tomcat应用程序部署的WEB-INF目录: ${deploy_web_inf_dir}"
+    echo ""
 
     # 第一步跳转到app根目录如/app/20180331
     cd ${app_dir}
@@ -158,16 +168,15 @@ do
 
     # 判断解压要生成的目录是否存在，如果存在的话删除
     if [ -d "${task}" ];then
-        logger "解压要生成的目录已经存在,先删除这个目录: ${task}"
         rm -rf ${task}
-        logger "解压要生成的目录已删除"
+        logger "解压要生成的目录已经存在,先删除这个目录: ${task}"
     fi
 
     # 第二步解压
-    if [[ "${compress_type}" == ".tar.bz2" ]] || [[ "${compress_type}" == ".tar.gz" ]];then   # 解压.tar.bz2, .tar.gz包
+    if [[ "${compress_type}" == "tar.bz2" ]] || [[ "${compress_type}" == "tar.gz" ]];then   # 解压tar.bz2, tar.gz包
         tar -zxf ${compress_file_name}
         logger "命令执行完成: tar -zxf ${compress_file_name}"
-    elif [[ "${compress_type}" == ".war" ]] || [[ "${compress_type}" == ".zip" ]];then     # 解压.war, .zip包
+    elif [[ "${compress_type}" == "war" ]] || [[ "${compress_type}" == "zip" ]];then     # 解压war, zip包
         logger "命令执行完成: unzip -q ${compress_file_name} -d ${task}"
         unzip -q ${compress_file_name} -d ${task}
     fi
@@ -183,12 +192,12 @@ do
     # 在自己电脑上测试的时候发现自己打的war包不需要复制原来应用程序的依赖包,
     # 而雅妮的应用程序包是从成都传过来的,打包的时候没有把依赖包打进行
     # 帮进行以下判断,是否复制依赖包由变量: if_copy_rely_lib控制
-    if [[ "true" == "${if_copy_rely_lib}" ]]; then
+    if [ ! -d "lib" ]; then
         logger "复制lib依赖包,命令: cp -R ${deploy_web_inf_dir}/lib ./"
         cp -R ${deploy_web_inf_dir}/lib ./
-        logger "${task}复制原来部署的应用程序的lib依赖包完成"
+        logger "${task}没有lib依赖包, 复制原来部署的应用程序的lib依赖包完成"
     else
-        logger "${task}不需要复制原来应用程序中WEB-INF/lib下的依赖包"
+        logger "${task}已有lib依赖包, 不需要复制原来应用程序下的依赖包"
     fi
 
     # 第五步: 跳转到刚刚解压的应用的WEB-INF/classes目录下
@@ -197,25 +206,29 @@ do
 
     # 第六步: 删除刚刚解压的应用的配置文件并将应用部署目录下的配置文件复制过来
     # 主要针对三个配置文件jdbc.properties remoting.properties sysconfig.properties
-    for conf in ${config_array[@]}
+    for file in ${config_array[@]}
     do
-        file="${conf}.properties"
         # 判断配置配置文件是否存在
         if [ -f "${deploy_web_inf_dir}/classes/${file}" ];then     # 如果配置文件在WEB-INF/classes目录下
             rm -rf ${file}
             logger "已删除${task}应用的配置文件:${file}"
+
             cp ${deploy_web_inf_dir}/classes/${file} .
             logger "已将原来应用的配置文件 ${file} 复制给新的应用"
         elif [ -f "${deploy_web_inf_dir}/classes/config/${file}" ];then   # 如果配置文件在WEB-INF/classes/config目录下
             rm -rf config/${file}
+            logger "已删除${task}应用的配置文件:${file}"
+
             cp ${deploy_web_inf_dir}/classes/config/${file} config/
             logger "已将原来应用的配置文件 ${file} 复制给新的应用"
         else
-            logger "${task} 没有找到 ${file} 这个配置文件"
+            logger "${task} 没有 ${file} 这个配置文件"
         fi
     done
 
     # 停止Tomcat
+    echo ""
+    logger "开始关闭${tomcat_name} ..."
     killProcess ${tomcat_port}
 
     # 如果停止成功(上面的命令返回值为0)则继续部署应用
@@ -233,13 +246,15 @@ do
 
         # 把配置好的应用复制到Tomcat的webapps目录下
         cp -R ${app_dir}/${task} webapps/
-        logger "移动配置好的应用程序${task}到Tomcat完成"
+        logger "移动配置好的Web应用 ${task} 到 ${tomcat_name} 完成"
 
         # 启动Tomcat
+        logger "启动Tomcat,命令: sh bin/startup.sh"
         sh bin/startup.sh
+
         # 判断Tomcat是否启动成功
         if [[ $? == 0 ]];then
-            logger "${task}应用的Tomcat启动完成"
+            logger "${tomcat_name}启动完成"
         else
             logger "Tomcat启动失败,即将退出"
             exit 1
@@ -248,3 +263,4 @@ do
 done
 logger "没有需要部署的应用程序了"
 logger "所有应用程序部署完毕"
+
