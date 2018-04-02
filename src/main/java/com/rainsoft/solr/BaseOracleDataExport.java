@@ -49,6 +49,7 @@ public class BaseOracleDataExport {
     protected static SolrClient client = (SolrClient) context.getBean("solrClient");
     //秒表计时
     private static StopWatch watch = new StopWatch();
+    private static Integer threadSleepSeconds = ConfigurationManager.getInteger("thread.sleep.seconds");
     //导入记录文件
     private static File recordFile;
     //导入记录
@@ -114,14 +115,14 @@ public class BaseOracleDataExport {
         } else {
             //如果所有任务抽取的数据都为0则程序休眠10分钟
             int cnt = extractTastCount.values().stream().mapToInt(i -> i).sum();
-            if (cnt == 0){
+            if ((extractTastCount.size() >= 7) && (cnt == 0)){
                 //Windows下主要用于测试，休眠的时间短些，Linux下主要用于生产，休眠的时间长些
                 int seconds;
                 String os = System.getProperty("os.name");
                 if (os.toLowerCase().startsWith("win")) {
-                    seconds = 30;
+                    seconds = 5;
                 } else {
-                    seconds = 300;
+                    seconds = threadSleepSeconds;
                 }
                 logger.info("Oracle数据所有表都没有抽取到数据，开始休眠，休眠时间: {}", seconds);
                 ThreadUtils.programSleep(seconds);

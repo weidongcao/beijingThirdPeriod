@@ -4,7 +4,7 @@
 
 
     <!-- required field -->
-    <!-- Solr唯一ID -->   
+    <!-- Solr唯一ID -->
     <field name="ID" type="string" indexed="true" stored="true" required="true"/>
     <!-- oracle里的id -->
     <field name="SID" type="string" indexed="false" stored="true" />
@@ -16,7 +16,7 @@
     <!-- 捕获时间的毫秒数 -->
     <field name="capture_time" type="tlong" indexed="true" stored="false" docValues="true"/>
     <!-- 导入时间 -->
-    <field name="import_time" type="tdate" indexed="true" stored="false" docValues="true"/>
+    <field name="IMPORT_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
     <!-- 捕获时间 -->
     <field name="CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
 
@@ -306,9 +306,7 @@
     <field name="DIST" type="string" indexed="false" stored="true"/>
     <!--  -->
     <field name="ENDING_BRAND" type="string" indexed="false" stored="true"/>
-   
-    <!--  -->
-    <field name="EQUIPMENT_ID" type="string" indexed="false" stored="true"/>
+
     <!-- 设备IP -->
     <field name="EQUIPMENT_IP" type="string" indexed="false" stored="true"/>
     <!-- 设备纬度 -->
@@ -388,7 +386,7 @@
     <copyField source="FRIEND_ACCOUNT" dest="text_cn"/>
     <copyField source="FRIEND_NAME" dest="text_cn"/>
     <copyField source="ENDING_MAC" dest="text_cn"/>
-    
+
     <copyField source="FRIEND_ACCOUNT" dest="FRIEND_ACCOUNT_TEXT"/>
 
     <dynamicField name="*_s" type="string" indexed="true" stored="true"/>

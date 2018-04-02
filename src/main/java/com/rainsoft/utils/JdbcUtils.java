@@ -141,6 +141,8 @@ public class JdbcUtils {
             logger.info("查询 {} 表最小的ID的Sql为：{}", tableName, sql);
         }
         Long minID = jdbcTemplate.queryForObject(sql, Long.class);
+
+        minID = (minID != null) ? minID -1 : 0;
         logger.info("最小的ID为 {}", minID);
 
         return Optional.of(minID);

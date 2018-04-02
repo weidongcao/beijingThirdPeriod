@@ -699,7 +699,6 @@
       "download_file",
       "elevation",
       "file_path",
-      "import_time",
       "passwd",
       "zipname",
       "terminal_longitude",
@@ -714,6 +713,7 @@
       "first_logintime",
       "last_logintime",
       "first_time",
+      "chat_time",
       "last_time"
     ],
     "mac_type_fields": [
