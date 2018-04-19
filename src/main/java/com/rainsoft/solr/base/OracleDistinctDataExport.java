@@ -3,10 +3,13 @@ package com.rainsoft.solr.base;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.inter.InfoDaoInter;
+import com.rainsoft.utils.DateFormatUtils;
+import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.NamingUtils;
 import com.rainsoft.utils.SolrUtil;
-import com.rainsoft.utils.ThreadUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -16,17 +19,45 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * Created by CaoWeiDong on 2018-04-18.
  */
 public class OracleDistinctDataExport extends BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(OracleDistinctDataExport.class);
+    //导入记录
+    static Map<String, Date> recordMap = new HashMap<>();
+    //导入记录文件
+    protected static File recordFile;
+
+    // 应用初始化
+    static {
+        init();
+    }
+
+    /**
+     * 初始化程序
+     * 主要是初始化导入记录
+     */
+    /**
+     * 初始化程序
+     */
+    private static void init() {
+        //导入记录文件
+        recordFile = createOrGetFile("createIndexRecord/record_distinct.txt");
+
+        //导入记录Map
+        readFileToMap(recordFile, "utf-8", "\t").forEach(
+                (key, value) -> recordMap.put(key, DateUtils.stringToDate(value, "yyyy-MM-dd HH:mm:ss"))
+        );
+
+        logger.info("程序初始化完成...");
+    }
 
     /**
      * 从数据库抽取数据到Solr、HBase
@@ -44,23 +75,35 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
         //监控执行情况
         watch.start();
 
-        Optional<Long> id = getTaskStartId(recordMap, task);
-        //首次抽取获取开始的ID
-        if (!id.isPresent())
-            id = getStartID(dao);
+        //如果日期为空则从1970年1月1日开始抽取
+        Date startTime = recordMap.get(NamingUtils.getOracleRecordKey(task));
+        Date endTime;
+        if (null == startTime) {
+            Optional<Date> optional = dao.getMinTime("update_time");
+            if (optional.isPresent())
+                startTime = optional.get();
+            else
+                return;
+        }
+        //根据起始ID及步长从数据库里查询指定数据量的数据
+        endTime = getEndTime(startTime, 30);
 
-        //根据起始ID及步长从数据库里查询指定数据的数据
-        List<String[]> list = dao.getDatasByStartIDWithStep(id);
+        //如果时间间隔不到30分钟不抽取（这类的数据太少）
+        if (((new Date().getTime() - endTime.getTime()) / (30 * 60)) < 30)
+            return;
 
-        //记录从Oracle取到了多少数据
-        extractTastCount.put(task, list.size());
+        List<String[]> list = dao.getDataByTime(
+                DateFormatUtils.DATE_TIME_FORMAT.format(startTime),
+                DateFormatUtils.DATE_TIME_FORMAT.format(endTime)
+        );
         logger.info("从 {} 取到到 {} 条数据", NamingUtils.getTableName(task), list.size());
 
         //根据不同的情况进行抽取
         extractDataOnCondition(list, task);
 
         //一次任务抽取完之后需要做的事情
-        extractTaskOver(task, id.get() + list.size());
+        // extractTaskOver(task, id.get() + list.size());
+
     }
 
     /**
@@ -154,21 +197,6 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
             javaRDD.unpersist();
 
             logger.info("{}表一次数据抽取任务完成...", NamingUtils.getTableName(task));
-        } else {
-            //如果所有任务的数据都为0, 则程序休眠10分钟
-            int cnt = extractTastCount.values().stream().mapToInt(i -> i).sum();
-            if ((extractTastCount.size() >= 7) && (cnt == 0)) {
-                //Windows下主要用于测试，休眠的时间短些，Linux下主要用于生产，休眠的时间长些
-                int seconds;
-                String os = System.getProperty("os.name");
-                if (os.toLowerCase().startsWith("win")) {
-                    seconds = 5;
-                } else {
-                    seconds = threadSleepSeconds;
-                }
-                logger.info("Oracle数据所有表都没有抽取到数据，开始休眠，休眠时间: {}", seconds);
-                ThreadUtils.programSleep(seconds);
-            }
         }
     }
 
@@ -189,5 +217,46 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
             indexs.add(index);
         }
         return indexs;
+    }
+
+    /**
+     * 根据数据的关键字段生成32位加密MD5作为唯一ID
+     * 不同的字段之间以下划线分隔
+     *
+     * @param row    数据Row
+     * @param indexs 关键字段下标
+     * @return
+     */
+    public static String getMd5ByKeyFields(Row row, List<Integer> indexs) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < indexs.size(); i++) {
+            sb.append(row.getString(i)).append("_");
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return DigestUtils.md5Hex(sb.toString());
+    }
+
+    /**
+     * 获取一段时间的开始和结束时间
+     * 开始时间从导入记录中获取
+     * 结束时间如果此时间段不长的话以方法传的当前时间为准
+     * 如果长的话从结束时间开始向后偏移指定的小时数
+     *
+     * @param minutes 偏移的小时数
+     * @return 返回时间段的开始时间和结束时间
+     */
+    static Date getEndTime(Date startTime, int minutes) {
+        //去掉开始时间的秒数
+        Date curTime = DateUtils.truncate(new Date(), Calendar.MINUTE);
+
+        // 防止长时间没有导入,数据大量堆积的情况
+        // 如果开始时间和记录的最后导入时间相距超过10天,时间时隔改为10天
+        Date endTime = DateUtils.addMinutes(startTime, minutes);
+        if (((curTime.getTime() - endTime.getTime()) / (24 * 3600)) > 2) {
+            endTime = DateUtils.addDays(startTime, 10);
+        }
+        return endTime;
     }
 }

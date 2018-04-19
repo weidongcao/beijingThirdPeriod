@@ -4,6 +4,8 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.inter.ContentDaoInter;
 import com.rainsoft.utils.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -14,7 +16,10 @@ import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Oracle内容类型的数据抽取到Solr
@@ -23,6 +28,28 @@ import java.util.*;
 public class OracleContentDataExport extends BaseOracleDataExport {
     private static final Logger logger = LoggerFactory.getLogger(OracleContentDataExport.class);
 
+    //导入记录
+    static Map<String, Long> recordMap = new HashMap<>();
+    //不同的任务一次抽取的数据量，用于控制程序空转的情况（从Oracle中没有抽取到数据）
+    static Map<String, Integer> extractTastCount = new HashMap<>();
+    //导入记录文件
+    protected static File recordFile;
+
+    // 应用初始化
+    static { init(); }
+
+    /**
+     * 初始化程序
+     * 主要是初始化导入记录
+     */
+    private static void init() {
+        //导入记录文件
+        recordFile = createOrGetFile("createIndexRecord/record_content.txt");
+        //导入记录Map
+        Map<String, String> map = readFileToMap(recordFile, "utf-8", "\t");
+        map.forEach((key, value) -> recordMap.put(key, Long.valueOf(value)));
+        logger.info("程序初始化完成...");
+    }
     /**
      * 从数据库抽取数据到Solr、HBase
      * 主要做三件事件：
@@ -80,11 +107,10 @@ public class OracleContentDataExport extends BaseOracleDataExport {
 
     /**
      * Oracle内容表数据导入到Solr
-     *
-     * @param javaRDD JavaRDD<String[]>
+     *  @param javaRDD JavaRDD<String[]>
      * @param task    任务名
      */
-    private static void export2Solr(JavaRDD<Row> javaRDD, String task) {
+    static void export2Solr(JavaRDD<Row> javaRDD, String task) {
         //字段名数组
         String[] columns = FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(NamingUtils.getTableName(task));
         javaRDD.foreachPartition(
@@ -116,7 +142,7 @@ public class OracleContentDataExport extends BaseOracleDataExport {
                         //如果是集群版Solr的话根据捕获时间动态写入到相应的Collection
                         SolrUtil.submitToSolr(client, docList, writeSize, importTime);
                     }
-                    SolrUtil.submitToSolr(client, docList, 1, importTime);
+                    SolrUtil.submitToSolr(client, docList, 0, importTime);
                 }
         );
         logger.info("####### {}的数据索引Solr完成 #######", NamingUtils.getTableName(task));
@@ -125,11 +151,10 @@ public class OracleContentDataExport extends BaseOracleDataExport {
     /**
      * 根据数据及任务类型处理不同的抽取情况
      * 如果任务有数据则进行抽取，如果没有数据的话判断是否需要休眠（所有的任务都没有数据）
-     *
-     * @param list 要抽取的数据
+     *  @param list 要抽取的数据
      * @param task 任务类型
      */
-    public static void extractDataOnCondition(List<String[]> list, String task) {
+    private static void extractDataOnCondition(List<String[]> list, String task) {
         if (list.size() > 0) {
             logger.info("{}表数据抽取任务开始", NamingUtils.getTableName(task));
             //根据数据量决定启动多少个线程
@@ -167,5 +192,51 @@ public class OracleContentDataExport extends BaseOracleDataExport {
                 ThreadUtils.programSleep(seconds);
             }
         }
+    }
+
+    /**
+     * 数据抽取结果需要做的事情
+     * 1. 抽取的最大ID写入抽取记录Map
+     * 2. 抽取的最大ID写入抽取记录文件
+     * 3. 停止计时
+     * 4. 重置计时器
+     *
+     * @param task   任务类型
+     * @param lastId 当前任务抽取的最大(最后一个)ID，后面再抽取的时候就从下一个ID开始抽取
+     */
+    public static void extractTaskOver(String task, Long lastId) {
+        //导入记录写入Map
+        recordMap.put(NamingUtils.getOracleRecordKey(task), lastId);
+        //导入记录写入文件
+        overwriteRecordFile(recordFile, recordMap);
+        //停止计时
+        watch.stop();
+        //重置计时器
+        watch.reset();
+    }
+
+    /**
+     * 根据任务类型获取抽取记录Map中相应任务抽取到的ID
+     *
+     * @param map  抽取记录Map
+     * @param task 任务类型
+     * @return ID
+     * @time 2018-03-14 11:46:28
+     */
+    protected static Optional<Long> getTaskStartId(Map<String, Long> map, String task) {
+        String recordKey = NamingUtils.getOracleRecordKey(task);
+        return Optional.ofNullable(map.get(recordKey));
+    }
+
+    private static void overwriteRecordFile(File file, Map<String, Long> map) {
+        //导入记录Map转List
+        List<String> newRecordList = map.entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + "\t" + entry.getValue()).sorted().collect(Collectors.toList());
+        //对转换后的导入记录List进行排序
+        //导入记录List转String
+        String newRecords = StringUtils.join(newRecordList, "\r\n");
+        //写入导入记录文件
+        appendRecordIntoFile(file, newRecords, false);
     }
 }

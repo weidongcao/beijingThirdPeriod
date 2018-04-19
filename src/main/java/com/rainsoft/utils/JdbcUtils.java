@@ -21,6 +21,10 @@ public class JdbcUtils {
     private static final String importTimeGtConditionTemplate = " import_time >= to_date('${import_time}', 'yyyy-mm-dd')";
     //从Oracle表指定的ID开始抽取指定的数据量
     private static final String selectByIdsqlTemplqte = "select * from ${tableName} where id >= ${id} and rownum <= ${num}";
+    //根据开始时间和结束时间从指定的表中查询数据
+    private static String getDataByTimeSqlTemplate = "select * from ${tableName} where last_logintime >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and last_logintime < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+    //获取指定表指定字段的最小值
+    private static String getMinValueSqlTemplate = "select min(${fieldName}) from ${tableName}";
 
     public static String getFieldValue(ResultSet rs, int type, int index) {
         String value = null;
@@ -94,6 +98,27 @@ public class JdbcUtils {
 
     }
 
+
+    /**
+     * 获取指定的开始时间和结束时间之间的数据
+     *
+     * @param jdbcTemplate Spring Jdbc
+     * @param tableName    表名
+     * @param startTime    开始时间
+     * @param endTime      结束时间
+     * @return 返回结果
+     */
+    public static List<String[]> getDataByTime(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
+        String sql = getDataByTimeSqlTemplate.replace("${startTime}", startTime)
+                .replace("${endTime}", endTime)
+                .replace("${tableName}", tableName);
+        logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
+
+        // 返回结果为数组类型的List
+        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
+
+    }
+
     /**
      * 根据开始时间和结束时间获取Oracle指定表指定时间段内的数据并返回数组类型的列表
      *
@@ -125,37 +150,58 @@ public class JdbcUtils {
      * 如果日期为空，则获取该表最小的ID
      *
      * @param jdbcTemplate JdbcTemplate
-     * @param tableName Oracle表名
-     * @param optional 一个指定的Java日期
+     * @param tableName    Oracle表名
+     * @param optional     一个指定的Java日期
      * @return 最小ID
      */
     public static Optional<Long> getMinIdFromDate(JdbcTemplate jdbcTemplate, String tableName, Optional<String> optional) {
         //拼装查询SQL
-        String sql = JdbcUtils.getMinIdSqlTemplate.replace("${tablename}", tableName);
+        String sql = getMinIdSqlTemplate.replace("${tablename}", tableName);
 
         //如果日期不为空，则添加日期的条件
         if (optional.isPresent()) {
-            sql += " where " + JdbcUtils.importTimeGtConditionTemplate.replace("${import_time}", optional.get());
+            sql += " where " + importTimeGtConditionTemplate.replace("${import_time}", optional.get());
             logger.info("查询从 {} 起 {} 表最小的ID的Sql为：{}", optional.get(), tableName, sql);
         } else {
             logger.info("查询 {} 表最小的ID的Sql为：{}", tableName, sql);
         }
         Long minID = jdbcTemplate.queryForObject(sql, Long.class);
 
-        minID = (minID != null) ? minID -1 : 0;
+        minID = (minID != null) ? minID - 1 : 0;
         logger.info("最小的ID为 {}", minID);
 
         return Optional.of(minID);
     }
 
     /**
+     * 获取指定表指定字段的最小值
+     * 如果日期为空，则获取该表最小的ID
+     *
+     * @param jdbcTemplate JdbcTemplate
+     * @param tableName    Oracle表名
+     * @param fieldName     字段名
+     * @return 最小值
+     */
+    public static Optional<String> getMinValue(JdbcTemplate jdbcTemplate, String tableName, String fieldName) {
+        //拼装查询SQL
+        String sql = getMinValueSqlTemplate.replace("${tableName}", tableName)
+                .replace("${fieldName}", fieldName);
+
+        logger.info("查询 {} 表 {} 字段最小值的Sql为：{}", tableName, sql);
+        String fieldValue = jdbcTemplate.queryForObject(sql, String.class);
+
+        return Optional.ofNullable(fieldValue);
+    }
+
+    /**
      * 根据指定的ID获取从此ID开始指定数量的数据
      * Oracle内容表的ID是序列自动生成的，是递增的，
      * 通过此方式可以获取到最新的数据
+     *
      * @param id Oracle表ID
-     * @return List<String[]>
+     * @return List<String   [   ]>
      */
-    public static List<String[]> getDataById(JdbcTemplate jdbcTemplate, String tableName,  Optional<Long> id) {
+    public static List<String[]> getDataById(JdbcTemplate jdbcTemplate, String tableName, Optional<Long> id) {
         //一次从Oracle中抽取多少数据（在application.properties配置文件中配置）
         Integer num = ConfigurationManager.getInteger("extract.oracle.count");
 

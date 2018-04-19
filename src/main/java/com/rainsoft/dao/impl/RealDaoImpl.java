@@ -2,6 +2,7 @@ package com.rainsoft.dao.impl;
 
 import com.rainsoft.dao.RealDao;
 import com.rainsoft.domain.RegRealIdInfo;
+import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +18,10 @@ import java.util.Optional;
  * Oracle真实数据Dao实现层
  * Created by CaoWeiDong on 2017-06-28.
  */
-public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
+public class RealDaoImpl extends JdbcDaoSupport implements RealDao {
     private static final Logger logger = LoggerFactory.getLogger(RealDaoImpl.class);
     private static final String tableName = "reg_realid_info";
+
     @Override
     public List<RegRealIdInfo> getRealByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
@@ -32,19 +35,14 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
     }
 
     @Override
-    public List<String[]> getRealByHours(String startTime, String endTime) {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        String templeSql = "select * from ${tableName} where last_logintime >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and last_logintime < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+    public List<String[]> getDataByTime(String startTime, String endTime) {
+        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, startTime, endTime);
+    }
 
-        String sql = templeSql.replace("${startTime}", startTime)
-                .replace("${endTime}", endTime)
-                .replace("${tableName}", tableName);
-        logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
-
-        /*
-         * 返回结果为数组类型的List
-         */
-        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
+    @Override
+    public Optional<Date> getMinTime(String fieldName) {
+        Optional<String> optional = JdbcUtils.getMinValue(getJdbcTemplate(), tableName, "update_time");
+        return Optional.ofNullable(DateUtils.stringToDate(optional.get(), "yyyy-MM-dd HH:mm:ss"));
     }
 
     /**
@@ -59,6 +57,7 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao{
      * 根据指定的ID获取从此ID开始指定数量的数据
      * Oracle内容表的ID是序列自动生成的，是递增的，
      * 通过此方式可以获取到最新的数据
+     *
      * @param id 起始ID
      */
     @Override

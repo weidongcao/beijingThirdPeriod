@@ -196,7 +196,10 @@ public class SolrUtil {
     public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Optional<Object> dateOp)
             throws IOException, SolrServerException {
         Object obj;
-        if (!dateOp.isPresent() || list.size() == 0) {
+        if (!dateOp.isPresent()
+                || (null == list)
+                || (list.size() == 0)
+                || (list.size() < size)) {
             return;
         }
 

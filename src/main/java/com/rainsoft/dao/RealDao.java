@@ -11,6 +11,4 @@ import java.util.List;
  */
 public interface RealDao extends InfoDaoInter {
     List<RegRealIdInfo> getRealByPeriod(String date);
-
-    List<String[]> getRealByHours(String startTime, String endTime);
 }
