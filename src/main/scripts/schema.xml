@@ -7,7 +7,7 @@
     <!-- Solr唯一ID -->
     <field name="ID" type="string" indexed="true" stored="true" required="true"/>
     <!-- oracle里的id -->
-    <field name="SID" type="string" indexed="false" stored="true" />
+    <field name="SID" type="string" indexed="true" stored="true" />
     <field name="_version_" type="tlong" indexed="true" stored="true" docValues="true"/>
     <field name="_root_" type="string" indexed="true" stored="true" docValues="false"/>
     <field name="text_cn" type="text_ik" indexed="true" stored="false" multiValued="true"/>

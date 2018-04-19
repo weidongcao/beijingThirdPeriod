@@ -129,7 +129,7 @@ public class SparkOperateBcp implements Serializable {
                         list.add(doc);
 
                     }
-                    SolrUtil.submitToSolr(client, list, 0, new Date());
+                    SolrUtil.submitToSolr(client, list, 0, java.util.Optional.of(new Date()));
                 }
         );
         logger.info("####### {}的BCP数据索引Solr完成 #######", task.getContentType());

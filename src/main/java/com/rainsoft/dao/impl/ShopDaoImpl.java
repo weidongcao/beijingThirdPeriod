@@ -3,7 +3,7 @@ package com.rainsoft.dao.impl;
 import com.rainsoft.dao.ShopDao;
 import com.rainsoft.domain.RegContentShop;
 import com.rainsoft.utils.JdbcUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class ShopDaoImpl extends JdbcDaoSupport implements ShopDao{
     private static final Logger logger = LoggerFactory.getLogger(ShopDaoImpl.class);
 
-    private static final String tableName = NamingRuleUtils.getOracleContentTableName("shop");
+    private static final String tableName = NamingUtils.getTableName("shop");
     @Override
     public List<RegContentShop> getShopByPeriod(String date) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();

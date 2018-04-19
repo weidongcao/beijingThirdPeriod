@@ -1,6 +1,6 @@
 package com.rainsoft.run;
 
-import com.rainsoft.solr.*;
+import com.rainsoft.solr.content.*;
 
 /**
  * 导出Oracle表数据,所有的表包括：

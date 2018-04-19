@@ -1,8 +1,8 @@
 package com.rainsoft.run;
 
-import com.rainsoft.solr.FtpOracleDataExport;
-import com.rainsoft.solr.HttpOracleDataExport;
-import com.rainsoft.solr.ImchatOracleDataExport;
+import com.rainsoft.solr.content.FtpOracleDataExport;
+import com.rainsoft.solr.content.HttpOracleDataExport;
+import com.rainsoft.solr.content.ImchatOracleDataExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

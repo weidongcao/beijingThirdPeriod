@@ -4,7 +4,7 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.domain.TaskBean;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +43,10 @@ public class Main {
         ftp.setCaptureTimeIndex(17);
         ftp.setContentType(task);
         ftp.setDocType(BigDataConstants.SOLR_DOC_TYPE_FTP_VALUE);
-        ftp.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
-        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
-        ftp.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
-        ftp.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+        ftp.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task)));
+        ftp.setHbaseCF(NamingUtils.getHBaseContentTableCF());
+        ftp.setHfileTmpStorePath(NamingUtils.getHFileTaskDir(NamingUtils.getBcpTaskKey(task)));
+        ftp.setHbaseTableName(NamingUtils.getHBaseTableName(task));
 
         return ftp;
     }
@@ -62,10 +62,10 @@ public class Main {
         imChat.setCaptureTimeIndex(20);
         imChat.setContentType(task);
         imChat.setDocType(BigDataConstants.SOLR_DOC_TYPE_IMCHAT_VALUE);
-        imChat.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
-        imChat.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
-        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
-        imChat.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+        imChat.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task)));
+        imChat.setHfileTmpStorePath(NamingUtils.getHFileTaskDir(NamingUtils.getBcpTaskKey(task)));
+        imChat.setHbaseCF(NamingUtils.getHBaseContentTableCF());
+        imChat.setHbaseTableName(NamingUtils.getHBaseTableName(task));
 
         String path = ConfigurationManager.getProperty("bcp.file.path") + File.separator + task;
         logger.info("替换 {} 的BCP数据的目录： {}", imChat.getContentType(), path);
@@ -84,10 +84,10 @@ public class Main {
         http.setCaptureTimeIndex(22);
         http.setContentType(task);
         http.setDocType(BigDataConstants.SOLR_DOC_TYPE_HTTP_VALUE);
-        http.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
-        http.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
-        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
-        http.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+        http.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task)));
+        http.setHfileTmpStorePath(NamingUtils.getHFileTaskDir(NamingUtils.getBcpTaskKey(task)));
+        http.setHbaseCF(NamingUtils.getHBaseContentTableCF());
+        http.setHbaseTableName(NamingUtils.getHBaseTableName(task));
 
 
         return http;

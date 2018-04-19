@@ -202,13 +202,13 @@ public class HBaseUtils {
         //将rdd转换成HFile需要的格式,Hfile的key是ImmutableBytesWritable,Value为KeyValue
         JavaPairRDD<ImmutableBytesWritable, KeyValue> hfileRDD = transformSecondarySortToHfileFormat(
                 dataRDD,
-                NamingRuleUtils.getHBaseContentTableCF()
+                NamingUtils.getHBaseContentTableCF()
         );
 
         //HFile在HDFS上的临时目录
-        String hfileDir = NamingRuleUtils.getHFileTaskDir(task) + UUID.randomUUID().toString().replace("-", "");
+        String hfileDir = NamingUtils.getHFileTaskDir(task) + UUID.randomUUID().toString().replace("-", "");
         //HBase表名
-        String tableName = NamingRuleUtils.getHBaseTableName(task);
+        String tableName = NamingUtils.getHBaseTableName(task);
 
         //判断HDFS上是否存在此路径，如果存在删除此路径
         deleteHdfsPath(hfileDir);

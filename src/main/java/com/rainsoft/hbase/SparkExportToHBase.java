@@ -1,7 +1,7 @@
 package com.rainsoft.hbase;
 
 import com.rainsoft.utils.HBaseUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -36,11 +36,11 @@ public class SparkExportToHBase {
         JavaSparkContext sc = new JavaSparkContext(conf);
 
         //oracle表名
-        String tableName = NamingRuleUtils.getOracleContentTableName(taskType);
+        String tableName = NamingUtils.getTableName(taskType);
         //列簇名
-        String cf = NamingRuleUtils.getHBaseContentTableCF();
+        String cf = NamingUtils.getHBaseContentTableCF();
         //HFile的HDFS临时存储目录
-        String tempHDFSPath = NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getOracleContentTableName(taskType));
+        String tempHDFSPath = NamingUtils.getHFileTaskDir(NamingUtils.getTableName(taskType));
 
         InputStream in = SparkExportToHBase.class.getClassLoader().getResourceAsStream("metadata/" + tableName.toLowerCase());
 

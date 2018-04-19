@@ -7,7 +7,7 @@ import java.util.Optional;
  * 包括real, vid, service
  * Created by CaoWeiDong on 2018-03-14.
  */
-public interface InfoDaoBaseInter extends ISecDaoBaseInter {
+public interface InfoDaoInter extends ISecDaoBaseInter {
     //获取数据库表中从指定日期开始最小的ID（数据库表里ID是自动递增的序列）
     Optional<Long> getMinId();
 }

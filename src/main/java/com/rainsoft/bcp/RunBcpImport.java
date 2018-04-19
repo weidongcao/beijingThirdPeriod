@@ -1,6 +1,9 @@
 package com.rainsoft.bcp;
 
-import com.rainsoft.solr.*;
+import com.rainsoft.solr.content.BbsOracleDataExport;
+import com.rainsoft.solr.content.EmailOracleDataExport;
+import com.rainsoft.solr.content.SearchOracleDataExport;
+import com.rainsoft.solr.content.WeiboOracleDataExport;
 import com.rainsoft.utils.ThreadUtils;
 
 import java.util.Calendar;

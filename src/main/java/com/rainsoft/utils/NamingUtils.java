@@ -8,7 +8,7 @@ import java.io.File;
  * 命名规则工具类
  * Created by Administrator on 2017-10-16.
  */
-public class NamingRuleUtils {
+public class NamingUtils {
     private static String bcpWorkRootDir = ConfigurationManager.getProperty("bcp.file.path");
     /**
      * Oracle内容表的命名规则
@@ -16,7 +16,7 @@ public class NamingRuleUtils {
      * @param task 任务类型
      * @return String
      */
-    public static String getOracleContentTableName(String task) {
+    public static String getTableName(String task) {
         if ("service".equalsIgnoreCase(task)) {
             return "service_info";
         } else if ("real".equalsIgnoreCase(task)) {
@@ -35,7 +35,7 @@ public class NamingRuleUtils {
      * @return HBase表名
      */
     public static String getHBaseTableName(String task) {
-        return "H_" + getOracleContentTableName(task).toUpperCase();
+        return "H_" + getTableName(task).toUpperCase();
     }
 
     public static String getTmpHBaseTableName(String task) {
@@ -57,7 +57,7 @@ public class NamingRuleUtils {
      * @return 任务实时导入的RowKey
      */
     public static String getOracleRecordKey(String task) {
-        return getOracleContentTableName(task).toLowerCase() + "-last_export_time";
+        return getTableName(task).toLowerCase() + "-last_export_time";
     }
 
     /**

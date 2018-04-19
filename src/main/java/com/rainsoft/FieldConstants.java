@@ -7,10 +7,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by CaoWeiDong on 2017-08-01.
@@ -26,6 +23,8 @@ public class FieldConstants {
     public static final Map<String, Set<String>> SOLR_FIELD_MAP = new HashMap<>();
     //数据类型Map
     public static final Map<String, String> DOC_TYPE_MAP = new HashMap<>();
+    //根据字段唯一确定数据,用于MD5加密生成32位Solr唯一ID
+    public static final Map<String, String[]> TASK_KEY_MAP = new HashMap<>();
 
     static {
         //获取BCP字段信息文件流
@@ -69,6 +68,7 @@ public class FieldConstants {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         DOC_TYPE_MAP.put("bbs", "论坛");
         DOC_TYPE_MAP.put("email", "邮件");
         DOC_TYPE_MAP.put("ftp", "文件");
@@ -81,6 +81,20 @@ public class FieldConstants {
         DOC_TYPE_MAP.put("weibo", "微博");
         DOC_TYPE_MAP.put("ending_trace", "ending_mac");
 
+        TASK_KEY_MAP.put("bbs", new String[]{""});
+        TASK_KEY_MAP.put("email", new String[]{""});
+        TASK_KEY_MAP.put("ftp", new String[]{""});
+        TASK_KEY_MAP.put("http", new String[]{""});
+        TASK_KEY_MAP.put("im_chat", new String[]{""});
+        TASK_KEY_MAP.put("search", new String[]{});
+        TASK_KEY_MAP.put("weibo", new String[]{});
+
+        TASK_KEY_MAP.put("real", new String[]{"certificate_code", "certificate_type"});
+        TASK_KEY_MAP.put("service", new String[]{"service_code"});
+        TASK_KEY_MAP.put("vid", new String[]{"protocol_type", "account"});
+        TASK_KEY_MAP.put("machine", new String[]{"machine_id"});
+        TASK_KEY_MAP.put("imei", new String[]{"imei_code"});
+        TASK_KEY_MAP.put("imsi", new String[]{"imsi_code"});
     }
 
 }

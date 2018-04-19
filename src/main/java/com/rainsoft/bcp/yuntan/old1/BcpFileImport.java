@@ -4,7 +4,7 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.domain.TaskBean;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,21 +50,21 @@ public class BcpFileImport implements Serializable {
      */
     private static TaskBean getFtpTask() {
         String task = BigDataConstants.CONTENT_TYPE_FTP;
-        String oracleTableName = NamingRuleUtils.getOracleContentTableName(task);
+        String oracleTableName = NamingUtils.getTableName(task);
         TaskBean ftp = new TaskBean();
         //BCP文件路径
         ftp.setBcpPath(ConfigurationManager.getProperty("bcp.file.path") + "/" + task);
         //HBase表名
         ftp.setHbaseTableName(hbaseTablePrefix + oracleTableName.toUpperCase());
-        ftp.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+        ftp.setHbaseTableName(NamingUtils.getHBaseTableName(task));
         //HBase列簇
-        ftp.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
+        ftp.setHbaseCF(NamingUtils.getHBaseContentTableCF());
         //HFile在HDFS上的临时存储目录
-        ftp.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
+        ftp.setHfileTmpStorePath(NamingUtils.getHFileTaskDir(NamingUtils.getBcpTaskKey(task)));
         //数据类型
         ftp.setContentType(task);
         //全部字段名数组
-        ftp.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
+        ftp.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task)));
         //需要过滤的关键字段
         ftp.setKeyColumns(new String[]{"file_name"});
 
@@ -83,15 +83,15 @@ public class BcpFileImport implements Serializable {
         //BCP文件路径
         imChat.setBcpPath(ConfigurationManager.getProperty("bcp.file.path") + "/" + task);
         //HBase表名
-        imChat.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+        imChat.setHbaseTableName(NamingUtils.getHBaseTableName(task));
         //HBase列簇
-        imChat.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
+        imChat.setHbaseCF(NamingUtils.getHBaseContentTableCF());
         //HFile在HDFS上的临时存储目录
-        imChat.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
+        imChat.setHfileTmpStorePath(NamingUtils.getHFileTaskDir(NamingUtils.getBcpTaskKey(task)));
         //数据类型
         imChat.setContentType(task);
         //全部字段名数组
-        imChat.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
+        imChat.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task)));
         //需要过滤的关键字段
         imChat.setKeyColumns(new String[]{});
 
@@ -111,15 +111,15 @@ public class BcpFileImport implements Serializable {
         //BCP文件路径
         http.setBcpPath(ConfigurationManager.getProperty("bcp.file.path") + "/" + task);
         //HBase表名
-        http.setHbaseTableName(NamingRuleUtils.getHBaseTableName(task));
+        http.setHbaseTableName(NamingUtils.getHBaseTableName(task));
         //HBase列簇
-        http.setHbaseCF(NamingRuleUtils.getHBaseContentTableCF());
+        http.setHbaseCF(NamingUtils.getHBaseContentTableCF());
         //HFile在HDFS上的临时存储目录
-        http.setHfileTmpStorePath(NamingRuleUtils.getHFileTaskDir(NamingRuleUtils.getBcpTaskKey(task)));
+        http.setHfileTmpStorePath(NamingUtils.getHFileTaskDir(NamingUtils.getBcpTaskKey(task)));
         //数据类型
         http.setContentType(task);
         //全部字段名数组
-        http.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task)));
+        http.setColumns(FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task)));
         //需要过滤的关键字段
         http.setKeyColumns(new String[]{"ref_domain"});
 

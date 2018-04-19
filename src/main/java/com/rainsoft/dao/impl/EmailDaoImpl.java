@@ -3,7 +3,7 @@ package com.rainsoft.dao.impl;
 import com.rainsoft.dao.EmailDao;
 import com.rainsoft.domain.RegContentEmail;
 import com.rainsoft.utils.JdbcUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 public class EmailDaoImpl extends JdbcDaoSupport implements EmailDao{
     private static final Logger logger = LoggerFactory.getLogger(EmailDaoImpl.class);
-    private static final String tableName = NamingRuleUtils.getOracleContentTableName("email");
+    private static final String tableName = NamingUtils.getTableName("email");
 
     @Override
     public List<RegContentEmail> getEmailByPeriod(String date) {

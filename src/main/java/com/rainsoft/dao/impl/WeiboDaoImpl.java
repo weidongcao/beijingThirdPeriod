@@ -3,7 +3,7 @@ package com.rainsoft.dao.impl;
 import com.rainsoft.dao.WeiboDao;
 import com.rainsoft.domain.RegContentWeibo;
 import com.rainsoft.utils.JdbcUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class WeiboDaoImpl extends JdbcDaoSupport implements WeiboDao {
     private static final Logger logger = LoggerFactory.getLogger(WeiboDaoImpl.class);
 
-    private static final String tableName = NamingRuleUtils.getOracleContentTableName("weibo");
+    private static final String tableName = NamingUtils.getTableName("weibo");
 
     @Override
     public List<RegContentWeibo> getWeiboByPeriod(String date) {

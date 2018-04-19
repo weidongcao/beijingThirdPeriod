@@ -17,6 +17,7 @@ public class SearchBcpImport extends BaseBcpImportHBaseSolr {
     public static void main(String[] args) {
         while (true) {
             doTask(task);
+            break;
         }
     }
 }

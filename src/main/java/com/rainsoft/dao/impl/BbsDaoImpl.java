@@ -2,7 +2,7 @@ package com.rainsoft.dao.impl;
 
 import com.rainsoft.dao.BbsDao;
 import com.rainsoft.utils.JdbcUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,7 +20,7 @@ public class BbsDaoImpl extends JdbcDaoSupport implements BbsDao {
     private static final Logger logger = LoggerFactory.getLogger(BbsDaoImpl.class);
 
     //BBS数据在Oracle中的表名
-    private static final String tableName = NamingRuleUtils.getOracleContentTableName("bbs");
+    private static final String tableName = NamingUtils.getTableName("bbs");
 
     /**
      * 查询指定开始时间和结束时间之间的数据并返回列表

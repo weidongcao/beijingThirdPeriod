@@ -1,6 +1,9 @@
 package com.rainsoft.run;
 
-import com.rainsoft.solr.*;
+import com.rainsoft.solr.content.BbsOracleDataExport;
+import com.rainsoft.solr.content.EmailOracleDataExport;
+import com.rainsoft.solr.content.SearchOracleDataExport;
+import com.rainsoft.solr.content.WeiboOracleDataExport;
 
 /**
  * 导出Oracle内容表小表的数据

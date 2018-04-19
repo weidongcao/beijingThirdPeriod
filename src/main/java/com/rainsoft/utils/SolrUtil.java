@@ -50,11 +50,11 @@ public class SolrUtil {
             } catch (ParseException e) {
                 //日期转换失败，什么都不做直接跳过
             }
-        } else if(FieldConstants.SOLR_FIELD_MAP.get("mac_type_fields").contains(fieldName.toLowerCase())){
+        } else if (FieldConstants.SOLR_FIELD_MAP.get("mac_type_fields").contains(fieldName.toLowerCase())) {
             //字段是Mac地址,需要去掉中划线
             fieldValue = fieldValue.replace("-", "");
             doc.addField(fieldName, fieldValue);
-        }else {    //字段在Solr里是text类型
+        } else {    //字段在Solr里是text类型
             //sid
             if ("id".equalsIgnoreCase(fieldName)) {
                 doc.addField("SID", fieldValue);
@@ -167,32 +167,20 @@ public class SolrUtil {
      * 如果是CloudSolrClient的话设置默认的Collection
      *
      * @param client SolrClient
-     * @param date   数据生成的日期
+     * @param obj    Solr Collection 标识，如果是日期类型的就写入到按日期划分的Collection，如果是字符串类型的就直接写入到此字符串
      */
-    public static void setCloudSolrClientDefaultCollection(SolrClient client, Date date) {
+    public static void setCloudSolrClientDefaultCollection(SolrClient client, Object obj) {
         if (client instanceof CloudSolrClient) {
-            String collectionName = createSolrCollectionName("yisou", date, 10);
-            logger.info("当前的Solr Collection为: {}", collectionName);
-            ((CloudSolrClient) client).setDefaultCollection(collectionName);
-        }
-    }
+            String collectionName = null;
+            if (obj instanceof Date)
+                collectionName = createSolrCollectionName("yisou", (Date) obj, 10);
+            else if (obj instanceof String)
+                collectionName = (String) obj;
 
-    /**
-     * 当要写入Solr的列表达到一定的数量时写入到Solr
-     * 如果是集群版Solr的话要根据日期确定写入到哪个Solr的Collection
-     *
-     * @param client SolrClient客户端，单机版的话为HttpSolrClient，集群版的话为CloudSolrClient
-     * @param list   List<SolrInputDocument> 要写入Solr的列表
-     * @param size   list的大小达到多少时写入到Solr
-     * @param date 要写入到Solr的列表任一数据的捕获时间，如果是集群版的话程序要根据这个字段决定Solr
-     */
-    public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Date date)
-            throws IOException, SolrServerException {
-        if (list.size() >= size) {
-            setCloudSolrClientDefaultCollection(client, date);
-            client.add(list, 10000);
-            logger.info("写入Solr {} 条数据", list.size());
-            list.clear();
+            if (null != collectionName) {
+                logger.info("当前的Solr Collection为: {}", collectionName);
+                ((CloudSolrClient) client).setDefaultCollection(collectionName);
+            }
         }
     }
 
@@ -206,17 +194,27 @@ public class SolrUtil {
      * @param dateOp 可能是String类型，也可能是日期类型，要写入到Solr的列表任一数据的捕获时间，如果是集群版的话程序要根据这个字段决定Solr写入到哪个Collection
      */
     public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Optional<Object> dateOp)
-            throws IOException, SolrServerException, ParseException {
-        if (dateOp.isPresent()) {
-            Date date;
-            if (dateOp.get() instanceof Date) {
-                date = (Date) dateOp.get();
-            } else if (dateOp.get() instanceof String) {
-                date = DateUtils.parseDate((String) dateOp.get(), "yyyy-MM-dd HH:mm:ss");
-            } else {
-                return;
-            }
-            submitToSolr(client, list, size, date);
+            throws IOException, SolrServerException {
+        Object obj;
+        if (!dateOp.isPresent() || list.size() == 0) {
+            return;
         }
+
+        if (dateOp.get() instanceof Date) {
+            obj = dateOp.get();
+        } else if (dateOp.get() instanceof String) {
+            try {
+                obj = DateUtils.parseDate((String) dateOp.get(), "yyyy-MM-dd HH:mm:ss");
+            } catch (Exception e) {
+                obj = dateOp.get();
+            }
+        } else {
+            return;
+        }
+
+        setCloudSolrClientDefaultCollection(client, obj);
+        client.add(list, 10000);
+        logger.info("写入Solr {} 条数据", list.size());
+        list.clear();
     }
 }

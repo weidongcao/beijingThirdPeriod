@@ -134,7 +134,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
             // 第一步:将Bcp文件从文件池移到工作目录
             moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
             // 第二步：从工作目录读取文件列表
-            files = FileUtils.getFile(NamingRuleUtils.getBcpWorkDir(task)).listFiles();
+            files = FileUtils.getFile(NamingUtils.getBcpWorkDir(task)).listFiles();
         }
         return files;
     }
@@ -164,7 +164,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     private static void bcpWriteIntoSolr(JavaRDD<Row> javaRDD, String task) {
         logger.info("开始将 {} 的BCP数据索引到Solr", task);
         //Bcp文件对应的字段名
-        String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task));
+        String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task));
 
         // 数据写入Solr
         javaRDD.foreachPartition(
@@ -186,7 +186,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                         list.add(doc);
                     }
                     //写入Solr
-                    SolrUtil.submitToSolr(client, list, 0, new Date());
+                    SolrUtil.submitToSolr(client, list, 0, Optional.of(new Date()));
                 }
         );
 
@@ -206,7 +206,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
         //将数据转为可以进行二次排序的形式
         JavaPairRDD<RowkeyColumnSecondarySort, String> hfileRDD = HBaseUtils.getHFileRDD(
                 javaRDD,
-                FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task))
+                FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task))
         );
 
         //写入HBase
@@ -263,9 +263,9 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      */
     private static JavaRDD<Row> filterBcpData(JavaRDD<Row> dataRDD, String task) {
         //Bcp文件对应的字段名
-        String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingRuleUtils.getBcpTaskKey(task));
+        String[] columns = FieldConstants.BCP_FILE_COLUMN_MAP.get(NamingUtils.getBcpTaskKey(task));
         //Bcp文件需要过滤的字段
-        Set<String> checkColumns = FieldConstants.FILTER_COLUMN_MAP.get(NamingRuleUtils.getBcpFilterKey(task));
+        Set<String> checkColumns = FieldConstants.FILTER_COLUMN_MAP.get(NamingUtils.getBcpFilterKey(task));
         if ((null == checkColumns) || checkColumns.size() == 0) {
             return dataRDD;
         }

@@ -3,7 +3,7 @@ package com.rainsoft.dao.impl;
 import com.rainsoft.dao.SearchDao;
 import com.rainsoft.domain.RegContentSearch;
 import com.rainsoft.utils.JdbcUtils;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class SearchDaoImpl extends JdbcDaoSupport implements SearchDao {
     private static final Logger logger = LoggerFactory.getLogger(SearchDaoImpl.class);
 
-    private static final String tableName = NamingRuleUtils.getOracleContentTableName("search");
+    private static final String tableName = NamingUtils.getTableName("search");
 
     @Override
     public List<RegContentSearch> getSearchByPeriod(String date) {
