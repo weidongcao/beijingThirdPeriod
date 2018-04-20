@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -40,9 +42,8 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao {
     }
 
     @Override
-    public Optional<Date> getMinTime(String fieldName) {
-        Optional<String> optional = JdbcUtils.getMinValue(getJdbcTemplate(), tableName, "update_time");
-        return Optional.ofNullable(DateUtils.stringToDate(optional.get(), "yyyy-MM-dd HH:mm:ss"));
+    public Optional<Date> getMinTime() {
+        return JdbcUtils.getMinTime(getJdbcTemplate(), tableName, "last_logintime");
     }
 
     /**

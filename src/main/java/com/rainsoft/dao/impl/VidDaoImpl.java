@@ -2,6 +2,7 @@ package com.rainsoft.dao.impl;
 
 import com.rainsoft.dao.VidDao;
 import com.rainsoft.domain.RegVidInfo;
+import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +57,16 @@ public class VidDaoImpl extends JdbcDaoSupport implements VidDao {
     @Override
     public Optional<Long> getMinId() {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, Optional.empty());
+    }
+
+    @Override
+    public List<String[]> getDataByTime(String startTime, String endTime) {
+        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, startTime, endTime);
+    }
+
+    @Override
+    public Optional<Date> getMinTime() {
+        return JdbcUtils.getMinTime(getJdbcTemplate(), tableName, "last_logintime");
     }
 
     /**

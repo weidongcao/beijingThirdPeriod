@@ -2,6 +2,7 @@ package com.rainsoft.dao.impl;
 
 import com.rainsoft.dao.ServiceDao;
 import com.rainsoft.domain.ServiceInfo;
+import com.rainsoft.utils.DateUtils;
 import com.rainsoft.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +56,23 @@ public class ServiceDaoImpl extends JdbcDaoSupport implements ServiceDao {
     @Override
     public Optional<Long> getMinId() {
         return JdbcUtils.getMinIdFromDate(getJdbcTemplate(), tableName, Optional.empty());
+    }
+
+    @Override
+    public List<String[]> getDataByTime(String startTime, String endTime) {
+        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, startTime, endTime);
+    }
+
+    @Override
+    public Optional<Date> getMinTime() {
+        Optional<String> optional = JdbcUtils.getMinValue(getJdbcTemplate(), tableName, "update_time");
+        Optional<Date> date;
+        try {
+            date = Optional.of(DateUtils.parseDate(optional.get(), "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.S"));
+        } catch (ParseException e) {
+            date = Optional.empty();
+        }
+        return date;
     }
 
     /**

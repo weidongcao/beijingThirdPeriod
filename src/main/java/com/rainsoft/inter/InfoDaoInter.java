@@ -17,5 +17,5 @@ public interface InfoDaoInter extends ISecDaoBaseInter {
     List<String[]> getDataByTime(String startTime, String endTime);
 
     //查询指定的日期字段最小的时间
-    Optional<Date> getMinTime(String fieldName);
+    Optional<Date> getMinTime();
 }
