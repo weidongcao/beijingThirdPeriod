@@ -1,7 +1,7 @@
 package com.rainsoft.lang3;
 
 import com.rainsoft.FieldConstants;
-import com.rainsoft.utils.NamingRuleUtils;
+import com.rainsoft.utils.NamingUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
@@ -10,7 +10,7 @@ import org.apache.commons.lang.ArrayUtils;
 public class TestArrayUtils {
     public static void main(String[] args) {
 
-        String[] columns = FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(NamingRuleUtils.getOracleContentTableName("ftp"));
+        String[] columns = FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(NamingUtils.getTableName("ftp"));
 
         int captureTimeIndex = ArrayUtils.indexOf(columns, "aaaaaaaa");
         System.out.println("captureTimeIndex = " + captureTimeIndex);

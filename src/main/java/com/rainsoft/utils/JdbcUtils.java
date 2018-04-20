@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.util.*;
 import java.util.Date;
 
@@ -174,6 +175,25 @@ public class JdbcUtils {
     }
 
     /**
+     * 根据Spring JDBCTemple， Oracle表名，字段名获取该字段最小日期
+     * @param jdbcTemplate  Spring JdbcTemplate
+     * @param tableName     Oracle表名
+     * @param fieldName     字段名
+     * @return      最小日期
+     */
+    public static Optional<Date> getMinTime(JdbcTemplate jdbcTemplate, String tableName, String fieldName) {
+        Optional<String> optional = JdbcUtils.getMinValue(jdbcTemplate, tableName,fieldName);
+        Optional<Date> date;
+        try {
+            Date d = DateUtils.parseDate(optional.get(), "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.S");
+            d = DateUtils.truncate(d, Calendar.MINUTE);
+            date = Optional.of(d);
+        } catch (ParseException e) {
+            date = Optional.empty();
+        }
+        return date;
+    }
+    /**
      * 获取指定表指定字段的最小值
      * 如果日期为空，则获取该表最小的ID
      *
@@ -187,7 +207,7 @@ public class JdbcUtils {
         String sql = getMinValueSqlTemplate.replace("${tableName}", tableName)
                 .replace("${fieldName}", fieldName);
 
-        logger.info("查询 {} 表 {} 字段最小值的Sql为：{}", tableName, sql);
+        logger.info("查询 {} 表 {} 字段最小值的Sql为：{}", tableName, fieldName, sql);
         String fieldValue = jdbcTemplate.queryForObject(sql, String.class);
 
         return Optional.ofNullable(fieldValue);
