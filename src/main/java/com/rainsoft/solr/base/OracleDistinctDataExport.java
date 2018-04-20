@@ -3,13 +3,11 @@ package com.rainsoft.solr.base;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.inter.InfoDaoInter;
-import com.rainsoft.utils.DateFormatUtils;
-import com.rainsoft.utils.DateUtils;
-import com.rainsoft.utils.NamingUtils;
-import com.rainsoft.utils.SolrUtil;
+import com.rainsoft.utils.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -19,11 +17,10 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple2;
 
 import java.io.File;
-import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by CaoWeiDong on 2018-04-18.
@@ -52,9 +49,12 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
         recordFile = createOrGetFile("createIndexRecord/record_distinct.txt");
 
         //导入记录Map
-        readFileToMap(recordFile, "utf-8", "\t").forEach(
-                (key, value) -> recordMap.put(key, DateUtils.stringToDate(value, "yyyy-MM-dd HH:mm:ss"))
-        );
+        Optional<Map<String, String>> map = readFileToMap(recordFile, "utf-8", "\t");
+
+        if (map.isPresent())
+            map.get().forEach(
+                    (key, value) -> recordMap.put(key, DateUtils.stringToDate(value, "yyyy-MM-dd HH:mm:ss"))
+            );
 
         logger.info("程序初始化完成...");
     }
@@ -73,24 +73,31 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
      */
     public static void extract(String task, InfoDaoInter dao) {
         //监控执行情况
-        watch.start();
+        if (watch.isStopped())
+            watch.start();
 
         //如果日期为空则从1970年1月1日开始抽取
         Date startTime = recordMap.get(NamingUtils.getOracleRecordKey(task));
-        Date endTime;
         if (null == startTime) {
-            Optional<Date> optional = dao.getMinTime("update_time");
+            Optional<Date> optional = dao.getMinTime();
             if (optional.isPresent())
                 startTime = optional.get();
             else
                 return;
         }
+        int minutes = 5;
         //根据起始ID及步长从数据库里查询指定数据量的数据
-        endTime = getEndTime(startTime, 30);
+        Date endTime = getEndTime(startTime, minutes);
 
         //如果时间间隔不到30分钟不抽取（这类的数据太少）
-        if (((new Date().getTime() - endTime.getTime()) / (30 * 60)) < 30)
+        Date curDate = new Date();
+        Long minus = (curDate.getTime() - startTime.getTime()) / (60 * 1000);
+        if (minus < minutes) {
+            logger.info("与之前抽取时间间隔太短， {} 数据太少，间隔 {} 分钟再抽取", task, minutes);
+            // extractTaskOver(task, endTime, recordMap, recordFile, watch);
+            ThreadUtils.programSleep(3);
             return;
+        }
 
         List<String[]> list = dao.getDataByTime(
                 DateFormatUtils.DATE_TIME_FORMAT.format(startTime),
@@ -102,25 +109,7 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
         extractDataOnCondition(list, task);
 
         //一次任务抽取完之后需要做的事情
-        // extractTaskOver(task, id.get() + list.size());
-
-    }
-
-    /**
-     * 从数据库中获取从指定时间开始最小的ID
-     * 如果是内容的,比如说Bbs，Email，Ftp，Http，Imchat等从三个月前开始最小的ID
-     * 如果是信息表的，比如说真实、虚拟、场所等没有时间限制，从最小的开始导入
-     *
-     * @param dao 数据库连接DAO层
-     * @return 抽取起始ID
-     */
-    private static Optional<Long> getStartID(InfoDaoInter dao) {
-        Optional<Long> id = Optional.empty();
-        if (dao instanceof InfoDaoInter) {
-            //最小的ID，没有时间限制
-            id = dao.getMinId();
-        }
-        return id;
+        extractTaskOver(task, endTime, recordMap, recordFile, watch);
     }
 
     /**
@@ -175,7 +164,7 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
      * @param list 要抽取的数据
      * @param task 任务类型
      */
-    public static void extractDataOnCondition(List<String[]> list, String task) {
+    private static void extractDataOnCondition(List<String[]> list, String task) {
         if (list.size() > 0) {
             logger.info("{}表数据抽取任务开始", NamingUtils.getTableName(task));
             //根据数据量决定启动多少个进程
@@ -209,7 +198,7 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
      * @param keyfields 该类型关键字段名称
      * @return 字段在
      */
-    public static List<Integer> getKeyfieldIndexs(String[] fields, String[] keyfields) {
+    static List<Integer> getKeyfieldIndexs(String[] fields, String[] keyfields) {
         List<Integer> indexs = new ArrayList<>();
         int index;
         for (String field : keyfields) {
@@ -225,9 +214,9 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
      *
      * @param row    数据Row
      * @param indexs 关键字段下标
-     * @return
+     * @return 32位加密MD5
      */
-    public static String getMd5ByKeyFields(Row row, List<Integer> indexs) {
+    static String getMd5ByKeyFields(Row row, List<Integer> indexs) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < indexs.size(); i++) {
             sb.append(row.getString(i)).append("_");
@@ -253,10 +242,54 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
 
         // 防止长时间没有导入,数据大量堆积的情况
         // 如果开始时间和记录的最后导入时间相距超过10天,时间时隔改为10天
-        Date endTime = DateUtils.addMinutes(startTime, minutes);
-        if (((curTime.getTime() - endTime.getTime()) / (24 * 3600)) > 2) {
+        Date endTime;
+        //开始时间和当前时间相差多少分钟
+        long minus = (curTime.getTime() - startTime.getTime()) / (24 * 60 * 60 * 1000);
+
+        if (minus > 10) { //如果相差10天以上一次取10天的数据
             endTime = DateUtils.addDays(startTime, 10);
+        } else {
+            endTime = curTime;
         }
         return endTime;
+    }
+
+    /**
+     * 数据抽取结果需要做的事情
+     * 1. 抽取的最大ID写入抽取记录Map
+     * 2. 抽取的最大ID写入抽取记录文件
+     * 3. 停止计时
+     * 4. 重置计时器
+     *
+     * @param task  任务类型
+     * @param date  任务抽取到的时间
+     * @param map   更新抽取记录Map
+     * @param file  更新抽取记录文件
+     * @param watch 重置秒表
+     */
+    public static void extractTaskOver(String task, Date date, Map<String, Date> map, File file, StopWatch watch) {
+        //导入记录写入Map
+        map.put(NamingUtils.getOracleRecordKey(task), date);
+        //导入记录写入文件
+        overwriteRecordFile(file, map);
+        //停止计时
+        if (watch.isStarted())
+            watch.stop();
+        //重置计时器
+        watch.reset();
+    }
+
+    private static void overwriteRecordFile(File file, Map<String, Date> map) {
+        //导入记录Map转List
+        List<String> newRecordList = map.entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + "\t" + DateFormatUtils.DATE_TIME_FORMAT.format(entry.getValue()))
+                .sorted()
+                .collect(Collectors.toList());
+        //对转换后的导入记录List进行排序
+        //导入记录List转String
+        String newRecords = StringUtils.join(newRecordList, "\r\n");
+        //写入导入记录文件
+        appendRecordIntoFile(file, newRecords, false);
     }
 }

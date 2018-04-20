@@ -6,6 +6,7 @@ import com.rainsoft.inter.ContentDaoInter;
 import com.rainsoft.utils.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -46,8 +47,10 @@ public class OracleContentDataExport extends BaseOracleDataExport {
         //导入记录文件
         recordFile = createOrGetFile("createIndexRecord/record_content.txt");
         //导入记录Map
-        Map<String, String> map = readFileToMap(recordFile, "utf-8", "\t");
-        map.forEach((key, value) -> recordMap.put(key, Long.valueOf(value)));
+        Optional<Map<String, String>> map = readFileToMap(recordFile, "utf-8", "\t");
+        if (map.isPresent())
+            map.get().forEach((key, value) -> recordMap.put(key, Long.valueOf(value)));
+
         logger.info("程序初始化完成...");
     }
     /**
@@ -81,7 +84,7 @@ public class OracleContentDataExport extends BaseOracleDataExport {
         extractDataOnCondition(list, task);
 
         //一次任务抽取完之后需要做的事情
-        extractTaskOver(task, id.get() + list.size());
+        extractTaskOver(task, id.get() + list.size(), recordMap, recordFile, watch);
     }
 
 
@@ -96,7 +99,7 @@ public class OracleContentDataExport extends BaseOracleDataExport {
      */
     private static Optional<Long> getStartID(ContentDaoInter dao, Optional<Integer> months) {
         Optional<Long> id = Optional.empty();
-        if (dao instanceof ContentDaoInter) {
+        if ((null != dao) && (dao instanceof ContentDaoInter)) {
             //三个月前的日期
             String dateText = DateFormatUtils.DATE_FORMAT.format(DateUtils.addMonths(new Date(), months.get()));
             //从三个月前起的ID
@@ -204,11 +207,11 @@ public class OracleContentDataExport extends BaseOracleDataExport {
      * @param task   任务类型
      * @param lastId 当前任务抽取的最大(最后一个)ID，后面再抽取的时候就从下一个ID开始抽取
      */
-    public static void extractTaskOver(String task, Long lastId) {
+    private static void extractTaskOver(String task, Long lastId, Map<String, Long> map, File file, StopWatch watch) {
         //导入记录写入Map
-        recordMap.put(NamingUtils.getOracleRecordKey(task), lastId);
+        map.put(NamingUtils.getOracleRecordKey(task), lastId);
         //导入记录写入文件
-        overwriteRecordFile(recordFile, recordMap);
+        overwriteRecordFile(file, map);
         //停止计时
         watch.stop();
         //重置计时器

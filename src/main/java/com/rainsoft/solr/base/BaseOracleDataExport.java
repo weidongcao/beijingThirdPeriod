@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Oracle数据导入Solr基础信息类
@@ -142,7 +143,7 @@ public class BaseOracleDataExport {
      * @param separator key, value之间的分隔符
      * @return
      */
-    static Map<String, String> readFileToMap(File file, String encoding, String separator) {
+    static Optional<Map<String, String>> readFileToMap(File file, String encoding, String separator) {
         List<String> list = null;
 
         try {
@@ -158,9 +159,9 @@ public class BaseOracleDataExport {
                 String[] kv = record.split(separator);
                 map.put(kv[0], kv[1]);
             }
-            return map;
+            return Optional.ofNullable(map);
         }
 
-        return null;
+        return Optional.empty();
     }
 }
