@@ -18,4 +18,7 @@ public interface InfoDaoInter extends ISecDaoBaseInter {
 
     //查询指定的日期字段最小的时间
     Optional<Date> getMinTime();
+
+    //根据时间删除数据
+    void delDataByTime(String startTime, String endTime);
 }

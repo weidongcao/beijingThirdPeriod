@@ -38,12 +38,17 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao {
 
     @Override
     public List<String[]> getDataByTime(String startTime, String endTime) {
-        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, startTime, endTime);
+        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, "update_time", startTime, endTime);
     }
 
     @Override
     public Optional<Date> getMinTime() {
-        return JdbcUtils.getMinTime(getJdbcTemplate(), tableName, "last_logintime");
+        return JdbcUtils.getMinTime(getJdbcTemplate(), tableName, "update_time");
+    }
+
+    @Override
+    public void delDataByTime(String startTime, String endTime) {
+
     }
 
     /**

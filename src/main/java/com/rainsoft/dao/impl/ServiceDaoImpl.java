@@ -60,7 +60,7 @@ public class ServiceDaoImpl extends JdbcDaoSupport implements ServiceDao {
 
     @Override
     public List<String[]> getDataByTime(String startTime, String endTime) {
-        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, startTime, endTime);
+        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, "update_time", startTime, endTime);
     }
 
     @Override
@@ -73,6 +73,11 @@ public class ServiceDaoImpl extends JdbcDaoSupport implements ServiceDao {
             date = Optional.empty();
         }
         return date;
+    }
+
+    @Override
+    public void delDataByTime(String startTime, String endTime) {
+
     }
 
     /**
