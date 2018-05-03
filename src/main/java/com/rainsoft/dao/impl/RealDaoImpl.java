@@ -38,7 +38,19 @@ public class RealDaoImpl extends JdbcDaoSupport implements RealDao {
 
     @Override
     public List<String[]> getDataByTime(String startTime, String endTime) {
-        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, "update_time", startTime, endTime);
+        String sql = JdbcUtils.distinctTableTemplate.replace("${tableName}", tableName)
+                .replace("${distinctTempTable}", "realid_info_inc")
+                .replace("${dateField}", "update_time")
+                .replace("${joinField}", "certificate_code")
+                .replace("${startTime}", startTime)
+                .replace("${endTime}", endTime);
+        //两个表进行关联的时候是根据两个字段进行的，模板里的条件不够，需要再追加
+        sql += "        AND B.${joinField} = A.${joinField}\n";
+        sql = sql.replace("${joinField}", "certificate_type");
+
+        //sql模板里面一层的sql是没有封装的，这样可以再添加查询条件
+        sql += ")\n";
+        return JdbcUtils.getDataBySql(getJdbcTemplate(), sql, "real");
     }
 
     @Override

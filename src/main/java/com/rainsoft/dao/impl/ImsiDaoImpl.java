@@ -20,17 +20,20 @@ public class ImsiDaoImpl extends JdbcDaoSupport implements ImsiDao{
 
     @Override
     public List<String[]> getDataByTime(String startTime, String endTime) {
-        String sqlTemplate = "SELECT *\n" +
-                "  FROM scan_imsi_info A\n" +
-                " WHERE EXISTS\n" +
-                "           (SELECT 1\n" +
-                "              FROM imsi_info_inc B\n" +
-                "             WHERE     A.imsi_code = b.imsi_code\n" +
-                "                   AND A.sn_code = B.sn_code\n" +
-                "                   AND B.UPDATE_TIME >= to_date('${start_time}', 'yyyy-mm-dd hh24:mi:ss')\n" +
-                "                   AND B.UPDATE_TIME < to_date('${end_time}', 'yyyy-mm-dd hh24:mi:ss'))";
-        String sql = sqlTemplate.replace("${start_time}", startTime)
-                .replace("${end_time}", endTime);
+        String sql = JdbcUtils.distinctTableTemplate.replace("${tableName", tableName)
+                .replace("${distinctTempTable}", "imsi_info_inc")
+                .replace("${dateField}", "update_time")
+                .replace("${joinField}", "imsi_code")
+                .replace("${startTime}", startTime)
+                .replace("${endTime}", endTime);
+
+        //两个表进行关联的时候是根据两个字段进行的，模板里的条件不够，需要再追加
+        sql += "        AND B.${joinField} = A.${joinField}\n";
+        sql = sql.replace("${joinField}", "sn_code");
+
+        //sql模板里面一层的sql是没有封装的，这样可以再添加查询条件
+        sql += ")\n";
+
         return JdbcUtils.getDataBySql(getJdbcTemplate(), sql, "imsi");
     }
 

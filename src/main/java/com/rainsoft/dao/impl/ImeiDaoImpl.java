@@ -13,9 +13,10 @@ import java.util.Optional;
 /**
  * Created by CaoWeiDong on 2018-04-24.
  */
-public class ImeiDaoImpl extends JdbcDaoSupport implements ImeiDao{
+public class ImeiDaoImpl extends JdbcDaoSupport implements ImeiDao {
     private static final Logger logger = LoggerFactory.getLogger(ImeiDaoImpl.class);
     private static final String tableName = "imei_info";
+
     @Override
     public Optional<Long> getMinId() {
         return Optional.empty();
@@ -23,12 +24,20 @@ public class ImeiDaoImpl extends JdbcDaoSupport implements ImeiDao{
 
     @Override
     public List<String[]> getDataByTime(String startTime, String endTime) {
-        return JdbcUtils.getDataByTime(getJdbcTemplate(), tableName, "update_time", startTime, endTime);
+        String sql = JdbcUtils.distinctTableTemplate.replace("${tableName}", "imei_info_cao")
+                .replace("${distinctTempTable}", "imei_info_inc")
+                .replace("${dateField}", "update_time")
+                .replace("${joinField}", "imei_code")
+                .replace("${startTime}", startTime)
+                .replace("${endTime}", endTime);
+        //sql模板里面一层的sql是没有封装的，这样可以再添加查询条件
+        sql += ")\n";
+        return JdbcUtils.getDataBySql(getJdbcTemplate(), sql, "imei");
     }
 
     @Override
     public Optional<Date> getMinTime() {
-        return JdbcUtils.getMinTime(getJdbcTemplate(), tableName, "update_time");
+        return JdbcUtils.getMinTime(getJdbcTemplate(), "imei_info_inc", "update_time");
     }
 
     @Override
