@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * 线程工具类
  * Created by Administrator on 2017-10-19.
  */
@@ -13,12 +12,16 @@ public class ThreadUtils {
 
     public static void programSleep(int seconds) {
         try {
-            for (int i = 0; i < seconds / 5; i++) {
-                logger.info("程序休眠, 剩余时间: {} 秒...", seconds - 5 * i);
-                Thread.sleep(5 * 1000);
-            }
-            if (seconds > 0) {
-                logger.info("等待结束");
+            while (seconds > 0) {
+                if (seconds > 5) {
+                    logger.info("程序休眠, 剩余时间: {} 秒...", seconds);
+                    Thread.sleep(5 * 1000);
+                    seconds -= 5;
+                } else {
+                    logger.info("程序休眠 {} 秒...", seconds);
+                    Thread.sleep(seconds * 1000);
+                    seconds = 0;
+                }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

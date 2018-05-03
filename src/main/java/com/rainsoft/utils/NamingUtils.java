@@ -17,15 +17,27 @@ public class NamingUtils {
      * @return String
      */
     public static String getTableName(String task) {
-        if ("service".equalsIgnoreCase(task)) {
-            return "service_info";
-        } else if ("real".equalsIgnoreCase(task)) {
-            return "reg_realid_info";
-        } else if ("vid".equalsIgnoreCase(task)) {
-            return "reg_vid_info";
-        } else {
-            return "reg_content_" + task.toLowerCase();
+        String tableName;
+        switch (task) {
+            case "service":
+                tableName =  "service_info";
+                break;
+            case "real":
+                tableName =  "reg_realid_info";
+                break;
+            case "vid":
+                tableName =  "reg_vid_info";
+                break;
+            case "imsi":
+                tableName =  "scan_imsi_info";
+                break;
+            case "imei":
+                tableName =  "imei_info";
+                break;
+            default:
+                tableName =  "reg_content_" + task.toLowerCase();
         }
+        return tableName;
     }
 
     /**

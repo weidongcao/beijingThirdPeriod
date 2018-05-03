@@ -31,7 +31,8 @@ public class SolrUtil {
      */
     public static void addSolrFieldValue(SolrInputDocument doc, String fieldName, String fieldValue) {
         //如果字段值为空跳过
-        if (StringUtils.isBlank(fieldValue))
+        if (StringUtils.isBlank(fieldValue)
+                || "null".equalsIgnoreCase(fieldValue))
             return;
 
         //字段不需要导入到Solr中
@@ -47,9 +48,7 @@ public class SolrUtil {
                     doc.addField(fieldName.toLowerCase(), temp.getTime());
                 }
                 doc.addField(fieldName, temp);
-            } catch (ParseException e) {
-                //日期转换失败，什么都不做直接跳过
-            }
+            } catch (ParseException e) {  }
         } else if (FieldConstants.SOLR_FIELD_MAP.get("mac_type_fields").contains(fieldName.toLowerCase())) {
             //字段是Mac地址,需要去掉中划线
             fieldValue = fieldValue.replace("-", "");

@@ -23,9 +23,11 @@ public class JdbcUtils {
     //从Oracle表指定的ID开始抽取指定的数据量
     private static final String selectByIdsqlTemplqte = "select * from ${tableName} where id >= ${id} and rownum <= ${num}";
     //根据开始时间和结束时间从指定的表中查询数据
-    private static String getDataByTimeSqlTemplate = "select * from ${tableName} where last_logintime >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and last_logintime < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+    private static final String getDataByTimeSqlTemplate = "select * from ${tableName} where ${timeField} >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and ${time_field} < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
     //获取指定表指定字段的最小值
-    private static String getMinValueSqlTemplate = "select min(${fieldName}) from ${tableName}";
+    private static final String getMinValueSqlTemplate = "select min(${fieldName}) from ${tableName}";
+    //根据表名、字段名、截止时间删除数据
+    private static final String delSqlByTimeTemplate = "delete from ${tableName} where ${timeField} < to_date('${end_time}', 'yyyy-mm-dd hh24:mi:ss')";
 
     public static String getFieldValue(ResultSet rs, int type, int index) {
         String value = null;
@@ -105,15 +107,25 @@ public class JdbcUtils {
      *
      * @param jdbcTemplate Spring Jdbc
      * @param tableName    表名
+     * @param timeField     时间字段
      * @param startTime    开始时间
      * @param endTime      结束时间
      * @return 返回结果
      */
-    public static List<String[]> getDataByTime(JdbcTemplate jdbcTemplate, String tableName, String startTime, String endTime) {
-        String sql = getDataByTimeSqlTemplate.replace("${startTime}", startTime)
-                .replace("${endTime}", endTime)
-                .replace("${tableName}", tableName);
+    public static List<String[]> getDataByTime(JdbcTemplate jdbcTemplate, String tableName, String timeField, String startTime, String endTime) {
+        String sql = getDataByTimeSqlTemplate.replace("${tableName}", tableName)
+                .replace("${timeField}", timeField)
+                .replace("${startTime}", startTime)
+                .replace("${endTime}", endTime);
         logger.info("{} 数据获取Oracle数据sql: {}", tableName, sql);
+
+        // 返回结果为数组类型的List
+        return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
+
+    }
+
+    public static List<String[]> getDataBySql(JdbcTemplate jdbcTemplate, String sql, String task) {
+        logger.info("{} 获取Oracle数据sql: {}", task, sql);
 
         // 返回结果为数组类型的List
         return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
@@ -233,5 +245,25 @@ public class JdbcUtils {
 
         //将查询返回结果封装为List，字段值类型传问为String
         return jdbcTemplate.query(sql, JdbcUtils::resultSetToList);
+    }
+
+    /**
+     * 根据表名，字段名，开始时间，结束时间删除数据
+     * @param jdbcTemplate JdbcTemplate
+     * @param tableName 表名
+     * @param timeField 字段名
+     * @param startTime
+     * @param endTime
+     */
+    public static void delDataByTime(JdbcTemplate jdbcTemplate, String tableName, String timeField, String startTime, String endTime) {
+        String sql = delSqlByTimeTemplate.replace("${tableName}", tableName)
+                .replace("${timeField}", timeField)
+                .replace("${end_time}", endTime);
+
+        if (null != startTime) {
+            sql += " AND ${timeField} >= to_date('${start_time}', 'yyyy-mm-dd hh24:mi:ss')";
+            sql = sql.replace("${startTime}", startTime);
+        }
+        jdbcTemplate.execute(sql);
     }
 }
