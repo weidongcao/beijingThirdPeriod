@@ -1,5 +1,6 @@
 package com.rainsoft.solr.base;
 
+import com.google.gson.GsonBuilder;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.inter.InfoDaoInter;
@@ -33,9 +34,7 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
     protected static File recordFile;
 
     // 应用初始化
-    static {
-        init();
-    }
+    static { init(); }
 
     /**
      * 初始化程序
@@ -104,9 +103,13 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
                 DateFormatUtils.DATE_TIME_FORMAT.format(endTime)
         );
         logger.info("从 {} 取到到 {} 条数据", NamingUtils.getTableName(task), list.size());
+        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(list));
 
         //根据不同的情况进行抽取
         extractDataOnCondition(list, task);
+
+        //删除更新记录
+        dao.delDataByTime(null, DateFormatUtils.DATE_TIME_FORMAT.format(endTime));
 
         //一次任务抽取完之后需要做的事情
         extractTaskOver(task, endTime, recordMap, recordFile, watch);

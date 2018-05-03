@@ -23,11 +23,32 @@ public class JdbcUtils {
     //从Oracle表指定的ID开始抽取指定的数据量
     private static final String selectByIdsqlTemplqte = "select * from ${tableName} where id >= ${id} and rownum <= ${num}";
     //根据开始时间和结束时间从指定的表中查询数据
-    private static final String getDataByTimeSqlTemplate = "select * from ${tableName} where ${timeField} >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') and ${time_field} < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')";
+    private static final String getDataByTimeSqlTemplate = "\nselect\n " +
+            "   *\n " +
+            "from \n" +
+            "   ${tableName} \n" +
+            "where \n" +
+            "   ${timeField} >= to_date('${startTime}' ,'yyyy-mm-dd hh24:mi:ss') \n" +
+            "   and ${timeField} < to_date('${endTime}' ,'yyyy-mm-dd hh24:mi:ss')\n";
     //获取指定表指定字段的最小值
     private static final String getMinValueSqlTemplate = "select min(${fieldName}) from ${tableName}";
     //根据表名、字段名、截止时间删除数据
-    private static final String delSqlByTimeTemplate = "delete from ${tableName} where ${timeField} < to_date('${end_time}', 'yyyy-mm-dd hh24:mi:ss')";
+    private static final String delSqlByTimeTemplate = "delete from ${tableName} where ${timeField} < to_date('${endTime}', 'yyyy-mm-dd hh24:mi:ss')";
+
+    //去重表按更新时间查询sql模板(注意sql的最后需要加上")",因为进行关联的时候可能会有多个字段进行关联，从而需要增加查询条件)
+    public static final String distinctTableTemplate = "\nSELECT \n" +
+            "   *\n" +
+            "FROM \n" +
+            "   ${tableName} A\n" +
+            "WHERE EXISTS\n" +
+            "   (SELECT \n" +
+            "       1\n" +
+            "   FROM\n" +
+            "       ${distinctTempTable} B\n" +
+            "   WHERE\n" +
+            "       B.${dateField} >= to_date('${startTime}', 'yyyy-mm-dd hh24:mi:ss')\n" +
+            "       AND B.${dateField} < to_date('${endTime}', 'yyyy-mm-dd hh24:mi:ss')\n" +
+            "       AND B.${joinField} = A.${joinField}";
 
     public static String getFieldValue(ResultSet rs, int type, int index) {
         String value = null;
@@ -258,10 +279,10 @@ public class JdbcUtils {
     public static void delDataByTime(JdbcTemplate jdbcTemplate, String tableName, String timeField, String startTime, String endTime) {
         String sql = delSqlByTimeTemplate.replace("${tableName}", tableName)
                 .replace("${timeField}", timeField)
-                .replace("${end_time}", endTime);
+                .replace("${endTime}", endTime);
 
         if (null != startTime) {
-            sql += " AND ${timeField} >= to_date('${start_time}', 'yyyy-mm-dd hh24:mi:ss')";
+            sql += " AND ${timeField} >= to_date('${startTime}', 'yyyy-mm-dd hh24:mi:ss')";
             sql = sql.replace("${startTime}", startTime);
         }
         jdbcTemplate.execute(sql);
