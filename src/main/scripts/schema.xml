@@ -81,9 +81,9 @@
     <!-- 是否可读 -->
     <field name="IS_READ" type="string" indexed="false" stored="true"/>
     <!-- 最后一次登陆经度 -->
-    <field name="LAST_LONGITUDE" type="date" indexed="false" stored="true"/>
+    <field name="LAST_LONGITUDE" type="string" indexed="false" stored="true"/>
     <!-- 最后一次登陆纬度 -->
-    <field name="LAST_LATITUDE" type="date" indexed="false" stored="true"/>
+    <field name="LAST_LATITUDE" type="string" indexed="false" stored="true"/>
     <!-- 最后一次登陆房间号 -->
     <field name="LAST_ROOM_ID" type="string" indexed="false" stored="true"/>
     <!-- 最后一次出现场所号 -->
