@@ -679,6 +679,39 @@
       "is_virtual",
       "if_check",
       "service_code_in"
+    ],
+    "imei_info": [
+      "imei_code",
+      "ending_mac",
+      "use_nums",
+      "last_machine_id",
+      "last_service_code",
+      "last_capture_time",
+      "first_machine_id",
+      "first_service_code",
+      "first_capture_time",
+      "last_longitude",
+      "last_latitude"
+    ],
+    "scan_imsi_info": [
+      "imsi_code",
+      "equipment_mac",
+      "id",
+      "sn_code",
+      "operator_type",
+      "operator_name",
+      "longitude",
+      "latitude",
+      "first_capture_time",
+      "last_capture_time",
+      "phone_area",
+      "area_code",
+      "area_name",
+      "capture_nums",
+      "attention_group",
+      "danger_area",
+      "is_suspicious",
+      "attention_name"
     ]
   },
   "bcp-filter-field": {
@@ -708,6 +741,8 @@
     ],
     "date_type_fields": [
       "capture_time",
+      "first_capture_time",
+      "last_capture_time",
       "import_time",
       "birthday",
       "first_logintime",
@@ -718,6 +753,7 @@
     ],
     "mac_type_fields": [
       "ending_mac",
+      "equipment_mac",
       "src_mac",
       "ap_mac"
     ]

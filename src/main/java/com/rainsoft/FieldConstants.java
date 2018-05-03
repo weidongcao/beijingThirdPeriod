@@ -80,6 +80,8 @@ public class FieldConstants {
         DOC_TYPE_MAP.put("vid", "虚拟");
         DOC_TYPE_MAP.put("weibo", "微博");
         DOC_TYPE_MAP.put("ending_trace", "ending_mac");
+        DOC_TYPE_MAP.put("imsi", "imsi");
+        DOC_TYPE_MAP.put("imei", "imei");
 
         TASK_KEY_MAP.put("bbs", new String[]{""});
         TASK_KEY_MAP.put("email", new String[]{""});

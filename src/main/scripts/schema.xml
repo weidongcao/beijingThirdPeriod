@@ -20,13 +20,16 @@
     <!-- 捕获时间 -->
     <field name="CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
 
+    <!-- 首次捕获时间 -->
+    <field name="FIRST_CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
+    <!-- 最后捕获时间 -->
+    <field name="LAST_CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
+
     <!-- data field -->
     <!-- 操作类型 -->
     <field name="ACTION_TYPE" type="string" indexed="false" stored="true"/>
     <!--  -->
     <field name="AGEN_LAVE_TIME" type="string" indexed="false" stored="true"/>
-    <!-- 地区编码 -->
-    <field name="AREA_CODE" type="string" indexed="false" stored="true"/>
     <!-- 附件 -->
     <field name="ATTACHMENT" type="string" indexed="false" stored="true"/>
     <!-- 出生日期 -->
@@ -77,18 +80,26 @@
     <field name="IS_OUTLINE_ALERT" type="string" indexed="false" stored="true"/>
     <!-- 是否可读 -->
     <field name="IS_READ" type="string" indexed="false" stored="true"/>
-    <!-- 最后一次登陆时间 -->
-    <field name="LAST_LOGINTIME" type="date" indexed="false" stored="true"/>
+    <!-- 最后一次登陆经度 -->
+    <field name="LAST_LONGITUDE" type="date" indexed="false" stored="true"/>
+    <!-- 最后一次登陆纬度 -->
+    <field name="LAST_LATITUDE" type="date" indexed="false" stored="true"/>
     <!-- 最后一次登陆房间号 -->
     <field name="LAST_ROOM_ID" type="string" indexed="false" stored="true"/>
     <!-- 最后一次出现场所号 -->
     <field name="LAST_SERVICE_CODE" type="string" indexed="false" stored="true"/>
     <!-- 纬度 -->
     <field name="LATITUDE" type="string" indexed="false" stored="true"/>
+    <!-- 经度 -->
+    <field name="LONGITUDE" type="string" indexed="false" stored="true"/>
     <!-- 经纬度 -->
     <field name="LONGITUDE_LATITUDE" type="string" indexed="false" stored="true"/>
     <!-- 机器号 -->
     <field name="MACHINE_ID" type="string" indexed="false" stored="true"/>
+    <!-- 第一个机器号 -->
+    <field name="FIRST_MACHINE_ID" type="string" indexed="false" stored="true"/>
+    <!-- 最后一个机器号 -->
+    <field name="LAST_MACHINE_ID" type="string" indexed="false" stored="true"/>
     <!-- 邮件ID -->
     <field name="MAILID" type="string" indexed="false" stored="true"/>
     <!-- 邮件发送方 -->
@@ -288,6 +299,20 @@
     <field name="IS_VIRTUAL" type="string" indexed="true" stored="true"/>
     <!-- 是否查检 -->
     <field name="IF_CHECK" type="string" indexed="true" stored="true"/>
+    <!-- 手机号前7位 -->
+    <field name="PHONE_AREA" type="string" indexed="true" stored="true"/>
+    <!-- 所属地区代码 -->
+    <field name="AREA_CODE" type="string" indexed="true" stored="true"/>
+    <!--  捕获次数 -->
+    <field name="CAPTURE_NUMS" type="string" indexed="true" stored="true"/>
+    <!-- 重点关注人群组 -->
+    <field name="ATTENTION_GROUP" type="string" indexed="true" stored="true"/>
+    <!-- 高危地区人群 -->
+    <field name="DANGER_AREA" type="string" indexed="true" stored="true"/>
+    <!-- 是否可疑人群：0否，1是 -->
+    <field name="IS_SUSPICIOUS" type="string" indexed="true" stored="true"/>
+    <!-- 重点关注人群名 -->
+    <field name="ATTENTION_NAME" type="string" indexed="true" stored="true"/>
 
     <!-- 云游云采需要增加的字段 -->
     <!-- 不索引的字段 -->
@@ -343,6 +368,12 @@
     <field name="X_COORDINATE" type="string" indexed="false" stored="true"/>
     <!-- y坐标 -->
     <field name="Y_COORDINATE" type="string" indexed="false" stored="true"/>
+    <!-- 设备SN号 -->
+    <field name="SN_CODE" type="string" indexed="false" stored="true"/>
+    <!-- 运营商类型 -->
+    <field name="OPERATOR_TYPE" type="string" indexed="false" stored="true"/>
+    <!-- 运营商名称 -->
+    <field name="OPERATOR_NAME" type="string" indexed="false" stored="true"/>
 
     <!-- 索引 -->
     <!-- 设备地址 -->
@@ -366,10 +397,12 @@
     <field name="EQUIPMENT_MAC" type="string" indexed="true" stored="true"/>
     <!-- 设备类型 -->
     <field name="EQUIPMENT_TYPE" type="string" indexed="true" stored="true"/>
-    <!--  -->
-    <field name="IMEI" type="string" indexed="true" stored="true"/>
-    <!--  -->
-    <field name="IMSI" type="string" indexed="true" stored="true"/>
+    <!-- 手机IMEI -->
+    <field name="IMEI_CODE" type="string" indexed="true" stored="true"/>
+    <!-- 手机IMSI -->
+    <field name="IMSI_CODE" type="string" indexed="true" stored="true"/>
+    <!-- 所属地区名称 -->
+    <field name="AREA_NAME" type="string" indexed="true" stored="true"/>
 
     <copyField source="MSG" dest="text_cn"/>
     <copyField source="SUMMARY" dest="text_cn"/>

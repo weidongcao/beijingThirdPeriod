@@ -4,41 +4,61 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                 http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+    <!-- 网页(http)Dao层-->
     <bean id="httpDao" class="com.rainsoft.dao.impl.HttpDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!-- 文件(ftp)Dao层-->
     <bean id="ftpDao" class="com.rainsoft.dao.impl.FtpDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!-- 聊天(im_chat)Dao层-->
     <bean id="imchatDao" class="com.rainsoft.dao.impl.ImchatDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!-- 论坛(bbs)Dao层-->
     <bean id="bbsDao" class="com.rainsoft.dao.impl.BbsDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 邮件(email)Dao层-->
     <bean id="emailDao" class="com.rainsoft.dao.impl.EmailDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 真实(real)Dao层-->
     <bean id="realDao" class="com.rainsoft.dao.impl.RealDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 搜索(search)Dao层-->
     <bean id="searchDao" class="com.rainsoft.dao.impl.SearchDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 购物(shop)Dao层-->
     <bean id="shopDao" class="com.rainsoft.dao.impl.ShopDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 场所(service)Dao层-->
     <bean id="serviceDao" class="com.rainsoft.dao.impl.ServiceDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 虚拟(vid)Dao层-->
     <bean id="vidDao" class="com.rainsoft.dao.impl.VidDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <!-- 微博(weibo)Dao层-->
     <bean id="weiboDao" class="com.rainsoft.dao.impl.WeiboDaoImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!-- imsi(imsi)Dao层 -->
+    <bean id="imsiDao" class="com.rainsoft.dao.impl.ImsiDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- imei(imei)Dao层 -->
+    <bean id="imeiDao" class="com.rainsoft.dao.impl.ImeiDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 </beans>
