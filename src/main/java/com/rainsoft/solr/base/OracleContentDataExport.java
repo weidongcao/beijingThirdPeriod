@@ -4,7 +4,6 @@ import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.inter.ContentDaoInter;
 import com.rainsoft.utils.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.common.SolrInputDocument;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -116,6 +114,7 @@ public class OracleContentDataExport extends BaseOracleDataExport {
     static void export2Solr(JavaRDD<Row> javaRDD, String task) {
         //字段名数组
         String[] columns = FieldConstants.ORACLE_TABLE_COLUMN_MAP.get(NamingUtils.getTableName(task));
+        List<Integer> indexs = getKeyfieldIndexs(columns, FieldConstants.TASK_KEY_MAP.get(task));
         javaRDD.foreachPartition(
                 (VoidFunction<Iterator<Row>>) iterator -> {
                     List<SolrInputDocument> docList = new ArrayList<>();
@@ -125,7 +124,10 @@ public class OracleContentDataExport extends BaseOracleDataExport {
                         //数据列数组
                         Row row = iterator.next();
                         SolrInputDocument doc = new SolrInputDocument();
-                        String id = UUID.randomUUID().toString().replace("-", "");
+                        //生成Sokr唯一ID
+                        List<String> keyFieldValues = getKeyFieldValues(row, indexs);
+                        keyFieldValues.add(FieldConstants.DOC_TYPE_MAP.get(task));
+                        String id = createIdentifyID(keyFieldValues);
 
                         //ID
                         doc.addField("ID", id);

@@ -1,12 +1,9 @@
 package com.rainsoft.solr.base;
 
-import com.google.gson.GsonBuilder;
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
 import com.rainsoft.inter.InfoDaoInter;
 import com.rainsoft.utils.*;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.common.SolrInputDocument;
@@ -103,7 +100,7 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
                 DateFormatUtils.DATE_TIME_FORMAT.format(endTime)
         );
         logger.info("从 {} 取到到 {} 条数据", NamingUtils.getTableName(task), list.size());
-        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(list));
+        // System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(list));
 
         //根据不同的情况进行抽取
         extractDataOnCondition(list, task);
@@ -135,7 +132,8 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
                         Row row = iterator.next();
                         SolrInputDocument doc = new SolrInputDocument();
                         //通过MD5加密生成Sokr唯一ID
-                        String id = getMd5ByKeyFields(row, indexs);
+                        List<String> keyFieldValues = getKeyFieldValues(row, indexs);
+                        String id = createIdentifyID(keyFieldValues);
 
                         //ID
                         doc.addField("ID", id);
@@ -192,43 +190,6 @@ public class OracleDistinctDataExport extends BaseOracleDataExport {
         }
     }
 
-    /**
-     * 从字段名称数组中找出关键字段的下标
-     * 返回关键字段下标的列表
-     * 主要用于根据关键字段生成唯一ID
-     *
-     * @param fields    该类型所有字段名称
-     * @param keyfields 该类型关键字段名称
-     * @return 字段在
-     */
-    static List<Integer> getKeyfieldIndexs(String[] fields, String[] keyfields) {
-        List<Integer> indexs = new ArrayList<>();
-        int index;
-        for (String field : keyfields) {
-            index = ArrayUtils.indexOf(fields, field);
-            indexs.add(index);
-        }
-        return indexs;
-    }
-
-    /**
-     * 根据数据的关键字段生成32位加密MD5作为唯一ID
-     * 不同的字段之间以下划线分隔
-     *
-     * @param row    数据Row
-     * @param indexs 关键字段下标
-     * @return 32位加密MD5
-     */
-    static String getMd5ByKeyFields(Row row, List<Integer> indexs) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < indexs.size(); i++) {
-            sb.append(row.getString(i)).append("_");
-        }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
-        return DigestUtils.md5Hex(sb.toString());
-    }
 
     /**
      * 获取一段时间的开始和结束时间

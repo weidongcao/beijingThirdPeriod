@@ -77,7 +77,7 @@ public class ServiceDaoImpl extends JdbcDaoSupport implements ServiceDao {
 
     @Override
     public void delDataByTime(String startTime, String endTime) {
-
+        //do nothing
     }
 
     /**

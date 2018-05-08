@@ -83,13 +83,13 @@ public class FieldConstants {
         DOC_TYPE_MAP.put("imsi", "imsi");
         DOC_TYPE_MAP.put("imei", "imei");
 
-        TASK_KEY_MAP.put("bbs", new String[]{""});
-        TASK_KEY_MAP.put("email", new String[]{""});
-        TASK_KEY_MAP.put("ftp", new String[]{""});
-        TASK_KEY_MAP.put("http", new String[]{""});
-        TASK_KEY_MAP.put("im_chat", new String[]{""});
-        TASK_KEY_MAP.put("search", new String[]{});
-        TASK_KEY_MAP.put("weibo", new String[]{});
+        TASK_KEY_MAP.put("bbs", new String[]{"id"});
+        TASK_KEY_MAP.put("email", new String[]{"id"});
+        TASK_KEY_MAP.put("ftp", new String[]{"id"});
+        TASK_KEY_MAP.put("http", new String[]{"id"});
+        TASK_KEY_MAP.put("im_chat", new String[]{"id"});
+        TASK_KEY_MAP.put("search", new String[]{"id"});
+        TASK_KEY_MAP.put("weibo", new String[]{"id"});
 
         TASK_KEY_MAP.put("real", new String[]{"certificate_code", "certificate_type"});
         TASK_KEY_MAP.put("service", new String[]{"service_code"});

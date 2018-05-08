@@ -5,7 +5,10 @@ import com.rainsoft.conf.ConfigurationManager;
 import com.rainsoft.hbase.RowkeyColumnSecondarySort;
 import com.rainsoft.utils.HBaseUtils;
 import com.rainsoft.utils.NamingUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.spark.SparkConf;
@@ -20,10 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Oracle数据导入Solr基础信息类
@@ -163,5 +163,51 @@ public class BaseOracleDataExport {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * 根据数据的关键字段生成32位加密MD5作为唯一ID
+     * 不同的字段之间以下划线分隔
+     *
+     * @param list 唯一标识数据的字段值列表
+     * @return 32位加密MD5
+     */
+    public static String createIdentifyID(List<String> list) {
+        String fieldValues = StringUtils.join(list, '_');
+        return DigestUtils.md5Hex(fieldValues);
+    }
+
+    /**
+     * 根据Row下标集合获取对应的值
+     * @param row Spark-sql row
+     * @param indexs Row的下标
+     * @return 数据唯一标识的字段值
+     */
+    public static List<String> getKeyFieldValues(Row row, List<Integer> indexs) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < indexs.size(); i++) {
+            int index = indexs.get(i);
+            list.add(row.getString(index));
+        }
+        return list;
+    }
+
+    /**
+     * 从字段名称数组中找出关键字段的下标
+     * 返回关键字段下标的列表
+     * 主要用于根据关键字段生成唯一ID
+     *
+     * @param fields    该类型所有字段名称
+     * @param keyfields 该类型关键字段名称
+     * @return 字段在
+     */
+    static List<Integer> getKeyfieldIndexs(String[] fields, String[] keyfields) {
+        List<Integer> indexs = new ArrayList<>();
+        int index;
+        for (String field : keyfields) {
+            index = ArrayUtils.indexOf(fields, field);
+            indexs.add(index);
+        }
+        return indexs;
     }
 }
