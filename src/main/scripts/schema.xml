@@ -21,15 +21,15 @@
     <field name="CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
 
     <!-- 首次捕获时间 -->
-    <field name="FIRST_CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
+    <field name="FIRST_CAPTURE_TIME" type="date" indexed="true" stored="false" docValues="true"/>
     <!-- 最后捕获时间 -->
-    <field name="LAST_CAPTURE_TIME" type="tdate" indexed="true" stored="false" docValues="true"/>
+    <field name="LAST_CAPTURE_TIME" type="date" indexed="true" stored="false" docValues="true"/>
 
     <!-- data field -->
     <!-- 操作类型 -->
     <field name="ACTION_TYPE" type="string" indexed="false" stored="true"/>
     <!--  -->
-    <field name="AGEN_LAVE_TIME" type="string" indexed="false" stored="true"/>
+    <field name="AGEN_LAVE_TIME" type="date" indexed="false" stored="true"/>
     <!-- 附件 -->
     <field name="ATTACHMENT" type="string" indexed="false" stored="true"/>
     <!-- 出生日期 -->
@@ -45,7 +45,7 @@
     <!-- 证件类型 -->
     <field name="CERTIFICATE_TYPE" type="string" indexed="true" stored="true"/>
     <!-- 聊天时间 -->
-    <field name="CHAT_TIME" type="string" indexed="false" stored="true"/>
+    <field name="CHAT_TIME" type="date" indexed="false" stored="true"/>
     <!-- 命令 -->
     <field name="COMMAND" type="string" indexed="false" stored="true"/>
     <!-- 国家 -->
@@ -55,7 +55,7 @@
     <!-- 终端号 -->
     <field name="ENDING_NUMS" type="string" indexed="false" stored="true"/>
     <!-- 结束时间 -->
-    <field name="END_TIME" type="string" indexed="false" stored="true"/>
+    <field name="END_TIME" type="date" indexed="false" stored="true"/>
     <!-- 第一次登陆时间 -->
     <field name="FIRST_LOGINTIME" type="date" indexed="false" stored="true"/>
     <!-- 第一次所在房间号 -->
@@ -65,9 +65,8 @@
     <!-- 群ID -->
     <field name="GROUP_ID" type="string" indexed="false" stored="true"/>
     <!-- IP失效时间 -->
-    <field name="ID_EXPIRETIME" type="string" indexed="false" stored="true"/>
-    <!--<field name="IMPORT_TIME" type="string" indexed="false" stored="true"/>-->
-    <field name="INSTALL_TIME" type="string" indexed="false" stored="true"/>
+    <field name="ID_EXPIRETIME" type="date" indexed="false" stored="true"/>
+    <field name="INSTALL_TIME" type="date" indexed="false" stored="true"/>
     <!-- IP地址 -->
     <field name="IP_ADDRESS" type="string" indexed="false" stored="true"/>
     <!--  -->
@@ -139,7 +138,7 @@
     <!-- 行号 -->
     <field name="ROWNUMBER" type="string" indexed="false" stored="true"/>
     <!-- 发送时间 -->
-    <field name="SEND_TIME" type="string" indexed="false" stored="true"/>
+    <field name="SEND_TIME" type="date" indexed="false" stored="true"/>
     <!-- 服务器数量 -->
     <field name="SERVER_NUMS" type="string" indexed="false" stored="true"/>
     <!-- 服务图片 -->
@@ -153,13 +152,13 @@
     <!--端口号 -->
     <field name="SRC_PORT" type="string" indexed="false" stored="true"/>
     <!-- 开始时间 -->
-    <field name="START_TIME" type="string" indexed="false" stored="true"/>
+    <field name="START_TIME" type="date" indexed="false" stored="true"/>
     <!-- 状态 -->
     <field name="STATUS" type="string" indexed="false" stored="true"/>
     <!-- 模板版本 -->
     <field name="TEMPLET_VERSION" type="string" indexed="false" stored="true"/>
     <!-- 文件上传时间 -->
-    <field name="UPDATE_TIME" type="string" indexed="false" stored="true"/>
+    <field name="UPDATE_TIME" type="date" indexed="false" stored="true"/>
     <!-- 文件下载时间 -->
     <field name="UPLOAD_FILE" type="string" indexed="false" stored="true"/>
     <!-- 用户地址 -->
