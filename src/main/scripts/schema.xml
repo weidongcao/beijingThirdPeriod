@@ -42,10 +42,6 @@
     <field name="CC" type="string" indexed="false" stored="true"/>
     <!-- 密送地址 -->
     <field name="BCC" type="string" indexed="false" stored="true"/>
-    <!-- 证件类型 -->
-    <field name="CERTIFICATE_TYPE" type="string" indexed="true" stored="true"/>
-    <!-- 聊天时间 -->
-    <field name="CHAT_TIME" type="date" indexed="false" stored="true"/>
     <!-- 命令 -->
     <field name="COMMAND" type="string" indexed="false" stored="true"/>
     <!-- 国家 -->
@@ -60,7 +56,7 @@
     <field name="FIRST_LOGINTIME" type="date" indexed="false" stored="true"/>
     <!-- 第一次所在房间号 -->
     <field name="FIRST_ROOM_ID" type="string" indexed="false" stored="true"/>
-    <!-- 第一次出现气氛号 -->
+    <!-- 第一次出现场所号 -->
     <field name="FIRST_SERVICE_CODE" type="string" indexed="false" stored="true"/>
     <!-- 群ID -->
     <field name="GROUP_ID" type="string" indexed="false" stored="true"/>
@@ -312,6 +308,10 @@
     <field name="IS_SUSPICIOUS" type="string" indexed="true" stored="true"/>
     <!-- 重点关注人群名 -->
     <field name="ATTENTION_NAME" type="string" indexed="true" stored="true"/>
+    <!-- 聊天时间 -->
+    <field name="CHAT_TIME" type="date" indexed="true" stored="true"/>
+    <!-- 证件类型 -->
+    <field name="CERTIFICATE_TYPE" type="string" indexed="true" stored="true"/>
 
     <!-- 云游云采需要增加的字段 -->
     <!-- 不索引的字段 -->
