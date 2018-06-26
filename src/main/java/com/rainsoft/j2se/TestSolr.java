@@ -1,6 +1,8 @@
 package com.rainsoft.j2se;
 
 import com.google.common.base.Optional;
+import com.rainsoft.utils.SolrUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -32,11 +34,41 @@ public class TestSolr {
     public static Random random = new Random();
     public static DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    static {
-//        String solrURL = ConfigurationManager.getProperty("solr.url");
-//        client = new HttpSolrClient.Builder(solrURL).build();
-    }
+    public void testImei() throws IOException, SolrServerException {
+        List<SolrInputDocument> list = new ArrayList<>();
+        SolrInputDocument doc = new SolrInputDocument();
+        doc.addField("ID", DigestUtils.md5Hex("sss"));
+        doc.addField("docType", "imsi");
+        doc.addField("IMEI_CODE".toUpperCase(), "861414039195608");
+        doc.addField("ending_mac".toUpperCase(), "34DE1A21AD27");
+        doc.addField("use_nums".toUpperCase(), "1");
+        doc.addField("last_machine_id".toUpperCase(),"EN1801E116480361 ");
+        doc.addField("last_service_code".toUpperCase(), "31010422900001");
+        doc.addField("last_capture_time".toUpperCase(), "lkasjdf");
+        doc.addField("first_machine_id".toUpperCase(), "EN1801E116480381");
+        doc.addField("first_service_code".toUpperCase(), "14011024900003");
+        doc.addField("first_capture_time".toUpperCase(), new Date());
+        doc.addField("last_longitude".toUpperCase(), "laksdjf");
+        doc.addField("last_latitude".toUpperCase(), "klajsdfkljhkl");
+        list.add(doc);
+        SolrInputDocument doc1 = new SolrInputDocument();
+        doc1.addField("ID", DigestUtils.md5Hex("yyy"));
+        doc1.addField("docType", "imsi");
+        doc1.addField("IMEI_CODE".toUpperCase(), "861414039195608");
+        doc1.addField("ending_mac".toUpperCase(), "34DE1A21AD27");
+        doc1.addField("use_nums".toUpperCase(), "1");
+        doc1.addField("last_machine_id".toUpperCase(),"EN1801E116480361 ");
+        doc1.addField("last_service_code".toUpperCase(), "31010422900001");
+        doc1.addField("last_capture_time".toUpperCase(), "lkasjdfl");
+        doc1.addField("first_machine_id".toUpperCase(), "EN1801E116480381");
+        doc1.addField("first_service_code".toUpperCase(), "14011024900003");
+        doc1.addField("first_capture_time".toUpperCase(), "laksjdfkljkl");
+        doc1.addField("last_longitude".toUpperCase(), "aksldnfi");
+        doc1.addField("last_latitude".toUpperCase(), "alskdjfkljh");
+        list.add(doc1);
 
+        SolrUtil.submitToSolr(client, list, 1, java.util.Optional.of("yisou"));
+    }
     public void insertTestData() throws IOException, SolrServerException {
         File file = FileUtils.getFile("D:\\opt\\aaa.txt");
         List<String> list = FileUtils.readLines(file, "utf-8");
@@ -63,7 +95,6 @@ public class TestSolr {
     public void testMath() {
         System.out.println(Math.log(100d));
     }
-    @Test
     public void insertTestData1() throws IOException, SolrServerException, ParseException {
         Optional<Date> now = Optional.of(df.parse("2018-03-06 12:00:00"));
         Optional<Date> oneWeekAge = Optional.of(df.parse("2018-02-28 12:00:00"));
@@ -144,6 +175,7 @@ public class TestSolr {
 
         return doc;
     }
+    @Test
     public void querySolr()
             throws IOException, SolrServerException {
         SolrQuery params = new SolrQuery();
