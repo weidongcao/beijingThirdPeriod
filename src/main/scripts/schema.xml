@@ -39,9 +39,9 @@
     <!--  -->
     <field name="CAUSE" type="string" indexed="false" stored="true"/>
     <!-- 抄送地址 -->
-    <field name="CC" type="string" indexed="false" stored="true"/>
+    <field name="CC" type="text_general" indexed="false" stored="true"/>
     <!-- 密送地址 -->
-    <field name="BCC" type="string" indexed="false" stored="true"/>
+    <field name="BCC" type="text_general" indexed="false" stored="true"/>
     <!-- 命令 -->
     <field name="COMMAND" type="string" indexed="false" stored="true"/>
     <!-- 国家 -->
@@ -54,14 +54,16 @@
     <field name="END_TIME" type="date" indexed="false" stored="true"/>
     <!-- 第一次登陆时间 -->
     <field name="FIRST_LOGINTIME" type="date" indexed="false" stored="true"/>
+    <!-- 最后一次登陆时间 -->
+    <field name="LAST_LOGINTIME" type="date" indexed="false" stored="true"/>
     <!-- 第一次所在房间号 -->
     <field name="FIRST_ROOM_ID" type="string" indexed="false" stored="true"/>
     <!-- 第一次出现场所号 -->
-    <field name="FIRST_SERVICE_CODE" type="string" indexed="false" stored="true"/>
+    <field name="FIRST_SERVICE_CODE" type="text_general" indexed="false" stored="true"/>
     <!-- 群ID -->
     <field name="GROUP_ID" type="string" indexed="false" stored="true"/>
     <!-- IP失效时间 -->
-    <field name="ID_EXPIRETIME" type="date" indexed="false" stored="true"/>
+    <field name="ID_EXPIRETIME" type="string" indexed="false" stored="true"/>
     <field name="INSTALL_TIME" type="date" indexed="false" stored="true"/>
     <!-- IP地址 -->
     <field name="IP_ADDRESS" type="string" indexed="false" stored="true"/>
@@ -82,7 +84,7 @@
     <!-- 最后一次登陆房间号 -->
     <field name="LAST_ROOM_ID" type="string" indexed="false" stored="true"/>
     <!-- 最后一次出现场所号 -->
-    <field name="LAST_SERVICE_CODE" type="string" indexed="false" stored="true"/>
+    <field name="LAST_SERVICE_CODE" type="text_general" indexed="false" stored="true"/>
     <!-- 纬度 -->
     <field name="LATITUDE" type="string" indexed="false" stored="true"/>
     <!-- 经度 -->
@@ -90,17 +92,13 @@
     <!-- 经纬度 -->
     <field name="LONGITUDE_LATITUDE" type="string" indexed="false" stored="true"/>
     <!-- 机器号 -->
-    <field name="MACHINE_ID" type="string" indexed="false" stored="true"/>
+    <field name="MACHINE_ID" type="text_general" indexed="false" stored="true"/>
     <!-- 第一个机器号 -->
     <field name="FIRST_MACHINE_ID" type="string" indexed="false" stored="true"/>
     <!-- 最后一个机器号 -->
     <field name="LAST_MACHINE_ID" type="string" indexed="false" stored="true"/>
     <!-- 邮件ID -->
     <field name="MAILID" type="string" indexed="false" stored="true"/>
-    <!-- 邮件发送方 -->
-    <field name="MAIL_FROM" type="string" indexed="false" stored="true"/>
-    <!-- 邮件接收方 -->
-    <field name="MAIL_TO" type="string" indexed="false" stored="true"/>
     <!-- 场商编号 -->
     <field name="MANUFACTURER_CODE" type="string" indexed="false" stored="true"/>
     <!-- 网络类型 -->
@@ -114,7 +112,7 @@
     <!-- 警局 -->
     <field name="POLIC_STATION" type="string" indexed="false" stored="true"/>
     <!-- 邮政编码 -->
-    <field name="POSTAL_CODE" type="string" indexed="false" stored="true"/>
+    <field name="POSTAL_CODE" type="text_general" indexed="false" stored="true"/>
     <!-- 邮递ID -->
     <field name="POSTING_ID" type="string" indexed="false" stored="true"/>
     <!-- 从业人数 -->
@@ -157,10 +155,6 @@
     <field name="UPDATE_TIME" type="date" indexed="false" stored="true"/>
     <!-- 文件下载时间 -->
     <field name="UPLOAD_FILE" type="string" indexed="false" stored="true"/>
-    <!-- 用户地址 -->
-    <field name="USER_ADDRESS" type="string" indexed="false" stored="true"/>
-    <!-- 用户手机 -->
-    <field name="USER_PHONE" type="string" indexed="false" stored="true"/>
     <!-- 使用数量 -->
     <field name="USE_NUMS" type="string" indexed="false" stored="true"/>
     <!-- 压缩文件编号 -->
@@ -173,63 +167,42 @@
     <field name="FILE_SIZE" type="string" indexed="false" stored="true"/>
     <!--内容号 -->
     <field name="CONTENT_ID" type="string" indexed="false" stored="true"/>
+    <!--换机类型 -->
+    <field name="RE_SEAT_TYPE" type="string" indexed="false" stored="true"/>
 
+    <!-- 需要中文分词的字段 -->
     <!--content field-->
     <field name="SUMMARY" type="text_ik" indexed="true" stored="true"/>
-    <!-- 文件名 -->
-    <field name="FILE_NAME" type="text_ik" indexed="true" stored="true"/>
     <!-- 游戏名 -->
     <field name="GAMENAME" type="text_ik" indexed="true" stored="true"/>
     <!-- 聊天内容 -->
     <field name="MSG" type="text_ik" indexed="true" stored="true"/>
     <!-- 关键字 -->
     <field name="KEYWORD" type="text_ik" indexed="true" stored="true"/>
-    <!-- 域名 -->
-    <field name="DOMAIN_NAME" type="text_ik" indexed="true" stored="true"/>
     <!-- 用户名 -->
     <field name="USER_NAME" type="text_ik" indexed="true" stored="true"/>
-    <!-- 账号 -->
-    <field name="ACCOUNT" type="text_ik" indexed="true" stored="true"/>
-    <!-- 协议类型 -->
-    <field name="PROTOCOL_TYPE" type="text_ik" indexed="true" stored="true"/>
-
-
-
-    <!-- highlighting fields -->
     <!--  -->
     <field name="LAW_PRINCIPAL_CERTIFICATE_ID" type="text_ik" indexed="true" stored="true"/>
     <!--  -->
     <field name="LAW_PRINCIPAL_CERTIFICATE_TYPE" type="text_ik" indexed="true" stored="true"/>
     <!-- 场所名称的拼音 -->
     <field name="SERVICE_NAME_PIN_YIN" type="text_ik" indexed="true" stored="true"/>
-    <!-- 网络监控人的手机 -->
-    <field name="NET_MONITOR_MAN_TEL" type="text_ik" indexed="true" stored="true"/>
     <!-- 网络监控人 -->
     <field name="NET_MONITOR_MAN" type="text_ik" indexed="true" stored="true"/>
     <!-- 网络监控部门 -->
     <field name="NET_MONITOR_DEPARTMENT" type="text_ik" indexed="true" stored="true"/>
     <!--  -->
-    <field name="INFOR_MAN_EMAIL" type="text_ik" indexed="true" stored="true"/>
-    <!--  -->
-    <field name="INFOR_MAN_TEL" type="text_ik" indexed="true" stored="true"/>
-    <!--  -->
     <field name="INFOR_MAN" type="text_ik" indexed="true" stored="true"/>
-    <!-- 主要的电话 -->
-    <field name="PRINCIPAL_TEL" type="text_ik" indexed="true" stored="true"/>
     <!--  -->
     <field name="PRINCIPAL" type="text_ik" indexed="true" stored="true"/>
     <!-- 地址 -->
     <field name="ADDRESS" type="text_ik" indexed="true" stored="true"/>
     <!-- 场所名称 -->
     <field name="SERVICE_NAME" type="text_ik" indexed="true" stored="true"/>
-    <!-- (聊天)发送者账号 -->
-    <field name="SENDER_ACCOUNT" type="text_ik" indexed="true" stored="true"/>
     <!-- 好友昵称或群名片 -->
     <field name="FRIEND_NAME" type="text_ik" indexed="true" stored="true"/>
     <!-- (聊天)发送者名字 -->
     <field name="SENDER_NAME" type="text_ik" indexed="true" stored="true"/>
-    <!-- (聊天)好友账号或群号 -->
-    <field name="FRIEND_ACCOUNT" type="text_ik" indexed="true" stored="true"/>
     <!-- (聊天)好友账号或群号，不分词 -->
     <field name="FRIEND_ACCOUNT_TEXT" type="string" indexed="true" stored="true"/>
     <!-- (聊天)账号昵称 -->
@@ -238,66 +211,43 @@
     <field name="TITLE" type="text_ik" indexed="true" stored="true"/>
     <!-- 作者 -->
     <field name="AUTHOR" type="text_ik" indexed="true" stored="true"/>
-    <!--  -->
-    <field name="REF_DOMAIN" type="text_ik" indexed="true" stored="true"/>
     <!-- 买家地址 -->
     <field name="BUYER_ADDRESS" type="text_ik" indexed="true" stored="true"/>
-    <!-- 数据源 -->
-    <field name="DATA_SOURCE" type="text_ik" indexed="true" stored="true"/>
     <!-- 关键字代码 -->
     <field name="KEYWORD_CODE" type="text_ik" indexed="true" stored="true"/>
     <!-- ID编号 -->
     <field name="IDCODE" type="text_ik" indexed="true" stored="true"/>
-    <!-- 源 -->
-    <field name="SOURCE" type="text_ik" indexed="true" stored="true"/>
-    <!-- 买家邮箱 -->
-    <field name="BUYER_EMAIL" type="text_ik" indexed="true" stored="true"/>
-    <!-- 野心家电话 -->
-    <field name="BUYER_PHONE" type="text_ik" indexed="true" stored="true"/>
-    <!-- 买家手机号 -->
-    <field name="BUYER_MOBILE" type="text_ik" indexed="true" stored="true"/>
     <!-- 买家名字 -->
     <field name="BUYER_NAME" type="text_ik" indexed="true" stored="true"/>
     <!-- 账户名称 -->
     <field name="ACOUNT_NAME" type="text_ik" indexed="true" stored="true"/>
-    <!-- 网址 -->
-    <field name="URL" type="text_ik" indexed="true" stored="true"/>
     <!-- 主题 -->
     <field name="SUBJECT" type="text_ik" indexed="true" stored="true"/>
     <!-- 昵称 -->
     <field name="NICK_NAME" type="text_ik" indexed="true" stored="true"/>
-    <!-- 源Mac -->
-    <field name="SRC_MAC" type="text_ik" indexed="true" stored="true"/>
-    <!-- 目标Mac -->
-    <field name="DEST_MAC" type="text_ik" indexed="true" stored="true"/>
-    <!-- 源IP -->
-    <field name="SRC_IP" type="text_ik" indexed="true" stored="true"/>
-    <!-- 目标IP -->
-    <field name="DEST_IP" type="text_ik" indexed="true" stored="true"/>
-    <!-- 证件号 -->
-    <field name="CERTIFICATE_CODE" type="text_ik" indexed="true" stored="true"/>
-
-    <!--not text_ik field-->
+    <!-- 用户地址 -->
+    <field name="USER_ADDRESS" type="text_ik" indexed="true" stored="true"/>
+    <!-- 设备地址 -->
+    <field name="EQUIPMENT_ADDRESS" type="text_ik" indexed="true" stored="true"/>
+    <!-- 设备名称 -->
+    <field name="EQUIPMENT_NAME" type="text_ik" indexed="true" stored="true"/>
+    
+    <!--英文,需要索引的字段-->
+    <!-- 第一次出现的时间 -->
+    <field name="FIRST_TIME" type="date" indexed="true" stored="true"/>
+    <!-- 最后一次出现的时间 -->
+    <field name="LAST_TIME" type="date" indexed="true" stored="true"/>
+    <!-- 聊天时间 -->
+    <field name="CHAT_TIME" type="date" indexed="true" stored="true"/>
+    
     <!-- 聊天类型 -->
     <field name="CHAT_TYPE" type="string" indexed="true" stored="true"/>
     <!-- 房间号 -->
     <field name="ROOM_ID" type="string" indexed="true" stored="true"/>
-    <!--  -->
-    <field name="REF_URL" type="string" indexed="true" stored="true"/>
-    <!-- 场内编码 -->
-    <field name="SERVICE_CODE_IN" type="string" indexed="true" stored="true"/>
-    <!-- 场所号 -->
-    <field name="SERVICE_CODE" type="string" indexed="true" stored="true"/>
-    <!-- 场所IP -->
-    <field name="SERVICE_IP" type="string" indexed="true" stored="true"/>
     <!-- 是否是虚拟的 -->
     <field name="IS_VIRTUAL" type="string" indexed="true" stored="true"/>
     <!-- 是否查检 -->
     <field name="IF_CHECK" type="string" indexed="true" stored="true"/>
-    <!-- 手机号前7位 -->
-    <field name="PHONE_AREA" type="string" indexed="true" stored="true"/>
-    <!-- 所属地区代码 -->
-    <field name="AREA_CODE" type="string" indexed="true" stored="true"/>
     <!--  捕获次数 -->
     <field name="CAPTURE_NUMS" type="string" indexed="true" stored="true"/>
     <!-- 重点关注人群组 -->
@@ -308,11 +258,99 @@
     <field name="IS_SUSPICIOUS" type="string" indexed="true" stored="true"/>
     <!-- 重点关注人群名 -->
     <field name="ATTENTION_NAME" type="string" indexed="true" stored="true"/>
-    <!-- 聊天时间 -->
-    <field name="CHAT_TIME" type="date" indexed="true" stored="true"/>
     <!-- 证件类型 -->
     <field name="CERTIFICATE_TYPE" type="string" indexed="true" stored="true"/>
-
+    <!-- 运营商名称 -->
+    <field name="OPERATOR_NAME" type="string" indexed="true" stored="true"/>
+	<!-- 设备ID -->
+    <field name="EQUIPMENT_ID" type="string" indexed="true" stored="true"/>
+    <!-- 终端类型 -->
+    <field name="ENCRYPT_TYPE" type="string" indexed="true" stored="true"/>
+    <!-- 设备类型 -->
+    <field name="EQUIPMENT_TYPE" type="string" indexed="true" stored="true"/>
+    
+    
+    <!-- 比较重要的字段,字段的值不包含中文 -->
+    <!-- 文件名 -->
+    <field name="FILE_NAME" type="text_general" indexed="true" stored="true"/>
+    <!-- 域名 -->
+    <field name="DOMAIN_NAME" type="text_general" indexed="true" stored="true"/>
+    <!-- 账号 -->
+    <field name="ACCOUNT" type="text_general" indexed="true" stored="true"/>
+    <!-- 协议类型 -->
+    <field name="PROTOCOL_TYPE" type="text_general" indexed="true" stored="true"/>
+    <!-- 邮件发送方 -->
+    <field name="MAIL_FROM" type="text_general" indexed="true" stored="true"/>
+    <!-- 邮件接收方 -->
+    <field name="MAIL_TO" type="text_general" indexed="true" stored="true"/>
+    <!-- 买家邮箱 -->
+    <field name="BUYER_EMAIL" type="text_general" indexed="true" stored="true"/>
+    <!-- 网络监控人的手机 -->
+    <field name="NET_MONITOR_MAN_TEL" type="text_general" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="INFOR_MAN_EMAIL" type="text_general" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="INFOR_MAN_TEL" type="text_general" indexed="true" stored="true"/>
+    <!-- 用户手机 -->
+    <field name="USER_PHONE" type="text_general" indexed="false" stored="true"/>
+    <!-- (聊天)发送者账号 -->
+    <field name="SENDER_ACCOUNT" type="text_general" indexed="true" stored="true"/>
+    <!-- 数据源 -->
+    <field name="DATA_SOURCE" type="text_general" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="REF_DOMAIN" type="text_general" indexed="true" stored="true"/>
+    <!-- 主要的电话 -->
+    <field name="PRINCIPAL_TEL" type="text_general" indexed="true" stored="true"/>
+    <!-- (聊天)好友账号或群号 -->
+    <field name="FRIEND_ACCOUNT" type="text_general" indexed="true" stored="true"/>
+    <!-- 源 -->
+    <field name="SOURCE" type="text_general" indexed="true" stored="true"/>
+    <!-- 买家电话 -->
+    <field name="BUYER_PHONE" type="text_general" indexed="true" stored="true"/>
+    <!-- 买家手机号 -->
+    <field name="BUYER_MOBILE" type="text_general" indexed="true" stored="true"/>
+    <!-- 网址 -->
+    <field name="URL" type="text_general" indexed="true" stored="true"/>
+    <!-- 终端mac地址 -->
+    <field name="ENDING_MAC" type="text_general" indexed="true" stored="true"/>
+    <field name="AP_MAC" type="text_general" indexed="true" stored="true"/>
+    <!-- 设备mac地址 -->
+    <field name="EQUIPMENT_MAC" type="text_general" indexed="true" stored="true"/>
+    <!-- 源Mac -->
+    <field name="SRC_MAC" type="text_general" indexed="true" stored="true"/>
+    <!-- 目标Mac -->
+    <field name="DEST_MAC" type="text_general" indexed="true" stored="true"/>
+    <!-- 源IP -->
+    <field name="SRC_IP" type="text_general" indexed="true" stored="true"/>
+    <!-- 目标IP -->
+    <field name="DEST_IP" type="text_general" indexed="true" stored="true"/>
+    <!-- 证件号 -->
+    <field name="CERTIFICATE_CODE" type="text_general" indexed="true" stored="true"/>
+    <!--  -->
+    <field name="REF_URL" type="text_general" indexed="true" stored="true"/>
+    <!-- 场内编码 -->
+    <field name="SERVICE_CODE_IN" type="text_general" indexed="true" stored="true"/>
+    <!-- 场所号 -->
+    <field name="SERVICE_CODE" type="text_general" indexed="true" stored="true"/>
+    <!-- 场所IP -->
+    <field name="SERVICE_IP" type="text_general" indexed="true" stored="true"/>
+    <!-- 手机号前7位 -->
+    <field name="PHONE_AREA" type="text_general" indexed="true" stored="true"/>
+    <!-- 所属地区代码 -->
+    <field name="AREA_CODE" type="text_general" indexed="true" stored="true"/>
+    <!-- 电话号码 -->
+    <field name="PHONE_NUMBER" type="text_general" indexed="true" stored="true"/>
+    <!-- 车牌号 -->
+    <field name="VEHICLE_CODE" type="text_general" indexed="true" stored="true"/>
+    <!-- 虚拟账号 -->
+    <field name="VID_ACCOUNT" type="text_general" indexed="true" stored="true"/>
+    <!-- 手机IMEI -->
+    <field name="IMEI" type="text_general" indexed="true" stored="true"/>
+    <!-- 手机IMSI -->
+    <field name="IMSI" type="text_general" indexed="true" stored="true"/>
+    <!-- 所属地区名称 -->
+    <field name="AREA_NAME" type="text_general" indexed="true" stored="true"/>
+    
     <!-- 云游云采需要增加的字段 -->
     <!-- 不索引的字段 -->
     <!--  -->
@@ -339,14 +377,10 @@
     <field name="EQUIPMENT_LON" type="string" indexed="false" stored="true"/>
     <!-- 字段长度 -->
     <field name="FIELD_STRENGTH" type="string" indexed="false" stored="true"/>
-    <!-- 第一次出现的时间 -->
-    <field name="FIRST_TIME" type="date" indexed="true" stored="true"/>
     <!--  -->
     <field name="HASGPS" type="string" indexed="false" stored="true"/>
     <!--  -->
     <field name="ICCID" type="string" indexed="false" stored="true"/>
-    <!-- 最后一次出现的时间 -->
-    <field name="LAST_TIME" type="date" indexed="true" stored="true"/>
     <!-- 操作系统版本 -->
     <field name="OS_VERSION" type="string" indexed="false" stored="true"/>
     <!-- 软件所属组织编号 -->
@@ -371,37 +405,7 @@
     <field name="SN_CODE" type="string" indexed="false" stored="true"/>
     <!-- 运营商类型 -->
     <field name="OPERATOR_TYPE" type="string" indexed="false" stored="true"/>
-    <!-- 运营商名称 -->
-    <field name="OPERATOR_NAME" type="string" indexed="false" stored="true"/>
 
-    <!-- 索引 -->
-    <!-- 设备地址 -->
-    <field name="EQUIPMENT_ADDRESS" type="text_ik" indexed="true" stored="true"/>
-    <!-- 设备名称 -->
-    <field name="EQUIPMENT_NAME" type="text_ik" indexed="true" stored="true"/>
-    <!-- 电话号码 -->
-    <field name="PHONE_NUMBER" type="text_ik" indexed="true" stored="true"/>
-    <!-- 车牌号 -->
-    <field name="VEHICLE_CODE" type="text_ik" indexed="true" stored="true"/>
-    <!-- 虚拟账号 -->
-    <field name="VID_ACCOUNT" type="text_ik" indexed="true" stored="true"/>
-	<!-- 设备ID -->
-    <field name="EQUIPMENT_ID" type="string" indexed="true" stored="true"/>
-	<field name="AP_MAC" type="string" indexed="true" stored="true"/>
-    <!-- 终端类型 -->
-    <field name="ENCRYPT_TYPE" type="string" indexed="true" stored="true"/>
-    <!-- 终端mac地址 -->
-    <field name="ENDING_MAC" type="string" indexed="true" stored="true"/>
-    <!-- 设备mac地址 -->
-    <field name="EQUIPMENT_MAC" type="string" indexed="true" stored="true"/>
-    <!-- 设备类型 -->
-    <field name="EQUIPMENT_TYPE" type="string" indexed="true" stored="true"/>
-    <!-- 手机IMEI -->
-    <field name="IMEI_CODE" type="string" indexed="true" stored="true"/>
-    <!-- 手机IMSI -->
-    <field name="IMSI_CODE" type="string" indexed="true" stored="true"/>
-    <!-- 所属地区名称 -->
-    <field name="AREA_NAME" type="string" indexed="true" stored="true"/>
 
     <copyField source="MSG" dest="text_cn"/>
     <copyField source="SUMMARY" dest="text_cn"/>
