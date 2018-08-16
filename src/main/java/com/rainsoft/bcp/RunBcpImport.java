@@ -4,6 +4,8 @@ import com.rainsoft.solr.content.BbsOracleDataExport;
 import com.rainsoft.solr.content.EmailOracleDataExport;
 import com.rainsoft.solr.content.SearchOracleDataExport;
 import com.rainsoft.solr.content.WeiboOracleDataExport;
+import com.rainsoft.solr.distinct.RealOracleDataExport;
+import com.rainsoft.solr.distinct.VidOracleDataExport;
 import com.rainsoft.utils.ThreadUtils;
 
 import java.util.Calendar;
@@ -18,7 +20,7 @@ public class RunBcpImport {
     public static void main(String[] args) {
         while (true) {
             runBigTasks(bigTasks);
-            runSmallTasks();
+            runSmallTasks(smallTasks);
         }
     }
 
@@ -26,6 +28,7 @@ public class RunBcpImport {
      * 执行大任务
      * 大任务一般为HTTP、FTP、imchat
      * 如果大任务都没有数据,休息5分钟
+     *
      * @param bigTasks
      */
     public static void runBigTasks(String[] bigTasks) {
@@ -49,27 +52,40 @@ public class RunBcpImport {
      * 一般为Bbs、Email、Search、Real、Vid、Service
      * 因为数据量小,每4个小时执行一次
      */
-    public static void runSmallTasks() {
+    public static void runSmallTasks(String[] tasks) {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        if (hour % 6 == 0) {
-            //Bbs任务
-            BbsOracleDataExport.exportOracleByTime();
-
-            //Email任务
-            EmailOracleDataExport.exportOracleByTime();
-
-            //Search任务
-            SearchOracleDataExport.exportOracleByTime();
-
-            //Weibo任务
-            WeiboOracleDataExport.exportOracleByTime();
-
-            //虚拟表任务
-            // VidOracleDataExport.exportOracleByTime();
-
-            //真实表任务
-            // RealOracleDataExport.exportOracleByTime();
+        if (hour % 6 != 0) {
+            return;
+        }
+        for (String task : tasks) {
+            switch (task) {
+                case "bbs":
+                    //Bbs任务
+                    BbsOracleDataExport.exportOracleByTime();
+                    break;
+                case "email":
+                    //Email任务
+                    EmailOracleDataExport.exportOracleByTime();
+                    break;
+                case "search":
+                    //Search任务
+                    SearchOracleDataExport.exportOracleByTime();
+                    break;
+                case "weibo":
+                    //Weibo任务
+                    WeiboOracleDataExport.exportOracleByTime();
+                    break;
+                case "real":
+                    //真实表任务
+                    RealOracleDataExport.exportOracleByTime();
+                    break;
+                case "vid":
+                    //虚拟表任务
+                    VidOracleDataExport.exportOracleByTime();
+                    break;
+                default:
+            }
         }
     }
 }
