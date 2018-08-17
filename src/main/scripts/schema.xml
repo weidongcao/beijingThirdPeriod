@@ -231,7 +231,7 @@
     <field name="EQUIPMENT_ADDRESS" type="text_ik" indexed="true" stored="true"/>
     <!-- 设备名称 -->
     <field name="EQUIPMENT_NAME" type="text_ik" indexed="true" stored="true"/>
-    
+
     <!--英文,需要索引的字段-->
     <!-- 第一次出现的时间 -->
     <field name="FIRST_TIME" type="date" indexed="true" stored="true"/>
@@ -239,7 +239,7 @@
     <field name="LAST_TIME" type="date" indexed="true" stored="true"/>
     <!-- 聊天时间 -->
     <field name="CHAT_TIME" type="date" indexed="true" stored="true"/>
-    
+
     <!-- 聊天类型 -->
     <field name="CHAT_TYPE" type="string" indexed="true" stored="true"/>
     <!-- 房间号 -->
@@ -268,8 +268,8 @@
     <field name="ENCRYPT_TYPE" type="string" indexed="true" stored="true"/>
     <!-- 设备类型 -->
     <field name="EQUIPMENT_TYPE" type="string" indexed="true" stored="true"/>
-    
-    
+
+
     <!-- 比较重要的字段,字段的值不包含中文 -->
     <!-- 文件名 -->
     <field name="FILE_NAME" type="text_general" indexed="true" stored="true"/>
@@ -350,7 +350,7 @@
     <field name="IMSI" type="text_general" indexed="true" stored="true"/>
     <!-- 所属地区名称 -->
     <field name="AREA_NAME" type="text_general" indexed="true" stored="true"/>
-    
+
     <!-- 云游云采需要增加的字段 -->
     <!-- 不索引的字段 -->
     <!--  -->
@@ -405,7 +405,6 @@
     <field name="SN_CODE" type="string" indexed="false" stored="true"/>
     <!-- 运营商类型 -->
     <field name="OPERATOR_TYPE" type="string" indexed="false" stored="true"/>
-
 
     <copyField source="MSG" dest="text_cn"/>
     <copyField source="SUMMARY" dest="text_cn"/>
