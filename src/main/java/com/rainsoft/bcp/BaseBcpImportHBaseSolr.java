@@ -9,6 +9,7 @@ import com.rainsoft.utils.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -49,6 +50,10 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     private static final String bcpFilePath = ConfigurationManager.getProperty("bcp.file.path");
     //是否导入到HBase
     private static boolean isExport2HBase = ConfigurationManager.getBoolean("is.export.to.hbase");
+    //Solr的Collection名称（不进行多Collection划分）
+    private static String collectionPrefix = ConfigurationManager.getProperty("solr.collection");
+    //Solr是否进行多Collection划分
+    private static boolean ifCollectionPartition = ConfigurationManager.getBoolean("solr.collection.partition");
     //SparkSession
     protected static SparkSession spark = new SparkSession.Builder()
             .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
@@ -184,6 +189,11 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                             SolrUtil.addSolrFieldValue(doc, key, value);
                         }
                         list.add(doc);
+                    }
+                    //指定要默认Collection名称
+                    if (ifCollectionPartition == true) {
+                        String collectionName = SolrUtil.getCollection(collectionPrefix, new Date(), 10);
+                        ((CloudSolrClient)client).setDefaultCollection(collectionName);
                     }
                     //写入Solr
                     SolrUtil.submitToSolr(client, list, 0, Optional.of(new Date()));
