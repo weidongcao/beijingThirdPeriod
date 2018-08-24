@@ -10,7 +10,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.spark.Success;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -50,6 +49,10 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     private static final String bcpFilePath = ConfigurationManager.getProperty("bcp.file.path");
     //是否导入到HBase
     private static boolean isExport2HBase = ConfigurationManager.getBoolean("is.export.to.hbase");
+
+    //Solr不保存的字段
+    private static Set<String> unsaveFields = FieldConstants.SOLR_FIELD_MAP.get("exclusion_fields");
+
     //SparkSession
     protected static SparkSession spark = new SparkSession.Builder()
             .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
@@ -60,9 +63,9 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * 执行任务
      * 实现以下逻辑：
      * 1. 获取BCP文件列表
-     *      获取时做以下事情：
-     *          1.调用Linux命令将BCP文件从文件池移动到工作目录
-     *          2. 得到返回的文件列表
+     * 获取时做以下事情：
+     * 1.调用Linux命令将BCP文件从文件池移动到工作目录
+     * 2. 得到返回的文件列表
      * 2. 将文件数据按BCP文件拆分成List
      * 3. 读到Spark并给给数据添加唯一主键
      * 4. 过滤关键字段
@@ -96,9 +99,10 @@ public class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * 将Bcp文件的内容导入到HBase、Solr
+     *
      * @param file Bcp文件
      * @return List<String
-     */
+                    */
     public static List<String> getFileContent(File file) {
         List<String> lines = null;
         try {
@@ -116,28 +120,31 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     /**
      * 根据任务类型将BCP文件从数据池移动到工作目录
      * 并返回文件列表
+     *
      * @param task 任务类型
      * @return 文件列表
      */
     private static File[] getTaskBcpFiles(String task) {
         String os = System.getProperty("os.name");
         File[] files;
-        moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
         //适应在Windows上测试与Linux运行
         if (os.toLowerCase().contains("windows")) {
             // 第二步：从工作目录读取文件列表
             files = FileUtils.getFile("D:\\0WorkSpace\\data\\yuncai").listFiles();
         } else {
             // 第一步:将Bcp文件从文件池移到工作目录
+            moveBcpfileToWorkDir(LinuxUtils.SHELL_YUNTAN_BCP_MV, task);
             // 第二步：从工作目录读取文件列表
             files = FileUtils.getFile(NamingRuleUtils.getBcpWorkDir(task)).listFiles();
         }
         return files;
     }
+
     /**
      * 数据写入Solr、HBase
+     *
      * @param dataRDD 要写入的数据
-     * @param task   任务类型
+     * @param task    任务类型
      */
     public static void bcpWriteIntoHBaseSolr(JavaRDD<Row> dataRDD, String task) {
         // RDD持久化
@@ -154,6 +161,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
 
     /**
      * Bcp数据导入到Solr
+     *
      * @param javaRDD JavaRDD
      * @param task    任务类型
      */
@@ -170,17 +178,19 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                         Row row = iterator.next();
                         //SolrImputDocument添加通用外部字段
                         SolrInputDocument doc = addSolrExtraField(task, row);
-                        for (int i = 0; i < row.length(); i++) {
+                        for (int i = 0; i < columns.length; i++) {
                             if (i >= columns.length) {
                                 break;
                             }
-                            String value = row.getString(i + 1);
-                            String key = columns[i].toUpperCase();
-                            //添加字段到SolrInputDocument
-                            SolrUtil.addSolrFieldValue(doc, key, value);
+                            //判断字段是否需要保存到Solr
+                            if (unsaveFields.contains(columns[i]) == false) {
+                                //添加字段到SolrInputDocument
+                                SolrUtil.addSolrFieldValue(doc, columns[i].toUpperCase(), row.getString(i + 1));
+                            }
                         }
                         list.add(doc);
                     }
+
                     //写入Solr
                     SolrUtil.submitToSolr(client, list, 0, new Date());
                 }
@@ -250,10 +260,10 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     }
 
 
-
     /**
      * 对Bcp文件的关键字段进行过滤,
      * 过滤字段为空或者格式不对什么的
+     *
      * @param dataRDD JavaRDD<Row>
      * @return JavaRDD<Row>
      */

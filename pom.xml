@@ -31,7 +31,7 @@
         <!-- solr 版本 -->
         <solr.version>6.1.0</solr.version>
         <!-- Spark版本 -->
-        <spark.version>2.0.2</spark.version>
+        <spark.version>2.1.2</spark.version>
         <!-- Hadoop版本 -->
         <hadoop.version>2.6.0-cdh5.10.2</hadoop.version>
         <!-- hive 版本 -->

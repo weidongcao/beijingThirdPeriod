@@ -2,6 +2,7 @@ package com.rainsoft.utils;
 
 import com.rainsoft.BigDataConstants;
 import com.rainsoft.FieldConstants;
+import com.rainsoft.conf.ConfigurationManager;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -23,6 +24,10 @@ import java.util.List;
  */
 public class SolrUtil {
     private static final Logger logger = LoggerFactory.getLogger(SolrUtil.class);
+        //Solr的Collection名称（不进行多Collection划分）
+    private static String collectionPrefix = ConfigurationManager.getProperty("solr.collection");
+    //Solr是否进行多Collection划分
+    private static boolean ifCollectionPartition = ConfigurationManager.getBoolean("solr.collection.partition");
 
     /**
      * 根据字段名和字段值把数据写入到SolrInputDocument
@@ -52,11 +57,11 @@ public class SolrUtil {
             } catch (ParseException e) {
                 //日期转换失败，什么都不做直接跳过
             }
-        } else if(FieldConstants.SOLR_FIELD_MAP.get("mac_type_fields").contains(fieldName.toLowerCase())){
+        } else if (FieldConstants.SOLR_FIELD_MAP.get("mac_type_fields").contains(fieldName.toLowerCase())) {
             //字段是Mac地址,需要去掉中划线
             fieldValue = fieldValue.replace("-", "");
             doc.addField(fieldName, fieldValue);
-        }else {    //字段在Solr里是text类型
+        } else {    //字段在Solr里是text类型
             //sid
             if ("id".equalsIgnoreCase(fieldName)) {
                 doc.addField("SID", fieldValue);
@@ -192,17 +197,94 @@ public class SolrUtil {
      */
     public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, Date date)
             throws IOException, SolrServerException {
-        if (list.size() >= size) {
-            setCloudSolrClientDefaultCollection(client, date);
-            client.add(list, 10000);
-            logger.info("写入Solr {} 条数据", list.size());
-            list.clear();
+        if (list.size() == size) {
+            return;
         }
+        String collectionName;
+        //指定要默认Collection名称
+        if (ifCollectionPartition == true) {
+            collectionName = SolrUtil.getSplittedCollection(collectionPrefix, date, 10);
+            ((CloudSolrClient) client).setDefaultCollection(collectionName);
+            logger.info("Solr当前要写入的Collection：{}", collectionName);
+        } else {
+            collectionName = collectionPrefix;
+        }
+        client.add(list, 10000);
+        logger.info("写入Solr Collection: {} {} 条数据",collectionName, list.size());
+        list.clear();
     }
 
     public static void submitToSolr(SolrClient client, List<SolrInputDocument> list, int size, String str)
             throws IOException, SolrServerException, ParseException {
         Date date = DateUtils.parseDate(str, "yyyy-MM-dd HH:mm:ss");
         submitToSolr(client, list, size, date);
+    }
+
+    /**
+     * Solr多Collection划分，根据日期划分Collection
+     * 划分的规则是：
+     * 前缀 + 年 + 月 + 日期标识
+     * 前缀：一般为Collection不划分的时候的命名
+     * 年：4位数字，如：2018
+     * 月：2位数字不足以0补，如：08
+     * 日标识：日除以Collection存储的时间段，31号和30号相同，避免再单独为一天划分一个Collection
+     * Collection默认存储10天的数据，
+     * <p>
+     * 如2018-08-31这一天所在的Collection应该为：
+     * (31 -1) / 10 - 1 = 02
+     * 2018-08-30所在的Collection应该为：
+     * 30 / 10 - 1 = 02
+     * 2018-08-29所在的Collection应该为：
+     * 29 / 10 = 02
+     * 2018-08-20所在的Coll应该为：
+     * 20 / 10 -1 = 01
+     * 所以2018年8月会有3个Collection：
+     * yisou20180800：存储1号到10号共 10天 的数据
+     * yisou20180801：存储11号到20号共 10天 的数据
+     * yisou20180802：存储21号到31号共 11天 的数据
+     *
+     * @param identify 一般为Collection不划分的时候的命名
+     * @param date     日期
+     * @param period   一个Collection存储指定时间段内的数据
+     * @return Collection名称
+     */
+    public static String getSplittedCollection(String identify, Date date, int period) {
+        if (null == identify) {
+            logger.error("Solr的Collection项目标识为空");
+            return identify;
+        }
+        if (null == date) {
+            logger.warn("Solr获取Collection名称时日期为空");
+            return identify;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        //月份
+        int temp1 = calendar.get(Calendar.MONTH) + 1;
+        //月份如果是个位的话前面补零
+        String month = temp1 < 10 ? "0" + temp1 : "" + temp1;
+        //日
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        //31号按30号算，默认一个Collection存储30天的数据，否则的话会为31号单独划分一个Collection
+        day = day > 30 ? day - 1 : day;
+        //日除了存储周期
+        int temp2 = day / period;
+        //如果正好整除，如10号，20号，30号这一天算到前一个Collection里
+        temp2 = day % period == 0 ? temp2 - 1 : temp2;
+        //日标识是两位，不足的话前面补0
+        String count = temp2 < 10 ? "0" + temp2 : "" + temp2;
+        String collectionName = identify + year + month + count;
+        logger.info("日期 {} 应该存储的Collection为：{}", DateFormatUtils.DATE_TIME_FORMAT.format(date), collectionName);
+        return collectionName;
+    }
+
+    public static void main(String[] args) {
+        Date date = com.rainsoft.utils.DateUtils.stringToDate("2018-01-01 12:34:56", "yyyy-MM-dd HH:mm:ss");
+        System.out.println(getSplittedCollection("yisou", date, 10));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        System.out.println(" day  = " + calendar.get(Calendar.DAY_OF_MONTH));
+        System.out.println("month = " + calendar.get(Calendar.MONTH));
     }
 }

@@ -95,6 +95,6 @@ public class SparkUtils {
 
         Properties prop = getOracleConnectionProperties(username, passWord, driver, tableName);
 
-        JdbcUtils.saveTable(df, uri, tableName, prop);
+        // JdbcUtils.saveTable(df, uri, tableName, prop);
     }
 }

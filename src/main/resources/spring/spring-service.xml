@@ -5,14 +5,15 @@
                 http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <!-- 集群版配置 -->
-    <!--<bean id="solrClient" class="org.apache.solr.client.solrj.impl.CloudSolrClient">
+    <bean id="solrClient" class="org.apache.solr.client.solrj.impl.CloudSolrClient">
         <constructor-arg value="${zkHost}"/>
         <property name="zkClientTimeout" value="30000"/>
         <property name="zkConnectTimeout" value="50000"/>
         <property name="defaultCollection" value="${solr.collection}"/>
 
-    </bean>-->
+    </bean>
     <!-- 单机版配置 -->
+    <!--
     <bean id="solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
         <constructor-arg index="0" value="${solr.url}"/>
         <property name="parser">
@@ -21,4 +22,5 @@
         <property name="maxTotalConnections" value="1"/>
         <property name="connectionTimeout" value="1000"/>
     </bean>
+    -->
 </beans>
