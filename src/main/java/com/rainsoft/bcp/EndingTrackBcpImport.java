@@ -3,6 +3,8 @@ package com.rainsoft.bcp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * 云采
  * ending_track类型的Bcp数据导入到Solr、HBase
@@ -16,7 +18,7 @@ public class EndingTrackBcpImport extends BaseBcpImportHBaseSolr {
     //任务类型
     public static final String task = "ending_trace";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         while (true) {
             doTask(task);
         }

@@ -3,6 +3,7 @@ package com.rainsoft.bcp;
 import com.rainsoft.solr.*;
 import com.rainsoft.utils.ThreadUtils;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 /**
@@ -12,7 +13,8 @@ public class RunBcpImport {
     public static final String[] bigTasks = new String[]{"ftp", "im_chat", "http"};
     public static final String[] smallTasks = new String[]{"bbs", "email", "search", "weibo", "service", "vid", "real"};
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        BaseBcpImportHBaseSolr.init();
         while (true) {
             runBigTasks(bigTasks);
             runSmallTasks();
@@ -25,7 +27,7 @@ public class RunBcpImport {
      * 如果大任务都没有数据,休息5分钟
      * @param bigTasks
      */
-    public static void runBigTasks(String[] bigTasks) {
+    public static void runBigTasks(String[] bigTasks) throws IOException {
         //统计没有数据的任务
         int noDataTaskCount = 0;
         //执行任务
@@ -69,6 +71,4 @@ public class RunBcpImport {
             RealOracleDataExport.exportOracleByTime();
         }
     }
-
-
 }

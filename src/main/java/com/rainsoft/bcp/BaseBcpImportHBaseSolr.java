@@ -23,7 +23,12 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -35,7 +40,6 @@ public class BaseBcpImportHBaseSolr implements Serializable {
 
     public static final Logger logger = LoggerFactory.getLogger(BaseBcpImportHBaseSolr.class);
     private static final long serialVersionUID = -7320556147408518899L;
-
     //创建Spring Context
     protected static AbstractApplicationContext context = new ClassPathXmlApplicationContext("spring-module.xml");
     //创建Solr客户端
@@ -54,10 +58,13 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     private static Set<String> unsaveFields = FieldConstants.SOLR_FIELD_MAP.get("exclusion_fields");
 
     //SparkSession
-    protected static SparkSession spark = new SparkSession.Builder()
+    protected static SparkSession spark;
+
+    protected static void init() {
+        spark = new SparkSession.Builder()
             .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
-            .master("local")
             .getOrCreate();
+    }
 
     /**
      * 执行任务
@@ -72,7 +79,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * 5. 写入到Solr及HBase
      * 6. 删除BCP文件
      */
-    static String doTask(String task) {
+    static String doTask(String task) throws IOException {
         //第一步: 获取BCP文件列表
         File[] bcpFiles = getTaskBcpFiles(task);
 
@@ -124,7 +131,7 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      * @param task 任务类型
      * @return 文件列表
      */
-    private static File[] getTaskBcpFiles(String task) {
+    private static File[] getTaskBcpFiles(String task) throws IOException {
         String os = System.getProperty("os.name");
         File[] files;
         //适应在Windows上测试与Linux运行
@@ -227,13 +234,17 @@ public class BaseBcpImportHBaseSolr implements Serializable {
      *
      * @param task 任务类型
      */
-    private static void moveBcpfileToWorkDir(String shellMvTemplate, String task) {
+    private static void moveBcpfileToWorkDir(String shellMvTemplate, String task) throws IOException {
 
         String shellMv = shellMvTemplate.replace("${bcp_pool_dir}", bcpPoolDir)
                 .replace("${task}", task)
                 .replace("${operator_bcp_number}", operatorBcpNumber)
                 .replace("${bcp_file_path}", bcpFilePath);
 
+        Path path = Paths.get(bcpFilePath);
+        if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
+            Files.createDirectories(path);
+        }
         LinuxUtils.execShell(shellMv, task);
     }
 

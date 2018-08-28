@@ -3,6 +3,8 @@ package com.rainsoft.bcp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * search(搜索)类型的Bcp数据导入到Solr、HBase
  * Created by CaoWeiDong on 2018-01-31.
@@ -14,7 +16,7 @@ public class SearchBcpImport extends BaseBcpImportHBaseSolr {
     public static final String task = "search";
     private static final long serialVersionUID = 1225764361781766264L;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         while (true) {
             doTask(task);
         }

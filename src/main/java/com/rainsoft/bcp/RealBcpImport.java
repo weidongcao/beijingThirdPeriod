@@ -3,6 +3,8 @@ package com.rainsoft.bcp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * real(真实)类型的Bcp数据导入到Solr、HBase
  * Created by CaoWeiDong on 2018-01-31.
@@ -14,7 +16,7 @@ public class RealBcpImport extends BaseBcpImportHBaseSolr {
     public static final String task = "real";
     private static final long serialVersionUID = 1380428864427522099L;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         while (true) {
             doTask(task);
         }
