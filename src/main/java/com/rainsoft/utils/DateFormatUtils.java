@@ -16,7 +16,4 @@ public class DateFormatUtils extends org.apache.commons.lang3.time.DateFormatUti
 
     public static final DateFormat NO_SEPARATOR_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    public static void main(String[] args) {
-        System.out.println(ISO_DATE_FORMAT.format(new Date()));
-    }
 }

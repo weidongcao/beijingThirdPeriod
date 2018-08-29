@@ -54,8 +54,6 @@ public class MuliCollectionTest {
             wordsMultiset.add("dong", 2);
         }
         System.out.println("--------------------------------------------------|");
-        for (String key : wordsMultiset.elementSet()) {
-        }
     }
 
 }

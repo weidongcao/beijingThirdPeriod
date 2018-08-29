@@ -1,20 +1,18 @@
 package com.rainsoft.utils;
 
 import com.rainsoft.BigDataConstants;
-import com.rainsoft.conf.ConfigurationManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils;
-import org.apache.spark.sql.jdbc.JdbcDialect;
-import org.apache.spark.sql.jdbc.JdbcDialects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Spark常用工具类
@@ -72,29 +70,5 @@ public class SparkUtils {
         );
 
         return valuesRDD;
-    }
-
-    public static Properties getOracleConnectionProperties(String username, String passwd, String driver, String tablename) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Properties prop = new Properties();
-        prop.put("user", username);
-        prop.put("password", passwd);
-        prop.put("dbtable", tablename);
-        Class.forName(driver).newInstance();
-
-        return prop;
-    }
-
-    public static void writeIntoOracle(Dataset<Row> df, String tableName) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        String username = ConfigurationManager.getProperty("oracle.username");
-        String passWord = ConfigurationManager.getProperty("oracle.password");
-        String driver = ConfigurationManager.getProperty("oracle.driver");
-        String uri = ConfigurationManager.getProperty("oracle.url");
-
-        JdbcDialect jdbcDialect = new OracleJdbcDialects();
-        JdbcDialects.registerDialect(jdbcDialect);
-
-        Properties prop = getOracleConnectionProperties(username, passWord, driver, tableName);
-
-        // JdbcUtils.saveTable(df, uri, tableName, prop);
     }
 }
