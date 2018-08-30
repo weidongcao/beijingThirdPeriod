@@ -17,8 +17,9 @@ public class ImchatBcpImport extends BaseBcpImportHBaseSolr {
     private static final long serialVersionUID = -5719196910421498635L;
 
     public static void main(String[] args) throws IOException {
-        while (true) {
+        String os = System.getProperty("os.name");
+        do {
             doTask(task);
-        }
+        } while (os.toLowerCase().contains("windows") == false);
     }
 }

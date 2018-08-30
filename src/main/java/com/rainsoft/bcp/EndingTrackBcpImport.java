@@ -19,8 +19,9 @@ public class EndingTrackBcpImport extends BaseBcpImportHBaseSolr {
     public static final String task = "ending_trace";
 
     public static void main(String[] args) throws IOException {
-        while (true) {
+        String os = System.getProperty("os.name");
+        do {
             doTask(task);
-        }
+        } while (os.toLowerCase().contains("windows") == false);
     }
 }

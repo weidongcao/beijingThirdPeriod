@@ -21,6 +21,8 @@ public class ChannelDemo {
         WritableByteChannel destrination = output.getChannel();
         copyData(source, destrination);
         source.close();
+        input.close();
+        output.close();
         destrination.close();
         System.out.println("Copy Data finished...");
     }

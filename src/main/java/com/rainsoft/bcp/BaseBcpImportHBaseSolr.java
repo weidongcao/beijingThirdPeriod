@@ -60,10 +60,26 @@ public class BaseBcpImportHBaseSolr implements Serializable {
     //SparkSession
     protected static SparkSession spark;
 
+    /**
+     * 根据操作系统，初始化SparkSession
+     * 如果是在Windows下的话都是进行测试，采用local模式
+     * 如果是在Linux下的话一般都是集群模式，由执行脚本指定具体模式
+     */
     protected static void init() {
-        spark = new SparkSession.Builder()
-            .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
-            .getOrCreate();
+        String os = System.getProperty("os.name");
+        if (os.toLowerCase().contains("windows")) {
+            spark = new SparkSession.Builder()
+                    .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
+                    .master("local")
+                    .getOrCreate();
+        } else {
+            spark = new SparkSession.Builder()
+                    .appName(BaseBcpImportHBaseSolr.class.getSimpleName())
+                    .getOrCreate();
+        }
+    }
+    static {
+        init();
     }
 
     /**
@@ -241,7 +257,8 @@ public class BaseBcpImportHBaseSolr implements Serializable {
                 .replace("${operator_bcp_number}", operatorBcpNumber)
                 .replace("${bcp_file_path}", bcpFilePath);
 
-        Path path = Paths.get(bcpFilePath);
+        Path temp = Paths.get(bcpFilePath);
+        Path path = Paths.get(temp.toAbsolutePath().toString(), task);
         if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
             Files.createDirectories(path);
         }

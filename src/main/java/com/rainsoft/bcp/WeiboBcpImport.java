@@ -17,8 +17,9 @@ public class WeiboBcpImport extends BaseBcpImportHBaseSolr {
     private static final long serialVersionUID = 3342398057819847570L;
 
     public static void main(String[] args) throws IOException {
-        while (true) {
+        String os = System.getProperty("os.name");
+        do {
             doTask(task);
-        }
+        } while (os.toLowerCase().contains("windows") == false);
     }
 }

@@ -17,8 +17,9 @@ public class BbsBcpImport extends BaseBcpImportHBaseSolr {
     private static final long serialVersionUID = 8229595491228556444L;
 
     public static void main(String[] args) throws IOException {
-        while (true) {
+        String os = System.getProperty("os.name");
+        do {
             doTask(task);
-        }
+        } while (os.toLowerCase().contains("windows") == false);
     }
 }

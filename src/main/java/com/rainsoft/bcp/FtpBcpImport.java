@@ -17,8 +17,9 @@ public class FtpBcpImport extends BaseBcpImportHBaseSolr {
     private static final long serialVersionUID = 2166260684440343318L;
 
     public static void main(String[] args) throws IOException {
-        while (true) {
+        String os = System.getProperty("os.name");
+        do {
             doTask(task);
-        }
+        } while (os.toLowerCase().contains("windows") == false);
     }
 }
