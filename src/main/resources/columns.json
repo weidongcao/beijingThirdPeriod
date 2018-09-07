@@ -708,16 +708,27 @@
       "file_url"
     ],
     "date_type_fields": [
-      "capture_time",
-      "import_time",
+      "agen_lave_time",
       "birthday",
+      "capture_time",
+      "chat_time",
+      "end_time",
+      "first_capture_time",
       "first_logintime",
-      "last_logintime",
       "first_time",
-      "last_time"
+      "id_expiretime",
+      "import_time",
+      "install_time",
+      "last_capture_time",
+      "last_logintime",
+      "last_time",
+      "send_time",
+      "start_time",
+      "update_time"
     ],
     "mac_type_fields": [
       "ending_mac",
+      "equipment_mac",
       "src_mac",
       "ap_mac"
     ]

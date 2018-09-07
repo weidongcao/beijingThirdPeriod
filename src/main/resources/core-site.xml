@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>fs.defaultFS</name>
-    <value>hdfs://cm01.spark.com:8020</value>
+    <value>hdfs://node1.hadoop.com:8020</value>
   </property>
   <property>
     <name>fs.trash.interval</name>
@@ -25,6 +25,26 @@
   <property>
     <name>hadoop.rpc.protection</name>
     <value>authentication</value>
+  </property>
+  <property>
+    <name>hadoop.ssl.require.client.cert</name>
+    <value>false</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>hadoop.ssl.keystores.factory.class</name>
+    <value>org.apache.hadoop.security.ssl.FileBasedKeyStoresFactory</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>hadoop.ssl.server.conf</name>
+    <value>ssl-server.xml</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>hadoop.ssl.client.conf</name>
+    <value>ssl-client.xml</value>
+    <final>true</final>
   </property>
   <property>
     <name>hadoop.security.auth_to_local</name>
@@ -109,37 +129,5 @@
   <property>
     <name>hadoop.security.instrumentation.requires.admin</name>
     <value>false</value>
-  </property>
-  <property>
-    <name>net.topology.script.file.name</name>
-    <value>/etc/hadoop/conf.cloudera.yarn/topology.py</value>
-  </property>
-  <property>
-    <name>io.file.buffer.size</name>
-    <value>65536</value>
-  </property>
-  <property>
-    <name>hadoop.ssl.enabled</name>
-    <value>false</value>
-  </property>
-  <property>
-    <name>hadoop.ssl.require.client.cert</name>
-    <value>false</value>
-    <final>true</final>
-  </property>
-  <property>
-    <name>hadoop.ssl.keystores.factory.class</name>
-    <value>org.apache.hadoop.security.ssl.FileBasedKeyStoresFactory</value>
-    <final>true</final>
-  </property>
-  <property>
-    <name>hadoop.ssl.server.conf</name>
-    <value>ssl-server.xml</value>
-    <final>true</final>
-  </property>
-  <property>
-    <name>hadoop.ssl.client.conf</name>
-    <value>ssl-client.xml</value>
-    <final>true</final>
   </property>
 </configuration>

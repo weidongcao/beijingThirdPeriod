@@ -33,15 +33,15 @@
         <!-- Spark版本 -->
         <spark.version>2.1.2</spark.version>
         <!-- Hadoop版本 -->
-        <hadoop.version>2.6.0-cdh5.10.2</hadoop.version>
+        <hadoop.version>2.6.0-cdh5.6.1</hadoop.version>
         <!-- hive 版本 -->
-        <hive.version>1.1.0-cdh5.10.2</hive.version>
+        <hive.version>1.1.0-cdh5.6.1</hive.version>
         <!-- hbase 版本 -->
-        <hbase.version>1.2.0-cdh5.10.2</hbase.version>
+        <hbase.version>1.0.0-cdh5.6.1</hbase.version>
         <!-- spring 版本 -->
         <spring.version>4.3.10.RELEASE</spring.version>
         <!-- Zookeeper 版本 -->
-        <zookeeper.version>3.4.5-cdh5.10.2</zookeeper.version>
+        <zookeeper.version>3.4.5-cdh5.6.1</zookeeper.version>
     </properties>
 
     <!--
@@ -97,6 +97,16 @@
             <version>16.0</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.6.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.6.5</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
@@ -122,11 +132,7 @@
             <artifactId>solr-core</artifactId>
             <version>${solr.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.6.5</version>
-        </dependency>
+
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
