@@ -29,7 +29,7 @@
         <scala.binary.version>2.11</scala.binary.version>
 
         <!-- solr 版本 -->
-        <solr.version>6.1.0</solr.version>
+        <solr.version>8.2.0</solr.version>
         <!-- Spark版本 -->
         <spark.version>2.0.2</spark.version>
         <!-- Hadoop版本 -->
