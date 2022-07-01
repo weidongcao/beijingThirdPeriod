@@ -33,7 +33,7 @@
         <!-- Spark版本 -->
         <spark.version>2.0.2</spark.version>
         <!-- Hadoop版本 -->
-        <hadoop.version>2.6.0-cdh5.10.2</hadoop.version>
+        <hadoop.version>2.7.0</hadoop.version>
         <!-- hive 版本 -->
         <hive.version>1.1.0-cdh5.10.2</hive.version>
         <!-- hbase 版本 -->
